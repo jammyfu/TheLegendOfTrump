@@ -1,3 +1,4 @@
+import { landscapeColliders } from "./landscape";
 import { CAMPS, FIELD_CHESTS, FIELD_HERBS, FIELD_CRATES } from "./expedition";
 import { estateColliders } from "./estate";
 export type Zone = "grounds" | "office";
@@ -201,6 +202,7 @@ const circle = (
 ): Collider => ({ id, zone, x, z, radius, top, walkable });
 export const staticColliders: Collider[] = [
   ...estateColliders,
+  ...landscapeColliders,
   ...FIELD_CHESTS.map((p) => box(p.id, "grounds", p.x, p.z, 1.5, 1, 1.1)),
   ...CAMPS.flatMap((p) => [
     box(`tent-${p.id}`, "grounds", p.x - 3, p.z, 4, 4, 3.2),

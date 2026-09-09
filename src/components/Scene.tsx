@@ -396,7 +396,7 @@ function DoorMarker() {
 export function Scene() {
   return (
     <Canvas
-      frameloop={game.phase === "title" ? "demand" : "always"}
+      frameloop={game.phase === "title" ? "never" : "always"}
       shadows
       onCreated={({ scene, camera }) => {
         if (import.meta.env.DEV) {

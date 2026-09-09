@@ -15,7 +15,15 @@ export function AdventureSky() {
           depthWrite={false}
           toneMapped={false}
           vertexShader={`varying vec3 direction; void main(){direction=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`}
-          fragmentShader={`varying vec3 direction; void main(){vec3 d=normalize(direction);float h=pow(max(d.y,0.0),.55);vec3 c=mix(vec3(.76,.87,.91),vec3(.20,.49,.82),h);float sun=pow(max(dot(d,normalize(vec3(-.45,.60,-.65))),0.0),700.0);c+=vec3(1.0,.83,.52)*sun;gl_FragColor=vec4(c,1.0);}`}
+          fragmentShader={`varying vec3 direction;
+          float hash(float n){return fract(sin(n*127.1)*43758.5453);} void main(){vec3 d=normalize(direction);float h=pow(max(d.y,0.0),.55);vec3 c=mix(vec3(.76,.87,.91),vec3(.20,.49,.82),h);float sun=pow(max(dot(d,normalize(vec3(-.45,.60,-.65))),0.0),700.0);c+=vec3(1.0,.83,.52)*sun;
+          // Very distant, haze-softened low-rise skyline behind the modeled district.
+          float az=atan(d.z,d.x)/6.2831853+.5;
+          float cell=floor(az*180.0);float local=fract(az*180.0);
+          float roof=.012+.026*hash(cell);
+          roof+=step(.34,local)*step(local,.66)*.008*step(.72,hash(cell+31.0));
+          float silhouette=(1.0-smoothstep(roof,roof+.0015,d.y))*step(0.0,d.y)*step(local,.92);
+          c=mix(c,vec3(.56,.67,.70),silhouette*.62);gl_FragColor=vec4(c,1.0);}`}
         />
       </mesh>
       <mesh position={[0, -0.15, 0]} rotation={[-Math.PI / 2, 0, 0]}>

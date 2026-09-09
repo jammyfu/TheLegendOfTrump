@@ -1,3 +1,4 @@
+import { Landscape } from "./Landscape";
 import { Expedition } from "./Expedition";
 import { Estate } from "./Estate";
 import { OfficeScene } from "./OfficeScene";
@@ -211,6 +212,7 @@ export function Grounds() {
     <group>
       <Ground />
       <Estate />
+      <Landscape />
       <Expedition />
       <Fountain />
       {[-1, 1].flatMap((s) =>
