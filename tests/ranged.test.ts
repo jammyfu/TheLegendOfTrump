@@ -1,0 +1,194 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { Simulation } from "../src/game/simulation";
+const idle = { x: 0, z: 0, sprint: false };
+function tick(g: Simulation, n: number) {
+  for (let t = 0; t < n; t += 1 / 60) g.update(1 / 60, idle);
+}
+function setup() {
+  const g = new Simulation();
+  g.start();
+  g.x = 0;
+  g.z = 12;
+  g.bowUnlocked = true;
+  g.arrows = 16;
+  g.switchWeapon();
+  g.guards[1].hp = 0;
+  Object.assign(g.guards[0], {
+    x: 0,
+    z: 6,
+    originX: 0,
+    originZ: 6,
+    cooldown: 20,
+  });
+  g.lockedTarget = 0;
+  return g;
+}
+test("chests unlock bow once; weapon switch and fresh start reset inventory", () => {
+  const g = new Simulation();
+  g.start();
+  g.x = 17;
+  g.z = 7.7;
+  g.interact();
+  assert.equal(g.bowUnlocked, true);
+  assert.equal(g.arrows, 16);
+  g.interact();
+  assert.equal(g.arrows, 16);
+  g.switchWeapon();
+  assert.equal(g.weapon, "bow");
+  g.start();
+  assert.equal(g.weapon, "sword");
+  assert.equal(g.bowUnlocked, false);
+  assert.equal(g.arrows, 0);
+});
+test("drawn arrow travels, deals charged damage once and consumes ammo/stamina", () => {
+  const g = setup();
+  g.pressAttack();
+  tick(g, 0.9);
+  g.releaseAttack();
+  assert.equal(g.arrows, 15);
+  assert.equal(g.projectiles.length, 1);
+  assert.equal(g.guards[0].hp, 3);
+  tick(g, 0.35);
+  assert.equal(g.guards[0].hp, 1);
+  tick(g, 0.3);
+  assert.equal(g.guards[0].hp, 1);
+  assert.equal(g.projectiles.length, 0);
+});
+test("projectile sweep cannot tunnel through a thin wall or hit an enemy behind it", () => {
+  const g = setup();
+  g.zone = "office";
+  g.resetEncounter();
+  g.boss.reset();
+  g.boss.x = 0;
+  g.boss.z = -13;
+  g.boss.timer = 10;
+  g.x = 0;
+  g.z = -7;
+  g.lockedTarget = 100;
+  g.pressAttack();
+  tick(g, 0.9);
+  g.releaseAttack();
+  tick(g, 0.5);
+  assert.equal(g.boss.hp, 18);
+  assert.equal(g.projectiles.length, 0);
+});
+test("empty ammo, rapid release and canceled draw never create free shots", () => {
+  const g = setup();
+  g.arrows = 0;
+  g.pressAttack();
+  g.releaseAttack();
+  assert.equal(g.projectiles.length, 0);
+  g.arrows = 2;
+  g.pressAttack();
+  g.cancelCharge();
+  g.releaseAttack();
+  assert.equal(g.arrows, 2);
+  g.pressAttack();
+  g.releaseAttack();
+  g.pressAttack();
+  g.releaseAttack();
+  assert.equal(g.arrows, 1);
+  g.pressAttack();
+  g.pause();
+  g.releaseAttack();
+  assert.equal(g.arrows, 1);
+});
+test("lock survives mouse motion and switches to another living visible target", () => {
+  const g = setup();
+  g.guards[1].hp = 3;
+  Object.assign(g.guards[1], { x: 2, z: 7 });
+  g.look(500, 10);
+  assert.equal(g.lockedTarget, 0);
+  g.cycleTarget();
+  assert.equal(g.lockedTarget, 1);
+  g.guards[1].hp = 0;
+  tick(g, 0.05);
+  assert.equal(g.lockedTarget, 0);
+  g.guards[0].hp = 0;
+  tick(g, 0.05);
+  assert.equal(g.lockedTarget, null);
+});
+test("boss summons two telegraphed finite waves; checkpoint clears enemies and restores arrows", () => {
+  const g = setup();
+  g.zone = "office";
+  g.boss.reset();
+  g.resetEncounter();
+  g.boss.hp = 12;
+  g.boss.state = "chase";
+  g.x = 0;
+  g.z = 10;
+  tick(g, 0.05);
+  assert.equal(g.summonWaves, 1);
+  assert.ok(g.summonTime > 2);
+  assert.equal(g.minions.filter((x) => x.hp > 0).length, 0);
+  tick(g, 2.5);
+  assert.equal(g.minions.filter((x) => x.hp > 0).length, 2);
+  g.boss.hp = 6;
+  tick(g, 1);
+  assert.equal(g.summonWaves, 1);
+  g.arrows = 0;
+  g.phase = "lost";
+  g.retry();
+  assert.equal(g.arrows, 12);
+  assert.equal(g.summonWaves, 0);
+  assert.equal(g.minions.filter((x) => x.hp > 0).length, 0);
+  assert.equal(g.projectiles.length, 0);
+});
+test("summoned guards can be staggered by sword, drop supplies and vanish with boss defeat", () => {
+  const g = setup();
+  g.zone = "office";
+  g.boss.reset();
+  g.resetEncounter();
+  const guard = g.minions[0];
+  Object.assign(guard, { hp: 2, x: 0, z: 1 });
+  g.x = 0;
+  g.z = 3;
+  g.yaw = Math.PI;
+  g.weapon = "sword";
+  g.boss.x = 8;
+  g.boss.z = 0;
+  g.strike(true);
+  assert.equal(guard.hp, 0);
+  assert.equal(g.supplies.length, 1);
+  g.x = guard.x;
+  g.z = guard.z;
+  g.arrows = 1;
+  tick(g, 0.3);
+  assert.equal(g.arrows, 4);
+  g.minions[1].hp = 2;
+  g.boss.x = g.x;
+  g.boss.z = g.z - 1;
+  g.boss.hp = 1;
+  g.yaw = Math.PI;
+  g.strike();
+  assert.equal(g.boss.hp, 0);
+  assert.equal(g.minions[1].hp, 0);
+});
+test("second summon waits for cooldown and defeated guards, never exceeds two waves", () => {
+  const g = setup();
+  g.zone = "office";
+  g.boss.reset();
+  g.resetEncounter();
+  g.boss.hp = 6;
+  g.summonWaves = 1;
+  g.summonCooldown = 0.2;
+  g.boss.state = "recover";
+  g.boss.timer = 10;
+  g.x = 0;
+  g.z = 10;
+  g.minions[0].hp = 2;
+  tick(g, 0.5);
+  assert.equal(g.summonTime, 0);
+  g.minions[0].hp = 0;
+  tick(g, 0.05);
+  assert.equal(g.summonWaves, 2);
+  assert.ok(g.summonTime > 0);
+  tick(g, 2.5);
+  assert.equal(g.minions.filter((g) => g.hp > 0).length, 2);
+  g.minions.forEach((g) => (g.hp = 0));
+  g.summonCooldown = 0;
+  tick(g, 0.1);
+  assert.equal(g.summonTime, 0);
+  assert.equal(g.summonWaves, 2);
+});

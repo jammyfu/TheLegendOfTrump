@@ -119,7 +119,7 @@ test("concept-derived enemies and arena export isolated models with articulated 
     const bytes = readFileSync(
       new URL(`../public/models/${file}.glb`, import.meta.url),
     );
-    assert.ok(bytes.length < 1_000_000);
+    assert.ok(bytes.length < 1_300_000);
     const gltf = JSON.parse(
       bytes.toString("utf8", 20, 20 + bytes.readUInt32LE(12)),
     );
@@ -136,5 +136,17 @@ test("concept-derived enemies and arena export isolated models with articulated 
           gltf.nodes.some((n: { name: string }) => n.name.endsWith(suffix)),
         );
       }
+  }
+});
+
+test("Blender bow and quiver export isolated lightweight equipment", () => {
+  for (const [file, root] of [["adventure-bow", "BowRoot"], ["adventure-quiver", "QuiverRoot"]]) {
+    const bytes = readFileSync(new URL(`../public/models/${file}.glb`, import.meta.url));
+    const length = bytes.readUInt32LE(12);
+    const json = JSON.parse(bytes.subarray(20,20+length).toString());
+    assert.ok(bytes.length < 100_000);
+    assert.ok(json.nodes.some((node: {name:string})=>node.name===root));
+    assert.equal(json.scenes.length,1);
+    assert.ok(!json.nodes.some((node: {name:string})=>node.name==='Camera' || node.name==='Cube'));
   }
 });

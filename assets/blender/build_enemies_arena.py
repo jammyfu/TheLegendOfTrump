@@ -127,21 +127,57 @@ bx('Pen',.6,2.24,-4.65,.06,.04,.8,'gold')
 bx('Desk lamp base',2,2.25,-5,.6,.15,.5,'gold')
 cylinder('Lamp stem',(2,5,2.7),.07,.8,'gold',room)
 sphere('Desk lamp shade',(2,5,3.1),(.45,.3,.2),'lamp',room)
+# Architectural detailing is built at the original scale before the room expansion.
+for side in [-1,1]:
+ for z in [-6,-3,0,3,6]:
+  for h in [.65,3.25]:bx('Panel rail',side*8.62,h,z,.07,.06,2.4,'gold',0)
+  for dz in [-1.18,1.18]:bx('Panel stile',side*8.62,1.95,z+dz,.07,2.6,.05,'gold',0)
+ for z in [-3,3]:
+  bx('Portrait gold frame',side*8.64,5.7,z,.12,2.0,1.55,'gold')
+  bx('Portrait painted field',side*8.55,5.7,z,.03,1.76,1.31,'navy',0)
+  sphere('Portrait cameo',(side*8.50,-z,5.9),(.045,.31,.38),'ivory',room)
+  sphere('Portrait shoulders',(side*8.50,-z,5.3),(.045,.48,.30),'wood',room)
+ # Layered capitals and fluting on the columns.
+ for z in [-6.8,6.8]:
+  for h,r in [(6.85,.37),(7.05,.44),(7.22,.49),(.4,.36)]:cylinder('Column molding',(side*7.6,-z,h),r,.13,'gold',room)
+  for k in range(12):
+   a=k*math.tau/12;cylinder('Column flute',(side*7.6+math.cos(a)*.302,-z+math.sin(a)*.302,3.65),.018,6.2,'gold',room,vertices=5)
+ for h in [7.1,7.4,7.85]:bx('Layered upper molding',side*8.65,h,.4,.20,.10,17.0,'wood' if h==7.4 else 'gold')
+ # Indoor flags behind the desk, with individually modeled stripes.
+ x=side*3.65;z=-6.6
+ cylinder('Flag plinth',(x,-z,.14),.35,.28,'gold',room)
+ cylinder('Flag pole',(x,-z,2.3),.035,4.6,'gold',room)
+ sphere('Flag finial',(x,-z,4.7),(.11,.11,.17),'gold',room)
+ for k in range(13):
+  bx('Flag stripe',x+side*.42,4.35-k*.105,z,.84,.105,.04,'red' if k%2==0 else 'ivory',0)
+ bx('Flag canton',x+side*.23,4.05,z-.03,.45,.7,.035,'navy',0)
+ for j in range(3):
+  for k in range(4):sphere('Flag star',(x+side*(.08+k*.1),-z+.055,4.29-j*.19),(.025,.015,.025),'ivory',room)
+# A coffered ceiling remains above the normal combat camera.
+for x in [-6,-3,0,3,6]:bx('Ceiling crossbeam',x,9.7,0,.12,.2,17.5,'ivory')
+for z in [-6,-3,0,3,6]:bx('Ceiling crossbeam',0,9.7,z,18,.2,.12,'ivory')
+for side in [-1,1]:bx('Upper clerestory wall',side*9,8.85,.4,.5,1.7,17.6,'ivory')
+for z in [-8,8.8]:bx('Upper end wall',0,8.85,z,18,1.7,.4,'ivory')
+# Desktop details keep their human scale.
+for x in [-2.15,2.15]:
+ for h in [.35,.65,.95,1.25]:
+  bx('Desk drawer',x,h,-4.00,.82,.22,.07,'wood')
+  bx('Desk brass pull',x,h,-3.95,.23,.045,.05,'gold',0)
 bpy.ops.object.select_all(action='DESELECT')
 room_meshes=[o for o in room.children_recursive if o.type=='MESH']
 # Expand architecture and circulation space without enlarging furniture/people.
 for o in room_meshes:
  if o.name.startswith(('Presidential desk','Carved desk','Desk','Chair','Declaration','Pen','Lamp stem')):
-  o.location.y += 3.25
+  o.location.y += 5.25
  elif o.name.startswith(('Bookcase','Leather book')):
-  o.location.x += math.copysign(7.85*.65,o.location.x)
-  o.location.y += math.copysign(5*.65,o.location.y)
+  o.location.x += math.copysign(7.85*1.05,o.location.x)
+  o.location.y += math.copysign(5*1.05,o.location.y)
  elif o.name.startswith('Sofa'):
-  o.location.x += math.copysign(6*.65,o.location.x)
-  o.location.y -= .65
+  o.location.x += math.copysign(6*1.05,o.location.x)
+  o.location.y -= 1.05
  else:
-  o.location.x *= 1.65;o.location.y *= 1.65
-  o.scale.x *= 1.65;o.scale.y *= 1.65
+  o.location.x *= 2.05;o.location.y *= 2.05
+  o.scale.x *= 2.05;o.scale.y *= 2.05
  o.select_set(True)
 bpy.context.view_layer.objects.active=room_meshes[0];bpy.ops.object.join();room_meshes[0].name='OvalArenaGeometry'
 export(room,'oval-arena.glb')

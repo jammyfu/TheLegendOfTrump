@@ -1,3 +1,5 @@
+import { RangedCombat } from "./RangedCombat";
+import { rayFraction } from "../game/collision";
 import { EnemyModel } from "./EnemyModel";
 import { combatMusicHold } from "../game/combatMusic";
 import { CombatEffects } from "./CombatEffects";
@@ -34,6 +36,7 @@ const desired = new Vector3(),
 function Runtime() {
   const tension = useRef(0);
   const previousZone = useRef(game.zone);
+  const previousPhase = useRef(game.phase);
   const [zone, setZone] = useState(game.zone);
   const first = useRef(true);
   const boom = useRef(game.cameraDistance);
@@ -70,6 +73,9 @@ function Runtime() {
       setZone(game.zone);
       first.current = true;
     }
+    if (previousPhase.current !== game.phase && game.phase === "playing")
+      first.current = true;
+    previousPhase.current = game.phase;
     if (game.phase === "title") {
       desired.set(16, 9.5, 29);
       target.set(-1, 3, -5);
@@ -95,8 +101,8 @@ function Runtime() {
       game.zone === "office" &&
       (game.phase === "dialogue" || game.phase === "won")
     ) {
-      desired.set(0, 3.2, -1.45);
-      target.set(0, 2.05, -8.85);
+      desired.set(0, 3.2, -3.45);
+      target.set(0, 2.05, -10.85);
     } else {
       const indoors = game.zone === "office";
       const frame = indoorFrame(
@@ -104,26 +110,44 @@ function Runtime() {
         game.cameraYaw,
         game.cameraPitch,
         game.cameraDistance,
-        game.lockedTarget === 100 && game.boss.hp > 0 ? game.boss : undefined,
+        game.lockTarget,
       );
       target.set(game.x, game.y + (indoors ? 2.3 : 1.9), game.z);
       const obstacles = cameraObstacles(game.colliders);
-      if (indoors) {
+      if (indoors || game.lockTarget) {
         desired.set(frame.target.x, frame.target.y, frame.target.z);
         // Focus must stay on the player's side of furniture and walls, too.
-        target.lerp(desired, cameraFraction(obstacles, target, desired));
-        focus.current.lerp(
-          target,
-          first.current ? 1 : 1 - Math.exp(-delta * 10),
+        target.lerp(
+          desired,
+          cameraFraction(
+            game.colliders.filter((c) => !c.id.startsWith("guard-")),
+            target,
+            desired,
+          ),
         );
-        target.copy(focus.current);
+      }
+      // Keep the same smoothed focus through lock acquisition, target changes
+      // and release, so losing a target never snaps back to the player.
+      focus.current.lerp(target, first.current ? 1 : 1 - Math.exp(-delta * 7));
+      target.copy(focus.current);
+      if (game.weapon === "bow" || game.lockTarget) {
+        target.x += Math.cos(game.cameraYaw) * 0.95;
+        target.z -= Math.sin(game.cameraYaw) * 0.95;
       }
       const safe = cameraBoom(
         obstacles,
         target,
         game.cameraYaw,
-        indoors ? frame.pitch : game.cameraPitch,
-        indoors ? frame.distance : game.cameraDistance,
+        game.weapon === "bow" && !game.lockTarget
+          ? game.cameraPitch
+          : indoors
+            ? frame.pitch
+            : game.cameraPitch,
+        game.aiming && !game.lockTarget
+          ? 6.5
+          : indoors
+            ? frame.distance
+            : game.cameraDistance,
       );
       boom.current = first.current
         ? safe.distance
@@ -166,6 +190,26 @@ function Runtime() {
       }
     }
     camera.lookAt(target);
+    const aimDirection = new Vector3();
+    camera.getWorldDirection(aimDirection);
+    const end = camera.position.clone().addScaledVector(aimDirection, 55);
+    // Cast from the hero's depth so a faded wall behind the hero cannot pull
+    // the aim point backward when the camera moves outside the room shell.
+    const heroDepth = new Vector3(game.x, game.y + 1.65, game.z)
+      .sub(camera.position)
+      .dot(aimDirection);
+    const aimStart = camera.position
+      .clone()
+      .addScaledVector(aimDirection, Math.max(0, heroDepth));
+    let fraction = 1;
+    for (const c of game.colliders) {
+      const t = rayFraction(c, aimStart, end);
+      if (t !== null) fraction = Math.min(fraction, t);
+    }
+    const aim = aimStart.lerp(end, fraction);
+    game.aimPoint.x = aim.x;
+    game.aimPoint.y = aim.y;
+    game.aimPoint.z = aim.z;
     if (
       game.phase === "playing" &&
       game.cameraSettings.shake &&
@@ -213,7 +257,14 @@ function Runtime() {
       )}
       <Character />
       <CombatEffects />
-      {zone === "office" && <EnemyModel id={100} boss />}
+      <RangedCombat />
+      {zone === "office" && (
+        <>
+          <EnemyModel id={100} boss />
+          <EnemyModel id={101} />
+          <EnemyModel id={102} />
+        </>
+      )}
       {zone === "grounds" && (
         <>
           <Entities />
@@ -319,7 +370,7 @@ function DoorMarker() {
       ref.current.position.set(
         0,
         3.8 + Math.sin(clock.elapsedTime * 2) * 0.15,
-        game.zone === "office" ? -7.95 : -13.7,
+        game.zone === "office" ? -9.95 : -13.7,
       );
       ref.current.rotation.y = clock.elapsedTime;
     }

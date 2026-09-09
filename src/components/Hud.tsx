@@ -61,7 +61,7 @@ export function Minimap() {
           </>
         )}
         <g
-          transform={`translate(${80 + game.x * (office ? 4.24 : 2.6)} ${office ? 85 + game.z * 4.24 : 88 + game.z * 2.8}) rotate(${(-game.yaw * 180) / Math.PI + 180})`}
+          transform={`translate(${80 + game.x * (office ? 3.3 : 2.6)} ${office ? 85 + game.z * 3.3 : 88 + game.z * 2.8}) rotate(${(-game.yaw * 180) / Math.PI + 180})`}
         >
           <circle r="6" fill="#e9d298" opacity=".2" />
           <path
@@ -84,6 +84,48 @@ export function Hud() {
   );
   return (
     <>
+      <div
+        id="lock-reticle"
+        className="target-reticle"
+        hidden
+        aria-label="锁定准星"
+      >
+        <i />
+        <span>
+          {game.lockTarget?.id === 100 ? "铁甲统领" : "卫兵"} ·{" "}
+          {game.lockTarget?.hp ?? 0}
+        </span>
+      </div>
+      {game.weapon === "bow" && !game.lockTarget && (
+        <div className="bow-crosshair" aria-label="弓箭准星">
+          ＋
+        </div>
+      )}
+      <div className="weapon-hud">
+        <button aria-label="切换武器" onClick={() => game.switchWeapon()}>
+          {game.weapon === "bow" ? "➶ 冒险弓" : "⚔ 剑盾"} <kbd>X</kbd>
+        </button>
+        <span>
+          {game.bowUnlocked
+            ? `箭矢 ${game.arrows} / 30`
+            : "东侧宝箱 · 获取弓箭"}
+        </span>
+        {game.weapon === "bow" && (
+          <>
+            <meter
+              aria-label="拉弓力度"
+              min={0}
+              max={0.85}
+              value={game.bowDraw}
+            />
+            <small>
+              {game.bowDraw >= 0.85
+                ? "满弓 · 松开射击"
+                : "按住攻击拉弓 · 松开射击"}
+            </small>
+          </>
+        )}
+      </div>
       <div className="vital-hud">
         <div className="hearts" aria-label={t(`生命值 ${game.hp} / 3`)}>
           {[1, 2, 3].map((n) => (
@@ -91,7 +133,12 @@ export function Hud() {
           ))}
         </div>
         <div className="stamina">
-          <meter min="0" max="100" value={game.stamina} aria-label={t("体力")} />
+          <meter
+            min="0"
+            max="100"
+            value={game.stamina}
+            aria-label={t("体力")}
+          />
           <span>
             {game.guarding
               ? t("防御中")
@@ -148,7 +195,8 @@ export function Hud() {
       {game.zone === "office" && game.boss.active && game.boss.hp > 0 && (
         <div className="boss-hud" aria-label={t("Boss 战")}>
           <span>
-            {t("铁甲统领")}{game.boss.enraged ? t("· 过载阶段") : t("· 椭圆厅守护者")}
+            {t("铁甲统领")}
+            {game.boss.enraged ? t("· 过载阶段") : t("· 椭圆厅守护者")}
           </span>
           <meter
             aria-label={t("Boss 生命值")}
@@ -157,15 +205,17 @@ export function Hud() {
             value={game.boss.hp}
           />
           <small>
-            {game.boss.state === "windup"
-              ? game.boss.move === "sweep"
-                ? t("金色横扫 · 举盾格挡")
-                : game.boss.move === "slam"
-                  ? t("重锤下砸 · 闪避离开红圈")
-                  : t("冲击波 · 跳跃躲避")
-              : game.boss.state === "recover"
-                ? t("收招破绽 · 进攻！")
-                : t("Q 锁定 · 留意地面预警")}
+            {game.summonTime > 0
+              ? `召唤援军 · ${game.summonTime.toFixed(1)} 秒 · 可趁机攻击`
+              : game.boss.state === "windup"
+                ? game.boss.move === "sweep"
+                  ? t("金色横扫 · 举盾格挡")
+                  : game.boss.move === "slam"
+                    ? t("重锤下砸 · 闪避离开红圈")
+                    : t("冲击波 · 跳跃躲避")
+                : game.boss.state === "recover"
+                  ? t("收招破绽 · 进攻！")
+                  : t("Q 锁定 · 留意地面预警")}
           </small>
         </div>
       )}
@@ -174,12 +224,24 @@ export function Hud() {
         <strong>{String(game.gems).padStart(2, "0")}</strong>
       </div>
       <div className="adventure-menu">
-        <button aria-label={t("锁定目标")} aria-pressed={game.lockedTarget !== null} onClick={() => game.toggleLock()}>{t("◎ 锁定")}</button>
+        <button
+          aria-label={t("锁定目标")}
+          aria-pressed={game.lockedTarget !== null}
+          onClick={() => game.toggleLock()}
+        >
+          {t("◎ 锁定")}
+        </button>
+        {game.lockedTarget !== null && (
+          <button aria-label="切换目标" onClick={() => game.cycleTarget()}>
+            ⇥ 换目标
+          </button>
+        )}
         <button className="mouse-look" onClick={requestMouseLook}>
           ⌖ {document.pointerLockElement ? t("鼠标已锁定") : t("启用鼠标视角")}
         </button>
         <button aria-label={t("切换地图")} onClick={() => setMapOpen(!mapOpen)}>
-          {t("地图")}</button>
+          {t("地图")}
+        </button>
         <button
           aria-label={t("暂停游戏")}
           onClick={() => {
@@ -215,13 +277,13 @@ export function Hud() {
         </button>
       )}
       {game.lockedTarget !== null && (
-        <div className="lock-label">{t("◆ 目标锁定 · Q 解除")}</div>
+        <div className="lock-label">{t("◆ 目标锁定 · Tab 切换 · Q 解除")}</div>
       )}
       <div className="adventure-controls">
         <span>{t("WASD 移动")}</span>
         <span>{t("鼠标 视角")}</span>
-        <span>{t("左键 / J 攻击 · 长按蓄力")}</span>
-        <span>{t("右键 / F 防御")}</span>
+        <span>{t("左键 / J 攻击 · 长按蓄力 · X 切换武器")}</span>
+        <span>{t("右键 / F 防御 / 精瞄")}</span>
         <span>{t("Space 跳跃")}</span>
         <span>{t("Shift 冲刺")}</span>
         <span>{t("Ctrl / K 翻滚")}</span>
@@ -297,7 +359,7 @@ function TouchControls() {
         <div className="adventure-buttons">
           <button
             className="attack-button"
-            aria-label={t("挥剑")}
+            aria-label={game.weapon === "bow" ? "射箭" : t("挥剑")}
             onPointerDown={(e) => {
               e.currentTarget.setPointerCapture(e.pointerId);
               game.pressAttack();
@@ -306,9 +368,15 @@ function TouchControls() {
             onPointerCancel={() => game.cancelCharge()}
             onLostPointerCapture={() => game.cancelCharge()}
           >
-            ⚔<small>{t("攻击·蓄力")}</small>
+            {game.weapon === "bow" ? "➶" : "⚔"}
+            <small>
+              {game.weapon === "bow" ? "拉弓·射箭" : t("攻击·蓄力")}
+            </small>
           </button>
-          <HoldButton action="guard" label={t("防御")} />
+          <HoldButton
+            action="guard"
+            label={game.weapon === "bow" ? "精瞄" : t("防御")}
+          />
           <button
             className="jump-button"
             aria-label={t("跳跃")}
@@ -323,8 +391,6 @@ function TouchControls() {
           >
             ↝<small>{t("翻滚")}</small>
           </button>
-
-
         </div>
       </div>
     </>

@@ -51,6 +51,7 @@ export function bindInput() {
       return;
     if (
       [
+        "Tab",
         "Space",
         "ArrowUp",
         "ArrowDown",
@@ -83,6 +84,8 @@ export function bindInput() {
     if (e.code === "KeyJ") game.pressAttack();
     if (["ControlLeft", "ControlRight", "KeyK"].includes(e.code))
       game.dodge(getInput());
+    if (e.code === "KeyX") game.switchWeapon();
+    if (e.code === "Tab") game.cycleTarget();
     if (e.code === "KeyQ") game.toggleLock();
     if (e.code === "KeyR") {
       game.cameraYaw = game.yaw - Math.PI;
@@ -106,14 +109,21 @@ export function bindInput() {
       game.pressAttack();
       if (!document.pointerLockElement) requestMouseLook();
     }
-    if (e.button === 2) { e.preventDefault(); mouse.guard = true; }
+    if (e.button === 2) {
+      e.preventDefault();
+      mouse.guard = true;
+    }
   };
   const mouseUp = (e: MouseEvent) => {
     if (e.button === 0) game.releaseAttack();
     if (e.button === 2) mouse.guard = false;
   };
   const mouseMove = (e: MouseEvent) => {
-    if (game.phase === "playing" && (document.pointerLockElement || e.target instanceof HTMLCanvasElement)) mouse.guard = !!(e.buttons & 2);
+    if (
+      game.phase === "playing" &&
+      (document.pointerLockElement || e.target instanceof HTMLCanvasElement)
+    )
+      mouse.guard = !!(e.buttons & 2);
     if (
       game.phase === "playing" &&
       (document.pointerLockElement ||
@@ -128,7 +138,12 @@ export function bindInput() {
     }
   };
   const context = (e: MouseEvent) => {
-    if (document.pointerLockElement || e.target instanceof HTMLCanvasElement || held.guard) e.preventDefault();
+    if (
+      document.pointerLockElement ||
+      e.target instanceof HTMLCanvasElement ||
+      held.guard
+    )
+      e.preventDefault();
   };
   const lock = () => {
     if (!document.pointerLockElement) {

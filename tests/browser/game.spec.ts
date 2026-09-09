@@ -84,14 +84,15 @@ test("desktop controls, back equipment, jump, block, attack and mouse camera", a
   await page.getByRole("button", { name: "继续冒险" }).click();
   await page.evaluate(() => {
     window.__game!.zone = "office";
-    window.__game!.x = 13.7;
+    window.__game!.x = 17.0;
     window.__game!.z = 0;
     window.__game!.cameraYaw = Math.PI / 2;
   });
   await page.waitForTimeout(800);
-  expect(await page.evaluate(() => window.__camera!.position.x)).toBeLessThan(
-    14.35,
-  );
+  expect(await page.evaluate(() => {
+    const g=window.__game!,c=window.__camera!;
+    return g.blocked(18.45,0) && Math.hypot(c.position.x-g.x,c.position.z-g.z)>5;
+  })).toBeTruthy();
   expect(errors).toEqual([]);
 });
 test("interactive props, occlusion, secret chest and complete adventure", async ({
@@ -543,6 +544,7 @@ test("oval arena boss telegraphs, blocks, enrages and unlocks the desk after def
   await page.evaluate(() => {
     const g = window.__game!;
     g.gems = 8;
+    g.summonWaves = 2;
     g.x = 0;
     g.z = -10.7;
   });
@@ -550,7 +552,7 @@ test("oval arena boss telegraphs, blocks, enrages and unlocks the desk after def
   await expect(page.getByLabel("Boss 战", { exact: true })).toBeVisible();
   await expect
     .poll(() =>
-      page.evaluate(() => !!window.__scene?.getObjectByName("OvalArenaRoot")),
+      page.evaluate(() => !!window.__scene?.getObjectByName("OfficeFurnishing")),
     )
     .toBeTruthy();
   await page.evaluate(() => {
@@ -559,6 +561,7 @@ test("oval arena boss telegraphs, blocks, enrages and unlocks the desk after def
     g.z = 2.5;
     g.yaw = Math.PI;
     g.cameraYaw = 0.35;
+    g.summonWaves = 2; // Summons have their own end-to-end test.
     g.boss.timer = 0;
   });
   await page.keyboard.down("KeyF");
@@ -634,7 +637,7 @@ test("oval arena boss telegraphs, blocks, enrages and unlocks the desk after def
   await page.evaluate(() => {
     const g = window.__game!;
     g.x = 0;
-    g.z = -5.25;
+    g.z = -7.25;
   });
   await page.keyboard.press("KeyE");
   await expect(

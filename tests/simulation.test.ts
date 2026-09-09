@@ -216,7 +216,7 @@ test("door unlock and desk interaction still complete the adventure; restart res
   assert.equal(g.zone, "office");
   g.boss.hp = 0; // Boss combat has dedicated coverage.
   g.x = 0;
-  g.z = -5.25;
+  g.z = -7.25;
   g.interact();
   assert.equal(g.phase, "dialogue");
   g.interact();

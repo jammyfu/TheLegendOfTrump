@@ -53,9 +53,20 @@ export function Asset({
   );
 }
 export function InteractiveProps() {
+  const bowSource = useLoader(
+    GLTFLoader,
+    import.meta.env.BASE_URL + "models/adventure-bow.glb",
+  );
+  const treasure = useMemo(() => bowSource.scene.clone(true), [bowSource]);
+  const reward = useRef<Group>(null);
   const gate = useRef<Group>(null);
   const marker = useRef<Group>(null);
   useFrame((_, dt) => {
+    if (reward.current) {
+      reward.current.visible = game.opened.has("chest-east");
+      reward.current.position.y = 1.25 + Math.sin(game.elapsed * 2) * 0.08;
+      reward.current.rotation.y = game.elapsed * 0.4;
+    }
     if (gate.current)
       gate.current.position.y +=
         ((game.gateOpen ? -2.8 : 0) - gate.current.position.y) *
@@ -68,6 +79,9 @@ export function InteractiveProps() {
   });
   return (
     <>
+      <group ref={reward} position={[17, 1.25, 6]} scale={0.65} visible={false}>
+        <primitive object={treasure} />
+      </group>
       {interactions
         .filter((i) => ["chest", "lever", "herb"].includes(i.kind))
         .map((i) => (

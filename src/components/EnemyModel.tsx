@@ -60,19 +60,22 @@ export function EnemyModel({
   );
   useFrame(() => {
     if (!ref.current) return;
-    const g = boss ? game.boss : game.guards[id];
+    const guard = game.activeGuards.find((g) => g.id === id);
+    const g = boss ? game.boss : guard;
+    if (!g) {
+      ref.current.visible = false;
+      return;
+    }
     const alive = g.hp > 0;
-    const stunned = boss ? game.boss.stagger : game.guards[id].stun;
-    const flash = boss ? game.boss.flash : game.guards[id].hitFlash;
-    const windup = boss
-      ? game.boss.state === "windup"
-      : game.guards[id].windup > 0;
+    const stunned = boss ? game.boss.stagger : guard!.stun;
+    const flash = boss ? game.boss.flash : guard!.hitFlash;
+    const windup = boss ? game.boss.state === "windup" : guard!.windup > 0;
     ref.current.visible = game.phase !== "intro" && (alive || g.defeatTime > 0);
     ref.current.position.set(g.x, 0, g.z);
     const recoil = boss
       ? Math.min(1, stunned / 0.36)
-      : game.guards[id].stunDuration > 0
-        ? stunned / game.guards[id].stunDuration
+      : guard!.stunDuration > 0
+        ? stunned / guard!.stunDuration
         : 0;
     ref.current.rotation.set(
       -Math.sin(recoil * Math.PI * 0.7) * 0.4,
@@ -95,6 +98,10 @@ export function EnemyModel({
     joints.RightElbow.rotation.x = windup ? -0.3 : 0;
     joints.LeftArm.rotation.x = -0.4;
     joints.LeftElbow.rotation.x = -0.35;
+    if (boss && game.summonTime > 0) {
+      joints.LeftArm.rotation.x = -2.4;
+      joints.RightArm.rotation.x = -2.4;
+    }
     // Wind-up carries the weapon upright above the hand. Recovery begins with
     // the actual sweep/downstroke, then settles back into the ready stance.
     let weaponPitch = 0;

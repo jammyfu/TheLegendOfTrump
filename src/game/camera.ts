@@ -49,7 +49,9 @@ export function responsiveFov(vertical: number, aspect: number) {
 }
 export function cameraObstacles(colliders: Collider[]) {
   // Enemies must not push the view into the player during close combat.
-  return colliders.filter((c) => !c.id.startsWith("guard-"));
+  // The indoor shell fades visually; its physical colliders still stop actors.
+  return colliders.filter((c) => !c.id.startsWith("guard-") &&
+    !(c.zone === "office" && /^office-(back|front|west|east)$/.test(c.id)));
 }
 export function cameraBoom(
   colliders: Collider[],

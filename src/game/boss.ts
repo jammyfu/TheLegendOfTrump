@@ -50,8 +50,8 @@ export class Boss {
     this.defeatTime = Math.max(0, this.defeatTime - dt);
     if (!this.active || this.hp <= 0) return null;
     if (this.wave >= 0) {
-      this.wave += dt * 5;
-      if (this.wave > 11) this.wave = -1;
+      this.wave += dt * 7;
+      if (this.wave > 36) this.wave = -1;
     }
     if (this.stagger > 0) {
       this.stagger = Math.max(0, this.stagger - dt);
@@ -81,6 +81,13 @@ export class Boss {
       dz = player.z - this.z,
       d = Math.hypot(dx, dz);
     if (d > 0.01) this.yaw = Math.atan2(dx, dz);
+    if (!this.timer && d > 7) {
+      this.move = "wave";
+      this.state = "windup";
+      this.timer = 1.4;
+      this.sequence++;
+      return null;
+    }
     if (!this.timer && (d < 3.5 || this.sequence % 3 === 2)) {
       this.move = (["sweep", "slam", "wave"] as const)[this.sequence++ % 3];
       this.state = "windup";

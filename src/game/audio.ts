@@ -108,6 +108,7 @@ export function playSound(event: SoundEvent) {
     return;
   }
   const notes: Partial<Record<SoundEvent, number[]>> = {
+    arrow: [420, 160],
     gem: [880, 1320],
     charge: [660, 990, 1320],
     door: [330, 440, 660],

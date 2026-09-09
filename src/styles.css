@@ -1783,3 +1783,23 @@ kbd {
   .adventure-buttons .jump-button { right: 59px; bottom: 0; }
   .adventure-buttons .dodge-button { left: 0; top: 62px; }
 }
+
+.target-reticle { position:fixed; left:0; top:0; width:48px; height:48px; pointer-events:none; z-index:15; color:#fff3ac; filter:drop-shadow(0 2px 3px #172c35); }
+.target-reticle[hidden] {display:none;}
+.target-reticle i {display:block; width:100%; height:100%; border:2px solid #fff3ac; border-radius:50%; outline:1px solid #152e39; outline-offset:4px; }
+.target-reticle i:after {content:'◆'; position:absolute; top:-18px; left:18px; font-size:12px;}
+.target-reticle span {position:absolute; top:62px; left:50%; transform:translateX(-50%); white-space:nowrap; font-size:12px; background:#152e39c9; padding:4px 8px; border-radius:4px;}
+.bow-crosshair {position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); color:#e5ffef; font-size:32px; text-shadow:0 1px 3px #123; pointer-events:none;z-index:14;}
+.weapon-hud {position:fixed; left:30px; top:125px; display:grid; gap:5px; z-index:20; color:#eee5c8; font-size:12px;}
+.weapon-hud button {color:#fff0ba; border:1px solid #b7a06b88; background:#12252edb; border-radius:8px; padding:9px 12px; font:inherit; cursor:pointer;}
+.weapon-hud meter {width:150px;height:10px;}
+.weapon-hud small {font-size:10px;}
+@media(pointer:coarse){.weapon-hud{left:18px;top:105px;font-size:11px;max-width:150px}.weapon-hud button{padding:8px}.weapon-hud small{max-width:125px}.target-reticle{width:38px;height:38px}.target-reticle span{top:48px}.adventure-menu{gap:4px}.adventure-menu button{padding:7px 8px}}
+.lock-label {display:none;}
+@media(pointer:coarse){
+  .weapon-hud {top:auto;bottom:228px;left:18px;}
+  .weapon-hud button{min-height:40px;}
+  .weapon-hud span,.weapon-hud small{text-shadow:0 1px 3px #142d32;}
+  .toast{bottom:340px;max-width:80%;}
+}
+@media(max-height:520px) and (pointer:coarse){.weapon-hud{bottom:160px;left:18px}.weapon-hud small{display:none}.toast{bottom:210px}.boss-hud{top:74px;width:45vw}}

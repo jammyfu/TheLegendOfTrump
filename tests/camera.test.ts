@@ -83,8 +83,8 @@ test("expanded indoor arena keeps a full camera boom around the central fight", 
     assert.ok(safe.distance > 10, `view compressed at yaw ${yaw}`);
   }
   assert.equal(game.blocked(7, 0), false);
-  assert.equal(game.blocked(14.8, 0), true);
-  assert.equal(game.blocked(14.8, 13.8), true);
+  assert.equal(game.blocked(18.4, 0), true);
+  assert.equal(game.blocked(18.4, 17.5), true);
   const frame = indoorFrame(game, 0, -2, 9.5, { x: 0, z: -8 });
   assert.equal(frame.target.z, -2.8);
   assert.equal(frame.pitch, 0.18);

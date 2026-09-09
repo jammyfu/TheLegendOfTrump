@@ -1,7 +1,15 @@
 import { introPose } from "../game/intro";
 import { useMemo, useRef } from "react";
 import { useFrame, useLoader } from "@react-three/fiber";
-import { Group, Mesh, Quaternion, Vector3 } from "three";
+import {
+  BufferGeometry,
+  Line,
+  LineBasicMaterial,
+  Group,
+  Mesh,
+  Quaternion,
+  Vector3,
+} from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import {
   ATTACKS,
@@ -12,6 +20,16 @@ import {
 } from "../game/combat";
 import { game } from "../game/simulation";
 const UP = new Vector3(0, 1, 0);
+function cloneGear(source: Group) {
+  const clone = source.clone(true);
+  clone.traverse((node) => {
+    if (node instanceof Mesh)
+      node.material = Array.isArray(node.material)
+        ? node.material.map((m) => m.clone())
+        : node.material.clone();
+  });
+  return clone;
+}
 const MODEL_URL = import.meta.env.BASE_URL + "models/trump-n64.glb";
 export function Character() {
   const root = useRef<Group>(null);
@@ -28,12 +46,45 @@ export function Character() {
     GLTFLoader,
     import.meta.env.BASE_URL + "models/hero-shield.glb",
   );
+  const bowSource = useLoader(
+    GLTFLoader,
+    import.meta.env.BASE_URL + "models/adventure-bow.glb",
+  );
+  const quiverSource = useLoader(
+    GLTFLoader,
+    import.meta.env.BASE_URL + "models/adventure-quiver.glb",
+  );
+  const bowString = useMemo(
+    () =>
+      new Line(
+        new BufferGeometry().setFromPoints([
+          new Vector3(0, -0.84, -0.12),
+          new Vector3(0, 0, -0.12),
+          new Vector3(0, 0.84, -0.12),
+        ]),
+        new LineBasicMaterial({ color: "#e4e4c3" }),
+      ),
+    [],
+  );
+  const nockedArrow = useMemo(
+    () =>
+      new Line(
+        new BufferGeometry().setFromPoints([
+          new Vector3(),
+          new Vector3(0, 0, 0.8),
+        ]),
+        new LineBasicMaterial({ color: "#e0c493" }),
+      ),
+    [],
+  );
   const gear = useMemo(
     () => ({
-      sword: swordSource.scene.clone(true),
-      shield: shieldSource.scene.clone(true),
+      bow: cloneGear(bowSource.scene),
+      quiver: cloneGear(quiverSource.scene),
+      sword: cloneGear(swordSource.scene),
+      shield: cloneGear(shieldSource.scene),
     }),
-    [swordSource, shieldSource],
+    [swordSource, shieldSource, bowSource, quiverSource],
   );
   const gltf = useLoader(GLTFLoader, MODEL_URL);
   const model = useMemo(() => {
@@ -93,7 +144,9 @@ export function Character() {
     root.current.rotation.y =
       game.yaw + (spinning ? Math.PI * 2 * spinProgress : 0);
     root.current.visible =
-      game.dodgeTime > 0 || game.invincible <= 0 || Math.floor(game.invincible * 12) % 2 === 0;
+      game.dodgeTime > 0 ||
+      game.invincible <= 0 ||
+      Math.floor(game.invincible * 12) % 2 === 0;
     if (arrival) {
       root.current.position.set(...arrival.hero);
       root.current.visible = arrival.visible;
@@ -111,11 +164,23 @@ export function Character() {
       camera.position.y - game.y - 1.9,
       camera.position.z - game.z,
     );
-    const opacity =
+    let opacity =
       seated || game.phase === "intro"
         ? 1
         : Math.max(0, Math.min(1, (distance - 0.8) / 1.8));
-    for (const object of [model, gear.sword, gear.shield])
+    if (
+      game.aiming &&
+      game.lockTarget &&
+      Math.hypot(game.lockTarget.x - game.x, game.lockTarget.z - game.z) < 3.4
+    )
+      opacity *= 0.45;
+    for (const object of [
+      model,
+      gear.sword,
+      gear.shield,
+      gear.bow,
+      gear.quiver,
+    ])
       object.traverse((node) => {
         if (node instanceof Mesh)
           for (const material of Array.isArray(node.material)
@@ -141,7 +206,8 @@ export function Character() {
         game.comboWindow > 0 ||
         game.chargeTime > 0 ||
         spinning) &&
-      !seated;
+      !seated &&
+      game.weapon === "sword";
     const blocking = game.guarding && !seated;
     if (drawn) {
       const pose = attackPose(
@@ -221,6 +287,47 @@ export function Character() {
       parts.leftElbow.rotation.x = -0.7;
       parts.leftArm.rotation.z = 0.1;
     } else parts.leftArm.rotation.z = 0;
+    const usingBow = game.weapon === "bow" && !seated && game.phase !== "intro";
+    gear.bow.name = "EquippedBow";
+    gear.quiver.name = "EquippedQuiver";
+    gear.bow.visible = gear.quiver.visible =
+      game.bowUnlocked && game.phase !== "intro";
+    const bowParent = usingBow ? parts.leftWrist : parts.torso;
+    if (gear.bow.parent !== bowParent) bowParent.add(gear.bow);
+    if (gear.quiver.parent !== parts.torso) parts.torso.add(gear.quiver);
+    gear.quiver.position.set(-0.42, 1.55, -0.78);
+    gear.quiver.rotation.set(0, 0, -0.3);
+    gear.bow.position.set(
+      ...((usingBow ? [0, -0.2, 0.12] : [-0.35, 1.5, -0.88]) as [
+        number,
+        number,
+        number,
+      ]),
+    );
+    gear.bow.rotation.set(0, 0, usingBow ? 0 : -0.4);
+    if (bowString.parent !== gear.bow) {
+      gear.bow.add(bowString);
+      gear.bow.add(nockedArrow);
+    }
+    const draw = game.bowDraw / 0.85;
+    const positions = bowString.geometry.attributes.position;
+    positions.setXYZ(1, 0, 0, -0.12 - draw * 0.55);
+    positions.needsUpdate = true;
+    bowString.geometry.computeBoundingSphere();
+    nockedArrow.visible = usingBow && game.attackHeld;
+    nockedArrow.position.set(0, 0, -0.12 - draw * 0.55);
+    if (usingBow && game.dodgeTime <= 0) {
+      parts.leftArm.rotation.set(-1.45, -0.25, -0.4);
+      parts.leftElbow.rotation.set(-0.08, 0, 0);
+      parts.rightArm.rotation.set(-1.2, 0.5, 0.55);
+      parts.rightElbow.rotation.set(-0.35 - draw * 1.0, 0, 0);
+      parts.waist.rotation.y = -0.16 * draw;
+      parts.head.rotation.y = 0.16 * draw;
+      root.current.updateMatrixWorld(true);
+      parts.leftWrist.getWorldQuaternion(gripRotation).invert();
+      uprightRotation.setFromAxisAngle(UP, root.current.rotation.y);
+      gear.bow.quaternion.copy(gripRotation).multiply(uprightRotation);
+    }
     if (!game.grounded) {
       parts.leftLeg.rotation.x = -0.45;
       parts.rightLeg.rotation.x = 0.3;

@@ -1,4 +1,5 @@
 import { Boss } from "./boss";
+import { LOCK_CAMERA, followLockYaw, lockRangeTime } from "./lockCamera";
 import { INTRO_DURATION } from "./intro";
 import {
   loadCamera,
@@ -16,7 +17,13 @@ import {
   type Interaction,
   type Zone,
 } from "./world";
-import { occupied, floorAt, moveAndSlide, lineClear } from "./collision";
+import {
+  occupied,
+  floorAt,
+  moveAndSlide,
+  lineClear,
+  rayFraction,
+} from "./collision";
 export type { Zone };
 export type Phase =
   | "title"
@@ -84,6 +91,7 @@ export const POT_POSITIONS = [
   [11, -7],
 ];
 export type SoundEvent =
+  | "arrow"
   | "gem"
   | "sword"
   | "charge"
@@ -108,6 +116,7 @@ export class Simulation {
   jumpBuffer = 0;
   coyoteTime = 0;
   lockObscuredTime = 0;
+  lockRangeElapsed = 0;
   hp = 3;
   gems = 0;
   stamina = 100;
@@ -147,13 +156,247 @@ export class Simulation {
   items: Gem[] = [];
   pots: Pot[] = [];
   guards: Guard[] = [];
+  bowUnlocked = false;
+  weapon: "sword" | "bow" = "sword";
+  arrows = 0;
+  bowDraw = 0;
+  aiming = false;
+  aimPoint = { x: 0, y: 1.5, z: -30 };
+  projectiles: {
+    x: number;
+    y: number;
+    z: number;
+    vx: number;
+    vy: number;
+    vz: number;
+    life: number;
+    power: number;
+  }[] = [];
+  supplies: { x: number; z: number; collected: boolean }[] = [];
+  minions: Guard[] = [];
+  summonTime = 0;
+  summonWaves = 0;
+  summonCooldown = 0;
+  get activeGuards() {
+    return this.zone === "office" ? this.minions : this.guards;
+  }
+  get lockTarget() {
+    return this.combatTargets.find(
+      (g) => g.id === this.lockedTarget && g.hp > 0,
+    );
+  }
   boss = new Boss();
-  get combatTargets() {
+  get combatTargets(): (Guard | Boss)[] {
     return this.zone === "office"
-      ? this.boss.active
-        ? [this.boss]
-        : []
+      ? [...(this.boss.active ? [this.boss] : []), ...this.minions]
       : this.guards;
+  }
+  resetEncounter() {
+    this.minions = [101, 102].map((id, i) => ({
+      ...this.guards[0],
+      id,
+      hp: 0,
+      x: i ? 7 : -7,
+      z: -5,
+      originX: i ? 7 : -7,
+      originZ: -5,
+      stun: 0,
+      defeatTime: 0,
+      windup: 0,
+    }));
+    this.summonTime = this.summonWaves = this.summonCooldown = 0;
+    this.projectiles = [];
+    this.supplies = [];
+    if (this.bowUnlocked) this.arrows = Math.max(12, this.arrows);
+  }
+  switchWeapon() {
+    if (
+      this.phase !== "playing" ||
+      this.dodgeTime > 0 ||
+      this.attackTime > 0 ||
+      this.spinTime > 0
+    )
+      return;
+    if (!this.bowUnlocked) {
+      this.notify("东侧旅行宝箱藏有冒险弓与箭矢");
+      return;
+    }
+    this.cancelCombo();
+    this.guarding = this.aiming = false;
+    this.weapon = this.weapon === "sword" ? "bow" : "sword";
+    if (this.weapon === "sword")
+      this.cameraPitch = Math.max(0.06, this.cameraPitch);
+    this.notify(
+      this.weapon === "bow"
+        ? "冒险弓 · 按住左键拉弓，松开射击 · 右键精瞄"
+        : "剑盾 · 左键攻击 / 右键格挡",
+    );
+  }
+  cycleTarget() {
+    if (this.phase !== "playing") return;
+    const candidates = this.combatTargets.filter(
+      (g) =>
+        g.hp > 0 &&
+        Math.hypot(g.x - this.x, g.z - this.z) < 22 &&
+        this.visible(g.x, g.z, "guard-" + g.id),
+    );
+    const index = candidates.findIndex((g) => g.id === this.lockedTarget);
+    this.lockedTarget = candidates[(index + 1) % candidates.length]?.id ?? null;
+    this.lockObscuredTime = 0;
+    this.lockRangeElapsed = 0;
+  }
+  private guardDefeated(g: Guard) {
+    g.defeatTime = 0.65;
+    if (this.zone === "grounds") this.gems++;
+    this.supplies.push({ x: g.x, z: g.z, collected: false });
+    this.notify(
+      this.zone === "office"
+        ? "卫兵倒下 · 拾取补给恢复体力与 3 支箭"
+        : "守卫已解除 · +1 翡翠 · 掉落箭矢补给",
+    );
+  }
+  private bossDefeated() {
+    this.summonTime = 0;
+    for (const g of this.minions) {
+      g.hp = 0;
+      g.defeatTime = 0.65;
+      g.windup = 0;
+    }
+    this.lockedTarget = null;
+    this.notify("铁甲统领已击败 · 前往书桌签署宣言");
+  }
+  private shoot(draw: number) {
+    if (
+      this.phase !== "playing" ||
+      this.cooldown > 0 ||
+      this.dodgeTime > 0 ||
+      this.arrows <= 0 ||
+      this.stamina < 10
+    )
+      return;
+    const power = Math.min(1, draw / 0.85),
+      speed = 24 + power * 10;
+    const from = { x: this.x, y: this.y + 1.65, z: this.z };
+    const lock = this.lockTarget;
+    const to = lock
+      ? { x: lock.x, y: lock.id === 100 ? 2.35 : 1.35, z: lock.z }
+      : this.aimPoint;
+    const dx = to.x - from.x,
+      dy = to.y - from.y,
+      dz = to.z - from.z,
+      d = Math.hypot(dx, dy, dz) || 1;
+    this.projectiles.push({
+      ...from,
+      vx: (dx / d) * speed,
+      vy: (dy / d) * speed + (lock ? (1.5 * d) / speed : 0),
+      vz: (dz / d) * speed,
+      life: 2.2,
+      power,
+    });
+    this.arrows--;
+    this.stamina -= 10;
+    this.staminaDelay = 0.7;
+    this.cooldown = 0.48;
+    this.events.push("arrow");
+  }
+  private updateRanged(dt: number) {
+    for (const a of this.projectiles) {
+      const next = {
+        x: a.x + a.vx * dt,
+        y: a.y + a.vy * dt,
+        z: a.z + a.vz * dt,
+      };
+      let first = 1.01,
+        hit: Collider | undefined;
+      for (const c of this.colliders) {
+        const t = rayFraction(c, a, next, 0.04);
+        if (t !== null && t < first) {
+          first = t;
+          hit = c;
+        }
+      }
+      if (hit) {
+        a.life = 0;
+        const target = this.combatTargets.find(
+          (g) => "guard-" + g.id === hit!.id && g.hp > 0,
+        );
+        if (target) {
+          if (target instanceof Boss) {
+            target.hit(
+              a.power >= 0.95 &&
+                (target.state === "recover" || this.summonTime > 0),
+            );
+            if (!target.hp) this.bossDefeated();
+          } else {
+            target.hp = Math.max(0, target.hp - (a.power >= 0.95 ? 2 : 1));
+            target.stun = target.stunDuration = a.power >= 0.95 ? 0.55 : 0.22;
+            target.windup = 0;
+            target.hitFlash = 0.14;
+            target.cooldown = 0.9;
+            target.knockX = a.vx * 0.045;
+            target.knockZ = a.vz * 0.045;
+            if (!target.hp) this.guardDefeated(target);
+          }
+          this.impact(target.x, target.z, a.power >= 0.95);
+          this.events.push("hit");
+        } else this.impact(a.x, a.z, false, true);
+      }
+      Object.assign(a, next);
+      a.vy -= 3 * dt;
+      a.life -= dt;
+      if (a.y < 0) a.life = 0;
+    }
+    this.projectiles = this.projectiles.filter((a) => a.life > 0);
+    for (const drop of this.supplies)
+      if (
+        !drop.collected &&
+        Math.hypot(drop.x - this.x, drop.z - this.z) < 1.3 &&
+        this.y < 1.8
+      ) {
+        drop.collected = true;
+        this.arrows = Math.min(30, this.arrows + 3);
+        this.stamina = Math.min(100, this.stamina + 20);
+        this.events.push("gem");
+        this.notify("补给 · +3 箭矢 · +20 体力");
+      }
+  }
+  private updateSummons(dt: number) {
+    if (!this.boss.active || this.boss.hp <= 0) return;
+    this.summonCooldown = Math.max(0, this.summonCooldown - dt);
+    if (this.summonTime > 0) {
+      this.summonTime = Math.max(0, this.summonTime - dt);
+      if (!this.summonTime) {
+        for (const g of this.minions)
+          if (g.hp <= 0)
+            Object.assign(g, {
+              x: g.originX,
+              z: g.originZ,
+              hp: 2,
+              windup: 0,
+              cooldown: 2,
+              stun: 0,
+              hitFlash: 0,
+              knockX: 0,
+              knockZ: 0,
+              defeatTime: 0,
+            });
+        this.boss.state = "recover";
+        this.boss.timer = 1.6;
+        this.summonCooldown = 14;
+        this.notify("卫兵入场 · 优先击破卫兵，再攻击统领！");
+      }
+    } else if (
+      this.summonWaves < 2 &&
+      !this.summonCooldown &&
+      this.boss.hp <= (this.summonWaves === 0 ? 12 : 6) &&
+      this.boss.state !== "windup" &&
+      this.minions.every((g) => g.hp <= 0)
+    ) {
+      this.summonWaves++;
+      this.summonTime = 2.4;
+      this.boss.wave = -1;
+      this.notify("统领正在召唤卫兵 · 蓝色光圈将在 2.4 秒后出现援军");
+    }
   }
   crates: Pot[] = [];
   opened = new Set<string>();
@@ -219,6 +462,7 @@ export class Simulation {
     this.moving = false;
     this.grounded = true;
     this.jumpBuffer = this.coyoteTime = this.lockObscuredTime = 0;
+    this.lockRangeElapsed = 0;
     this.hp = 3;
     this.gems = 0;
     this.stamina = 100;
@@ -250,6 +494,11 @@ export class Simulation {
     this.gateOpen = false;
     this.restCooldown = 0;
     this.resetEntities();
+    this.bowUnlocked = false;
+    this.weapon = "sword";
+    this.arrows = 0;
+    this.aiming = false;
+    this.resetEncounter();
     this.events = [];
     this.notify("寻找翡翠与宝箱 · E 互动 · Space 跳跃");
   }
@@ -270,6 +519,7 @@ export class Simulation {
   retry() {
     if (this.zone === "office" && this.boss.active) {
       this.boss.reset();
+      this.resetEncounter();
       this.hp = 3;
       this.stamina = 100;
       this.x = 0;
@@ -311,9 +561,10 @@ export class Simulation {
   }
   look(dx: number, dy: number) {
     if (this.phase !== "playing") return;
-    this.cameraYaw -= dx * 0.004 * this.cameraSettings.sensitivity;
+    if (this.lockedTarget === null)
+      this.cameraYaw -= dx * 0.004 * this.cameraSettings.sensitivity;
     this.cameraPitch = Math.max(
-      0.06,
+      this.weapon === "bow" ? -0.5 : 0.06,
       Math.min(
         1.05,
         this.cameraPitch +
@@ -349,7 +600,7 @@ export class Simulation {
       .filter(
         (g) =>
           g.hp > 0 &&
-          Math.hypot(g.x - this.x, g.z - this.z) < 12 &&
+          Math.hypot(g.x - this.x, g.z - this.z) < 22 &&
           this.visible(g.x, g.z, "guard-" + g.id),
       )
       .sort(
@@ -359,6 +610,7 @@ export class Simulation {
       )[0];
     this.lockedTarget = g?.id ?? null;
     this.lockObscuredTime = 0;
+    this.lockRangeElapsed = 0;
     this.notify(g ? "已锁定目标 · Q 解除" : "附近没有可锁定的目标");
   }
   jump() {
@@ -367,7 +619,12 @@ export class Simulation {
     this.tryJump();
   }
   private tryJump() {
-    if (this.jumpBuffer <= 0 || (!this.grounded && this.coyoteTime <= 0) || this.dodgeTime > 0) return;
+    if (
+      this.jumpBuffer <= 0 ||
+      (!this.grounded && this.coyoteTime <= 0) ||
+      this.dodgeTime > 0
+    )
+      return;
     this.jumpBuffer = this.coyoteTime = 0;
     this.cancelCharge();
     this.vy = 7.8;
@@ -483,6 +740,17 @@ export class Simulation {
         radius: 0.8,
         top: 4.3,
       });
+    if (this.zone === "office")
+      for (const g of this.minions)
+        if (g.hp > 0)
+          list.push({
+            id: "guard-" + g.id,
+            zone: this.zone,
+            x: g.x,
+            z: g.z,
+            radius: 0.48,
+            top: 2.5,
+          });
     return list;
   }
   visible(x: number, z: number, ignore = "") {
@@ -551,6 +819,7 @@ export class Simulation {
         this.events.push("door");
         if (this.boss.hp > 0) {
           this.boss.reset();
+          this.resetEncounter();
           this.hp = 3;
           this.stamina = 100;
           this.notify(
@@ -563,6 +832,9 @@ export class Simulation {
           this.notify("击败统领后大门才会打开");
           return;
         }
+        this.projectiles = [];
+        this.supplies = [];
+        this.lockedTarget = null;
         this.zone = "grounds";
         this.x = 0;
         this.z = -10;
@@ -580,7 +852,7 @@ export class Simulation {
         }
         this.phase = "dialogue";
         this.x = 0;
-        this.z = -9.25;
+        this.z = -11.25;
         this.y = 0;
         this.yaw = 0;
         this.moving = false;
@@ -599,10 +871,17 @@ export class Simulation {
           return;
         }
         this.opened.add(i.id);
+        this.bowUnlocked = true;
+        this.arrows = Math.min(
+          30,
+          this.arrows + (i.id === "chest-east" ? 16 : 12),
+        );
         this.gems += i.id === "chest-garden" ? 5 : 3;
         this.events.push("gem");
         this.notify(
-          i.id === "chest-garden" ? "花园秘藏 · +5 翡翠" : "旅行补给 · +3 翡翠",
+          i.id === "chest-garden"
+            ? "花园秘藏 · +5 翡翠 · +12 箭矢 · X 切换弓箭"
+            : "获得冒险弓、16 支箭与 3 翡翠 · X 切换武器",
         );
         break;
       case "lever":
@@ -649,16 +928,34 @@ export class Simulation {
       this.dodgeTime > 0
     )
       return;
+    if (this.weapon === "bow") {
+      if (this.cooldown > 0 || this.stamina < 10) return;
+      if (this.arrows <= 0) {
+        this.notify("箭矢用尽 · X 切回剑盾，击败卫兵拾取补给");
+        return;
+      }
+      this.bowDraw = 0;
+      this.attackHeld = true;
+      return;
+    }
     this.attack();
     this.attackHeld = true;
     this.attackHoldTime = 0;
   }
   cancelCharge() {
+    this.bowDraw = 0;
     this.attackHeld = false;
     this.attackHoldTime = 0;
     this.chargeTime = 0;
   }
   releaseAttack() {
+    if (this.weapon === "bow") {
+      const held = this.attackHeld,
+        draw = this.bowDraw;
+      this.cancelCharge();
+      if (held) this.shoot(draw);
+      return;
+    }
     const charge = this.chargeTime;
     this.cancelCharge();
     if (
@@ -678,6 +975,7 @@ export class Simulation {
     this.events.push("spin");
   }
   attack() {
+    if (this.weapon === "bow") return;
     if (
       this.phase !== "playing" ||
       this.dodgeTime > 0 ||
@@ -718,12 +1016,21 @@ export class Simulation {
       })
       .sort(
         (a, b) =>
-          (a.id === this.lockedTarget ? -100 : Math.hypot(a.x - this.x, a.z - this.z)) -
-          (b.id === this.lockedTarget ? -100 : Math.hypot(b.x - this.x, b.z - this.z)),
+          (a.id === this.lockedTarget
+            ? -100
+            : Math.hypot(a.x - this.x, a.z - this.z)) -
+          (b.id === this.lockedTarget
+            ? -100
+            : Math.hypot(b.x - this.x, b.z - this.z)),
       )[0];
-    if (target) {
-      this.lockedTarget = target.id;
-      this.lockObscuredTime = 0;
+    if (
+      target &&
+      (this.lockedTarget === null || target.id === this.lockedTarget)
+    ) {
+      if (this.lockedTarget === null) {
+        this.lockedTarget = target.id;
+        this.lockRangeElapsed = 0;
+      }
       const angle = Math.atan2(target.x - this.x, target.z - this.z) - this.yaw;
       this.yaw += Math.max(
         -0.35,
@@ -782,28 +1089,27 @@ export class Simulation {
         this.hitStop = heavy ? 0.115 : 0.065;
         this.events.push(heavy ? "heavy" : "hit");
         if (!this.boss.hp) {
-          this.lockedTarget = null;
-          this.notify("铁甲统领已击败 · 前往书桌签署宣言");
+          this.bossDefeated();
         }
         this.version++;
       }
-      return;
     }
-    for (const [list, prefix, reward] of [
-      [this.pots, "pot-", 2],
-      [this.crates, "crate-", 1],
-    ] as const)
-      for (const p of list)
-        if (!p.broken && reachable(p.x, p.z, prefix + p.id)) {
-          p.broken = true;
-          this.impact(p.x, p.z);
-          this.gems += reward;
-          this.events.push("break");
-          this.notify(
-            `击碎${prefix === "pot-" ? "陶罐" : "木箱"} · +${reward} 翡翠`,
-          );
-        }
-    for (const g of this.guards)
+    if (this.zone === "grounds")
+      for (const [list, prefix, reward] of [
+        [this.pots, "pot-", 2],
+        [this.crates, "crate-", 1],
+      ] as const)
+        for (const p of list)
+          if (!p.broken && reachable(p.x, p.z, prefix + p.id)) {
+            p.broken = true;
+            this.impact(p.x, p.z);
+            this.gems += reward;
+            this.events.push("break");
+            this.notify(
+              `击碎${prefix === "pot-" ? "陶罐" : "木箱"} · +${reward} 翡翠`,
+            );
+          }
+    for (const g of this.activeGuards)
       if (g.hp > 0 && reachable(g.x, g.z, "guard-" + g.id)) {
         g.hp = Math.max(0, g.hp - (spin ? 2 : 1));
         const spec = spin ? { stun: 1.1, push: 5 } : ATTACKS[this.combo];
@@ -818,10 +1124,7 @@ export class Simulation {
         g.cooldown = 0.8;
         this.events.push(heavy ? "heavy" : "hit");
         if (g.hp === 0) {
-          g.defeatTime = 0.65;
-          this.gems++;
-          if (this.lockedTarget === g.id) this.lockedTarget = null;
-          this.notify("守卫已解除 · +1 翡翠");
+          this.guardDefeated(g);
         }
       }
     this.version++;
@@ -844,8 +1147,11 @@ export class Simulation {
       this.hitStop = Math.max(0, this.hitStop - dt);
       return;
     }
+    this.updateRanged(dt);
     if (this.zone === "office") {
-      const move = this.boss.update(dt, this, this.colliders);
+      this.updateSummons(dt);
+      const move =
+        this.summonTime > 0 ? null : this.boss.update(dt, this, this.colliders);
       const boss = this.boss;
       const dx = this.x - boss.x,
         dz = this.z - boss.z,
@@ -872,6 +1178,7 @@ export class Simulation {
         if (
           move === "sweep" &&
           input.guard &&
+          this.weapon === "sword" &&
           this.attackTime <= 0 &&
           this.spinTime <= 0 &&
           this.dodgeTime <= 0 &&
@@ -906,9 +1213,26 @@ export class Simulation {
     this.tryJump();
     this.jumpBuffer = Math.max(0, this.jumpBuffer - dt);
     // Held defense can cancel a normal swing after its active hit, never before.
-    if (input.guard && this.attackTime > 0 && !this.hitPending && this.spinTime <= 0) this.cancelCombo();
+    if (
+      this.weapon === "sword" &&
+      input.guard &&
+      this.attackTime > 0 &&
+      !this.hitPending &&
+      this.spinTime <= 0
+    )
+      this.cancelCombo();
     this.elapsed += dt;
-    if (this.attackHeld) {
+    this.aiming =
+      this.weapon === "bow" &&
+      (!!input.guard || this.attackHeld) &&
+      this.dodgeTime <= 0;
+    if (this.aiming && this.lockedTarget === null)
+      this.yaw = this.cameraYaw + Math.PI;
+    if (this.weapon === "bow" && this.attackHeld) {
+      this.bowDraw = Math.min(0.85, this.bowDraw + dt);
+      this.staminaDelay = 0.3;
+    }
+    if (this.weapon === "sword" && this.attackHeld) {
       this.attackHoldTime += dt;
       if (input.guard || !this.grounded || this.stamina < SPIN.cost)
         this.cancelCharge();
@@ -964,19 +1288,38 @@ export class Simulation {
       this.toastTime -= dt;
       if (this.toastTime <= 0) this.toast = "";
     }
-    const locked = this.combatTargets.find(
+    let locked = this.combatTargets.find(
       (g) => g.id === this.lockedTarget && g.hp > 0,
     );
-    if (locked && Math.hypot(locked.x - this.x, locked.z - this.z) < 18) {
-      this.lockObscuredTime = this.visible(locked.x, locked.z, "guard-" + locked.id) ? 0 : this.lockObscuredTime + dt;
-      if (this.lockObscuredTime > 0.8) this.lockedTarget = null;
-      else {
+    if (!locked && this.lockedTarget !== null) {
+      this.cycleTarget();
+      locked = this.lockTarget;
+    }
+    if (locked) {
+      const distance = Math.hypot(locked.x - this.x, locked.z - this.z);
+      this.lockRangeElapsed = lockRangeTime(
+        distance,
+        this.lockRangeElapsed,
+        dt,
+      );
+      if (this.lockRangeElapsed >= LOCK_CAMERA.grace) locked = undefined;
+      else if (distance > 0.15) {
         this.yaw = Math.atan2(locked.x - this.x, locked.z - this.z);
-        const yaw = this.yaw - Math.PI;
-        this.cameraYaw += Math.atan2(Math.sin(yaw - this.cameraYaw), Math.cos(yaw - this.cameraYaw)) * (1 - Math.exp(-dt * 7));
+        this.cameraYaw = followLockYaw(
+          this.cameraYaw,
+          this.yaw - Math.PI,
+          distance,
+          dt,
+        );
       }
-    } else { this.lockedTarget = null; this.lockObscuredTime = 0; }
+    }
+    if (!locked) {
+      this.lockedTarget = null;
+      this.lockRangeElapsed = 0;
+      this.lockObscuredTime = 0;
+    }
     this.guarding =
+      this.weapon === "sword" &&
       !!input.guard &&
       this.stamina > 0 &&
       this.grounded &&
@@ -995,12 +1338,13 @@ export class Simulation {
       input.sprint &&
       length > 0.1 &&
       !this.guarding &&
+      !this.aiming &&
       this.chargeTime <= 0 &&
       this.spinTime <= 0 &&
       this.stamina > 0 &&
       this.dodgeTime <= 0;
     let speed = this.sprinting ? 7 : 4.2;
-    if (this.guarding || this.chargeTime > 0) speed = 2;
+    if (this.guarding || this.chargeTime > 0 || this.aiming) speed = 2;
     if (this.spinTime > 0) speed = 0.8;
     if (this.attackTime > 0) speed *= 0.5;
     if (this.sprinting) {
@@ -1016,6 +1360,7 @@ export class Simulation {
     if (
       length > 0.1 &&
       !locked &&
+      !this.aiming &&
       !this.guarding &&
       this.attackTime === 0 &&
       this.spinTime <= 0 &&
@@ -1083,7 +1428,9 @@ export class Simulation {
           if (this.gems === 8) this.notify("翡翠已集齐 · 前往白宫大门");
           this.version++;
         }
-      for (const g of this.guards) {
+    }
+    {
+      for (const g of this.activeGuards) {
         g.defeatTime = Math.max(0, g.defeatTime - dt);
         g.hitFlash = Math.max(0, g.hitFlash - dt);
         if (g.stun > 0) {
@@ -1149,7 +1496,9 @@ export class Simulation {
           }
           continue;
         }
-        const chasing = distance < 7 && this.visible(g.x, g.z, "guard-" + g.id);
+        const chasing =
+          distance < (this.zone === "office" ? 30 : 7) &&
+          this.visible(g.x, g.z, "guard-" + g.id);
         const tx = chasing
             ? this.x
             : g.originX + Math.sin(this.elapsed * 0.45 + g.id * Math.PI) * 1.1,
@@ -1161,14 +1510,18 @@ export class Simulation {
           l = Math.hypot(vx, vz);
         if (l > 0.1) g.yaw = Math.atan2(vx, vz);
         if (chasing && distance < 2.2 && g.cooldown === 0) {
-          g.windup = 0.7;
+          if (
+            this.activeGuards.some((other) => other !== g && other.windup > 0)
+          )
+            continue;
+          g.windup = this.zone === "office" ? 0.95 : 0.7;
           continue;
         }
         if (l > 0.2 && (!chasing || distance > 1.6)) {
           const obstacles = colliders.filter((c) => c.id !== "guard-" + g.id);
           obstacles.push({
             id: "player",
-            zone: "grounds",
+            zone: this.zone,
             x: this.x,
             z: this.z,
             radius: 0.38,
