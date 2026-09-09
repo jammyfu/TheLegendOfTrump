@@ -261,6 +261,45 @@ test("mobile multitouch movement + sprint + camera, held block and release clean
     .poll(() => page.evaluate(() => window.__game!.boss.hp))
     .toBeLessThan(18);
   await page.screenshot({ path: "artifacts/oval-boss-mobile.png" });
+  const attackButton = await page
+    .getByRole("button", { name: "挥剑", exact: true })
+    .boundingBox();
+  const touch = { x: attackButton!.x + 25, y: attackButton!.y + 25, id: 5 };
+  await cdp.send("Input.dispatchTouchEvent", {
+    type: "touchStart",
+    touchPoints: [touch],
+  });
+  await expect
+    .poll(() => page.evaluate(() => window.__game!.chargeTime))
+    .toBe(1.2);
+  await cdp.send("Input.dispatchTouchEvent", {
+    type: "touchCancel",
+    touchPoints: [],
+  });
+  expect(await page.evaluate(() => window.__game!.spinTime)).toBe(0);
+  expect(await page.evaluate(() => window.__game!.chargeTime)).toBe(0);
+  await cdp.send("Input.dispatchTouchEvent", {
+    type: "touchStart",
+    touchPoints: [touch],
+  });
+  await expect
+    .poll(() => page.evaluate(() => window.__game!.chargeTime))
+    .toBe(1.2);
+  const hpBeforeSpin = await page.evaluate(() => window.__game!.boss.hp);
+  await cdp.send("Input.dispatchTouchEvent", {
+    type: "touchEnd",
+    touchPoints: [],
+  });
+  await expect
+    .poll(() => page.evaluate(() => window.__game!.boss.hp), {
+      intervals: [20, 30, 50],
+    })
+    .toBe(hpBeforeSpin - 2);
+  await page.evaluate(() => {
+    window.__game!.hitStop = 100;
+  });
+  await page.screenshot({ path: "artifacts/spin-mobile.png" });
+
   expect(errors).toEqual([]);
   await context.close();
 });
@@ -602,4 +641,83 @@ test("oval arena boss telegraphs, blocks, enrages and unlocks the desk after def
     page.getByRole("heading", { name: "新的篇章，由你书写。" }),
   ).toBeVisible();
   expect(errors).toEqual([]);
+});
+
+test("hold left mouse charges, releases one radial spin and clears its effects", async ({
+  page,
+}) => {
+  await start(page);
+  await page.evaluate(() => {
+    const g = window.__game!;
+    g.guards.forEach((e) => (e.hp = 0));
+    g.x = 0;
+    g.z = 12;
+    g.yaw = Math.PI;
+  });
+  await page.mouse.move(720, 450);
+  await page.mouse.down();
+  await expect
+    .poll(() => page.evaluate(() => window.__game!.chargeTime))
+    .toBe(1.2);
+  await expect(page.getByLabel("蓄力旋转斩", { exact: true })).toBeVisible();
+  await page.screenshot({ path: "artifacts/sword-charge.png" });
+  await page.evaluate(() => {
+    const g = window.__game!;
+    g.guards.forEach((e, i) =>
+      Object.assign(e, {
+        hp: 3,
+        x: g.x + (i ? 2.5 : -2.5),
+        z: g.z,
+        stun: 10,
+        stunDuration: 10,
+        cooldown: 10,
+      }),
+    );
+  });
+  const yaw = await page.evaluate(() => window.__game!.cameraYaw);
+  await page.mouse.up();
+  await expect
+    .poll(() => page.evaluate(() => window.__game!.guards.map((e) => e.hp)), {
+      intervals: [20, 30, 50],
+    })
+    .toEqual([1, 1]);
+  await page.evaluate(() => {
+    window.__game!.hitStop = 100;
+  });
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => window.__scene!.getObjectByName("charge-spin-effects")!.visible,
+      ),
+    )
+    .toBeTruthy();
+  await page.screenshot({ path: "artifacts/spin-attack.png" });
+  expect(await page.evaluate(() => window.__game!.cameraYaw)).toBe(yaw);
+  await page.evaluate(() => {
+    window.__game!.hitStop = 0;
+  });
+  await expect.poll(() => page.evaluate(() => window.__game!.spinTime)).toBe(0);
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => window.__scene!.getObjectByName("charge-spin-effects")!.visible,
+      ),
+    )
+    .toBeFalsy();
+  expect(
+    await page.evaluate(() => window.__game!.guards.map((e) => e.hp)),
+  ).toEqual([1, 1]);
+  await page.evaluate(() => window.__game!.guards.forEach((e) => (e.hp = 0)));
+  await page.keyboard.down("KeyJ");
+  await expect
+    .poll(() => page.evaluate(() => window.__game!.chargeTime))
+    .toBeGreaterThan(0.1);
+  await page.keyboard.press("Escape");
+  await page.keyboard.up("KeyJ");
+  expect(
+    await page.evaluate(() => ({
+      charge: window.__game!.chargeTime,
+      spin: window.__game!.spinTime,
+    })),
+  ).toEqual({ charge: 0, spin: 0 });
 });

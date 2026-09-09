@@ -1,3 +1,4 @@
+import { ChargeEffects } from "./ChargeEffects";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Group, Mesh, MeshBasicMaterial } from "three";
@@ -30,17 +31,20 @@ export function CombatEffects() {
     });
   });
   return (
-    <group ref={ref} name="combat-effects">
-      {Array.from({ length: 8 }, (_, i) => (
-        <group key={i} visible={false}>
-          {Array.from({ length: 10 }, (_, k) => (
-            <mesh key={k} rotation={[k, k * 0.7, k * 1.3]}>
-              <octahedronGeometry args={[0.1, 0]} />
-              <meshBasicMaterial transparent depthWrite={false} />
-            </mesh>
-          ))}
-        </group>
-      ))}
-    </group>
+    <>
+      <ChargeEffects />
+      <group ref={ref} name="combat-effects">
+        {Array.from({ length: 8 }, (_, i) => (
+          <group key={i} visible={false}>
+            {Array.from({ length: 10 }, (_, k) => (
+              <mesh key={k} rotation={[k, k * 0.7, k * 1.3]}>
+                <octahedronGeometry args={[0.1, 0]} />
+                <meshBasicMaterial transparent depthWrite={false} />
+              </mesh>
+            ))}
+          </group>
+        ))}
+      </group>
+    </>
   );
 }

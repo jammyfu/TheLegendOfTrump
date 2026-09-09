@@ -3,13 +3,21 @@ import { useMemo, useRef } from "react";
 import { useFrame, useLoader } from "@react-three/fiber";
 import { Group, Mesh, Quaternion, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { ATTACKS, attackPose } from "../game/combat";
+import {
+  ATTACKS,
+  attackPose,
+  SPIN,
+  bladeDirection,
+  swingProgress,
+} from "../game/combat";
 import { game } from "../game/simulation";
 const UP = new Vector3(0, 1, 0);
 const MODEL_URL = import.meta.env.BASE_URL + "models/trump-n64.glb";
 export function Character() {
   const root = useRef<Group>(null);
   const gripRotation = useMemo(() => new Quaternion(), []);
+  const blade = useMemo(() => new Vector3(), []);
+  const bladeRotation = useMemo(() => new Quaternion(), []);
   const uprightRotation = useMemo(() => new Quaternion(), []);
   const slash = useRef<Mesh>(null);
   const swordSource = useLoader(
@@ -78,7 +86,12 @@ export function Character() {
             (game.moving ? Math.abs(Math.sin(game.elapsed * 12)) * 0.045 : 0),
       game.z,
     );
-    root.current.rotation.y = game.yaw;
+    const spinning = game.spinTime > 0;
+    const spinProgress = spinning
+      ? (SPIN.duration - game.spinTime) / SPIN.duration
+      : 0;
+    root.current.rotation.y =
+      game.yaw + (spinning ? Math.PI * 2 * spinProgress : 0);
     root.current.visible =
       game.invincible <= 0 || Math.floor(game.invincible * 12) % 2 === 0;
     if (arrival) {
@@ -123,7 +136,12 @@ export function Character() {
     parts.sword.visible = false;
     const attacking = game.attackTime > 0 && !seated;
     const drawn =
-      (attacking || game.guarding || game.comboWindow > 0) && !seated;
+      (attacking ||
+        game.guarding ||
+        game.comboWindow > 0 ||
+        game.chargeTime > 0 ||
+        spinning) &&
+      !seated;
     const blocking = game.guarding && !seated;
     if (drawn) {
       const pose = attackPose(
@@ -142,15 +160,26 @@ export function Character() {
       parts.rightKnee.rotation.x = 0.16;
       parts.leftKnee.rotation.x = game.combo === 2 ? 0.25 : 0.08;
     }
+    if (game.chargeTime > 0 || spinning) {
+      parts.rightArm.rotation.set(-0.8, 0, -0.9);
+      parts.rightElbow.rotation.set(-0.3, 0, 0);
+      parts.rightWrist.rotation.set(0, 0, 0);
+      parts.waist.rotation.set(0.12, spinning ? 0 : -0.5, 0);
+      parts.leftArm.rotation.set(-0.3, 0, 0.5);
+      parts.leftKnee.rotation.x = parts.rightKnee.rotation.x = 0.2;
+    }
     if (slash.current) {
       const elapsed = ATTACKS[game.combo].duration - game.attackTime;
       const hit = ATTACKS[game.combo].hit;
+      const sweep = swingProgress(game.combo, elapsed);
       slash.current.visible =
-        attacking && elapsed > hit - 0.035 && elapsed < hit + 0.1;
+        attacking && elapsed > hit - 0.045 && elapsed < hit + 0.12;
       slash.current.rotation.set(
-        game.combo === 2 ? 0 : Math.PI / 2,
-        game.combo === 2 ? Math.PI / 2 : 0,
-        game.combo === 1 ? Math.PI : 0,
+        game.combo === 0 ? 0 : Math.PI / 2,
+        game.combo === 0 ? Math.PI / 2 : 0,
+        game.combo === 0
+          ? -sweep * Math.PI
+          : (game.combo === 1 ? 1 : -1) * (sweep - 0.5) * Math.PI,
       );
     }
     gear.sword.name = "EquippedSword";
@@ -209,10 +238,25 @@ export function Character() {
       parts.leftKnee.rotation.x = 1.2;
       parts.rightKnee.rotation.x = 1.2;
     }
-    if (drawn && !attacking) {
+    if (drawn) {
       root.current.updateMatrixWorld(true);
       parts.rightWrist.getWorldQuaternion(gripRotation).invert();
-      uprightRotation.setFromAxisAngle(UP, game.yaw);
+      if (attacking)
+        blade
+          .set(
+            ...bladeDirection(
+              game.combo,
+              ATTACKS[game.combo].duration - game.attackTime,
+            ),
+          )
+          .normalize();
+      else if (spinning || game.chargeTime > 0)
+        blade.set(-1, 0.12, 0.35).normalize();
+      else blade.copy(UP);
+      bladeRotation.setFromUnitVectors(UP, blade);
+      uprightRotation
+        .setFromAxisAngle(UP, root.current.rotation.y)
+        .multiply(bladeRotation);
       gear.sword.quaternion.copy(gripRotation).multiply(uprightRotation);
     }
     if (!drawn)

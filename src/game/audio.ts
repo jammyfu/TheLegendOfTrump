@@ -28,10 +28,11 @@ function impactSound(event: SoundEvent) {
     filter = ctx.createBiquadFilter(),
     gain = ctx.createGain();
   source.buffer = noise;
-  const sword = event === "sword",
+  source.loop = event === "spin";
+  const sword = event === "sword" || event === "spin",
     block = event === "block",
     heavy = event === "heavy";
-  const duration = sword ? 0.17 : heavy ? 0.28 : 0.18;
+  const duration = event === "spin" ? 0.65 : sword ? 0.17 : heavy ? 0.28 : 0.18;
   filter.type = sword ? "bandpass" : "lowpass";
   filter.frequency.setValueAtTime(sword ? 1900 : block ? 6000 : 1500, now);
   filter.frequency.exponentialRampToValueAtTime(
@@ -77,12 +78,15 @@ function impactSound(event: SoundEvent) {
 }
 export function playSound(event: SoundEvent) {
   if (!enabled || !context) return;
-  if (["sword", "hit", "heavy", "block", "hurt", "break"].includes(event)) {
+  if (
+    ["sword", "spin", "hit", "heavy", "block", "hurt", "break"].includes(event)
+  ) {
     impactSound(event);
     return;
   }
   const notes: Partial<Record<SoundEvent, number[]>> = {
     gem: [880, 1320],
+    charge: [660, 990, 1320],
     door: [330, 440, 660],
     win: [392, 494, 587, 784],
   };

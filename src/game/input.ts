@@ -4,6 +4,7 @@ export const keys = new Set<string>();
 export const joystick = { x: 0, z: 0 };
 export const held = { sprint: false, guard: false };
 export function clearInput() {
+  game.cancelCharge();
   keys.clear();
   joystick.x = 0;
   joystick.z = 0;
@@ -76,7 +77,7 @@ export function bindInput() {
     }
     if (e.code === "KeyE") game.interact();
     if (e.code === "Space") game.jump();
-    if (e.code === "KeyJ") game.attack();
+    if (e.code === "KeyJ") game.pressAttack();
     if (["ControlLeft", "ControlRight", "KeyK"].includes(e.code))
       game.dodge(getInput());
     if (e.code === "KeyQ") game.toggleLock();
@@ -85,7 +86,10 @@ export function bindInput() {
       game.cameraPitch = 0.3;
     }
   };
-  const up = (e: KeyboardEvent) => keys.delete(e.code);
+  const up = (e: KeyboardEvent) => {
+    keys.delete(e.code);
+    if (e.code === "KeyJ") game.releaseAttack();
+  };
   const blur = () => {
     clearInput();
     if (game.phase === "playing") game.pause();
@@ -96,12 +100,13 @@ export function bindInput() {
       return;
     unlockAudio();
     if (e.button === 0) {
-      game.attack();
+      game.pressAttack();
       if (!document.pointerLockElement) requestMouseLook();
     }
     if (e.button === 2) held.guard = true;
   };
   const mouseUp = (e: MouseEvent) => {
+    if (e.button === 0) game.releaseAttack();
     if (e.button === 2) held.guard = false;
   };
   const mouseMove = (e: MouseEvent) => {

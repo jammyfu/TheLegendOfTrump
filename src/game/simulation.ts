@@ -6,7 +6,7 @@ import {
   sanitizeCamera,
   type CameraSettings,
 } from "./camera";
-import { ATTACKS, COMBO_GRACE } from "./combat";
+import { ATTACKS, COMBO_GRACE, SPIN } from "./combat";
 import {
   staticColliders,
   gateCollider,
@@ -86,6 +86,8 @@ export const POT_POSITIONS = [
 export type SoundEvent =
   | "gem"
   | "sword"
+  | "charge"
+  | "spin"
   | "hit"
   | "heavy"
   | "block"
@@ -117,6 +119,11 @@ export class Simulation {
   attackTime = 0;
   cooldown = 0;
   invincible = 0;
+  attackHeld = false;
+  attackHoldTime = 0;
+  chargeTime = 0;
+  spinTime = 0;
+  spinHitPending = false;
   hitPending = false;
   combo = 0;
   comboWindow = 0;
@@ -221,6 +228,9 @@ export class Simulation {
     this.impactTime = 0;
     this.impactStrength = 0;
     this.effects = [];
+    this.cancelCharge();
+    this.spinTime = 0;
+    this.spinHitPending = false;
     this.cooldown = 0;
     this.invincible = 0;
     this.dodgeTime = 0;
@@ -288,6 +298,7 @@ export class Simulation {
     this.version++;
   }
   pause() {
+    this.cancelCharge();
     if (this.phase === "playing") this.phase = "paused";
     else if (this.phase === "paused") this.phase = "playing";
     this.moving = false;
@@ -353,6 +364,7 @@ export class Simulation {
       this.dodgeTime > 0
     )
       return;
+    this.cancelCharge();
     this.stamina -= 14;
     this.staminaDelay = 0.8;
     this.vy = 7.8;
@@ -626,8 +638,50 @@ export class Simulation {
     }
     this.version++;
   }
+  pressAttack() {
+    if (
+      this.phase !== "playing" ||
+      this.attackHeld ||
+      this.spinTime > 0 ||
+      this.dodgeTime > 0
+    )
+      return;
+    this.attack();
+    this.attackHeld = true;
+    this.attackHoldTime = 0;
+  }
+  cancelCharge() {
+    this.attackHeld = false;
+    this.attackHoldTime = 0;
+    this.chargeTime = 0;
+  }
+  releaseAttack() {
+    const charge = this.chargeTime;
+    this.cancelCharge();
+    if (
+      this.phase !== "playing" ||
+      charge < SPIN.minCharge ||
+      !this.grounded ||
+      this.stamina < SPIN.cost
+    )
+      return;
+    this.cancelCombo();
+    this.spinTime = SPIN.duration;
+    this.cooldown = SPIN.duration + 0.18;
+    this.spinHitPending = true;
+    this.stamina -= SPIN.cost;
+    this.staminaDelay = 1;
+    this.guarding = false;
+    this.events.push("spin");
+  }
   attack() {
-    if (this.phase !== "playing" || this.dodgeTime > 0) return;
+    if (
+      this.phase !== "playing" ||
+      this.dodgeTime > 0 ||
+      this.spinTime > 0 ||
+      this.chargeTime > 0
+    )
+      return;
     if (this.attackTime > 0) {
       // One buffered press, only after the initial anticipation. Holding a key
       // or spamming cannot skip a stage or stack several future attacks.
@@ -683,6 +737,9 @@ export class Simulation {
     this.version++;
   }
   private cancelCombo() {
+    this.cancelCharge();
+    this.spinTime = 0;
+    this.spinHitPending = false;
     this.attackTime = 0;
     this.hitPending = false;
     this.comboQueued = false;
@@ -695,15 +752,17 @@ export class Simulation {
     this.effects.push({ x, z, age: 0, heavy, block });
     if (this.effects.length > 8) this.effects.shift();
   }
-  strike() {
+  strike(spin = false) {
+    const heavy = spin || this.combo === 2;
     const reachable = (x: number, z: number, id: string) => {
       const dx = x - this.x,
         dz = z - this.z,
         d = Math.hypot(dx, dz);
       return (
         this.y < 1.5 &&
-        d < 2.7 &&
-        (d < 0.65 ||
+        d < (spin ? SPIN.radius : 2.7) &&
+        (spin ||
+          d < 0.65 ||
           (dx * Math.sin(this.yaw) + dz * Math.cos(this.yaw)) / d > 0.15) &&
         this.visible(x, z, id)
       );
@@ -711,11 +770,11 @@ export class Simulation {
     if (this.zone === "office") {
       if (
         reachable(this.boss.x, this.boss.z, "guard-100") &&
-        this.boss.hit(this.combo === 2)
+        this.boss.hit(heavy)
       ) {
-        this.impact(this.boss.x, this.boss.z, this.combo === 2);
-        this.hitStop = this.combo === 2 ? 0.1 : 0.06;
-        this.events.push(this.combo === 2 ? "heavy" : "hit");
+        this.impact(this.boss.x, this.boss.z, heavy);
+        this.hitStop = heavy ? 0.1 : 0.06;
+        this.events.push(heavy ? "heavy" : "hit");
         if (!this.boss.hp) {
           this.lockedTarget = null;
           this.notify("铁甲统领已击败 · 前往书桌签署宣言");
@@ -740,18 +799,18 @@ export class Simulation {
         }
     for (const g of this.guards)
       if (g.hp > 0 && reachable(g.x, g.z, "guard-" + g.id)) {
-        g.hp--;
-        const spec = ATTACKS[this.combo];
+        g.hp = Math.max(0, g.hp - (spin ? 2 : 1));
+        const spec = spin ? { stun: 1.1, push: 5 } : ATTACKS[this.combo];
         g.stun = g.stunDuration = spec.stun;
         g.hitFlash = 0.14;
         const distance = Math.hypot(g.x - this.x, g.z - this.z) || 1;
         g.knockX = ((g.x - this.x) / distance) * spec.push;
         g.knockZ = ((g.z - this.z) / distance) * spec.push;
-        this.hitStop = this.combo === 2 ? 0.1 : 0.06;
-        this.impact(g.x, g.z, this.combo === 2);
+        this.hitStop = heavy ? 0.1 : 0.06;
+        this.impact(g.x, g.z, heavy);
         g.windup = 0;
         g.cooldown = 0.8;
-        this.events.push(this.combo === 2 ? "heavy" : "hit");
+        this.events.push(heavy ? "heavy" : "hit");
         if (g.hp === 0) {
           g.defeatTime = 0.65;
           this.gems++;
@@ -835,6 +894,29 @@ export class Simulation {
       }
     }
     this.elapsed += dt;
+    if (this.attackHeld) {
+      this.attackHoldTime += dt;
+      if (input.guard || !this.grounded || this.stamina < SPIN.cost)
+        this.cancelCharge();
+      else if (
+        this.attackHoldTime >= 0.3 &&
+        this.attackTime <= 0 &&
+        this.cooldown <= 0
+      ) {
+        const previous = this.chargeTime;
+        this.chargeTime = Math.min(SPIN.maxCharge, this.chargeTime + dt);
+        this.comboQueued = false;
+        this.comboWindow = 0;
+        this.staminaDelay = 0.4;
+        if (previous < SPIN.minCharge && this.chargeTime >= SPIN.minCharge)
+          this.events.push("charge");
+      }
+    }
+    this.spinTime = Math.max(0, this.spinTime - dt);
+    if (this.spinHitPending && SPIN.duration - this.spinTime >= SPIN.hit) {
+      this.spinHitPending = false;
+      this.strike(true);
+    }
     const wasAttacking = this.attackTime > 0;
     this.attackTime = Math.max(0, this.attackTime - dt);
     this.comboWindow = Math.max(0, this.comboWindow - dt);
@@ -889,7 +971,9 @@ export class Simulation {
       this.stamina > 0 &&
       this.grounded &&
       this.dodgeTime <= 0 &&
-      this.attackTime <= 0;
+      this.attackTime <= 0 &&
+      this.spinTime <= 0 &&
+      this.chargeTime <= 0;
     const length = Math.hypot(input.x, input.z),
       dx = input.x / Math.max(1, length),
       dz = input.z / Math.max(1, length),
@@ -901,10 +985,13 @@ export class Simulation {
       input.sprint &&
       length > 0.1 &&
       !this.guarding &&
+      this.chargeTime <= 0 &&
+      this.spinTime <= 0 &&
       this.stamina > 0 &&
       this.dodgeTime <= 0;
     let speed = this.sprinting ? 7 : 4.2;
-    if (this.guarding) speed = 2;
+    if (this.guarding || this.chargeTime > 0) speed = 2;
+    if (this.spinTime > 0) speed = 0.8;
     if (this.attackTime > 0) speed *= 0.5;
     if (this.sprinting) {
       this.stamina = Math.max(0, this.stamina - 25 * dt);
@@ -916,7 +1003,14 @@ export class Simulation {
       mz = this.dodgeZ;
       speed = 10;
     }
-    if (length > 0.1 && !locked && !this.guarding && this.attackTime === 0)
+    if (
+      length > 0.1 &&
+      !locked &&
+      !this.guarding &&
+      this.attackTime === 0 &&
+      this.spinTime <= 0 &&
+      this.chargeTime <= 0
+    )
       this.yaw = Math.atan2(mx, mz);
     const colliders = this.colliders,
       oldX = this.x,

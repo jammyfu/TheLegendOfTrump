@@ -1,4 +1,4 @@
-import { ATTACKS } from "../game/combat";
+import { ATTACKS, SPIN } from "../game/combat";
 import { useRef, useState } from "react";
 import { game } from "../game/simulation";
 import {
@@ -103,23 +103,47 @@ export function Hud() {
           </span>
         </div>
       </div>
-      {(game.attackTime > 0 || game.comboWindow > 0) && (
+      {(game.chargeTime > 0 || game.spinTime > 0) && (
         <div
           className={`combo-status ${game.zone === "office" ? "boss-combo" : ""}`}
-          aria-label="连招状态"
+          aria-label="蓄力旋转斩"
         >
           <strong>
-            {game.combo + 1} / 3 · {ATTACKS[game.combo].name}
+            {game.spinTime > 0
+              ? "旋风斩！"
+              : game.chargeTime >= SPIN.minCharge
+                ? "松开攻击 · 释放旋转斩"
+                : "蓄力中…"}
           </strong>
-          <span>
-            {game.combo === 2
-              ? "终结技"
-              : game.comboQueued
-                ? "已衔接下一式"
-                : "再按攻击衔接"}
-          </span>
+          <meter
+            aria-label="蓄力进度"
+            min={0}
+            max={SPIN.maxCharge}
+            value={game.chargeTime}
+            style={{ width: 180, height: 12, justifySelf: "center" }}
+          />
+          <span>长按左键 / J / 攻击 · 消耗 26 体力</span>
         </div>
       )}
+      {(game.attackTime > 0 || game.comboWindow > 0) &&
+        game.chargeTime <= 0 &&
+        game.spinTime <= 0 && (
+          <div
+            className={`combo-status ${game.zone === "office" ? "boss-combo" : ""}`}
+            aria-label="连招状态"
+          >
+            <strong>
+              {game.combo + 1} / 3 · {ATTACKS[game.combo].name}
+            </strong>
+            <span>
+              {game.combo === 2
+                ? "终结技"
+                : game.comboQueued
+                  ? "已衔接下一式"
+                  : "再按攻击衔接"}
+            </span>
+          </div>
+        )}
       {game.zone === "office" && game.boss.active && game.boss.hp > 0 && (
         <div className="boss-hud" aria-label="Boss 战">
           <span>
@@ -195,7 +219,7 @@ export function Hud() {
       <div className="adventure-controls">
         <span>WASD 移动</span>
         <span>鼠标 视角</span>
-        <span>左键 / J 攻击</span>
+        <span>左键 / J 攻击 · 长按蓄力</span>
         <span>右键 / F 防御</span>
         <span>Space 跳跃</span>
         <span>Shift 冲刺</span>
@@ -271,9 +295,15 @@ function TouchControls() {
           <button
             className="attack-button"
             aria-label="挥剑"
-            onPointerDown={() => game.attack()}
+            onPointerDown={(e) => {
+              e.currentTarget.setPointerCapture(e.pointerId);
+              game.pressAttack();
+            }}
+            onPointerUp={() => game.releaseAttack()}
+            onPointerCancel={() => game.cancelCharge()}
+            onLostPointerCapture={() => game.cancelCharge()}
           >
-            ⚔<small>攻击</small>
+            ⚔<small>攻击·蓄力</small>
           </button>
           <HoldButton action="guard" label="防御" />
           <button
