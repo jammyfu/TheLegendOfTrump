@@ -26,7 +26,8 @@ export function ChargeEffects() {
         mesh.rotation.set(
           -Math.PI / 2,
           0,
-          (spinning ? t * 12 : game.elapsed * 3) * (i ? -1 : 1),
+          (spinning ? t * Math.PI * 2 * SPIN.turns : game.elapsed * 3) *
+            (i ? -1 : 1),
         );
         material.opacity = spinning ? (1 - t) * 0.7 : 0.15 + charge * 0.4;
         material.color.set(

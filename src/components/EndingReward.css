@@ -1,0 +1,63 @@
+.ending-reward {
+  position: relative;
+  margin: 12px auto;
+  text-align: center;
+  isolation: isolate;
+}
+.ending-reward::before {
+  content: "";
+  position: absolute;
+  inset: 5% 0 15%;
+  z-index: -1;
+  background: radial-gradient(ellipse, #e9ba5540, transparent 65%);
+  animation: reward-glow 1.6s ease-out both;
+}
+.ending-reward-label {
+  margin: 0 !important;
+  color: #f1d995;
+  font-size: 13px;
+  letter-spacing: 0.16em;
+}
+.ending-console {
+  display: block;
+  width: min(260px, 65vw);
+  max-height: 125px;
+  margin: 0 auto;
+  filter: drop-shadow(0 6px 12px #e9b95630);
+  animation: reward-arrive 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.ending-continued {
+  min-height: 30px;
+  color: #e8cd8c;
+  font-size: 14px;
+}
+.ending-continued[data-visible="true"] {
+  font-size: clamp(18px, 4vw, 26px);
+  font-style: italic;
+  animation: reward-arrive 0.65s ease-out both;
+}
+@keyframes reward-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes reward-glow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ending-reward::before,
+  .ending-console,
+  .ending-continued {
+    animation: none !important;
+  }
+}

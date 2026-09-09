@@ -301,7 +301,7 @@ export function Hud() {
           </button>
         )}
         <button className="mouse-look" onClick={requestMouseLook}>
-          ⌖ {document.pointerLockElement ? t("鼠标已锁定") : t("启用鼠标视角")}
+          ⌖ {t("按住中键转动视角")}
         </button>
         <button aria-label={t("切换地图")} onClick={() => setMapOpen(!mapOpen)}>
           {t("地图")}
@@ -345,7 +345,7 @@ export function Hud() {
       )}
       <div className="adventure-controls">
         <span>{t("WASD 移动")}</span>
-        <span>{t("鼠标 视角")}</span>
+        <span>{t("中键按住 视角")}</span>
         <span>{t("左键 / J 攻击 · 长按蓄力 · X 切换武器")}</span>
         <span>{t("右键 / F 防御 / 精瞄")}</span>
         <span>{t("Space 跳跃")}</span>

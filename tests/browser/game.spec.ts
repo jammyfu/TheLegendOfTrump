@@ -65,14 +65,16 @@ test("desktop controls, back equipment, jump, block, attack and mouse camera", a
     .toBe("RightWristPivot");
   await expect.poll(async () => (await parents(page)).sword).toBe("TorsoPivot");
   const before = await page.evaluate(() => window.__game!.cameraYaw);
-  await page.getByRole("button", { name: "启用鼠标视角" }).click();
+  await page.mouse.move(700, 430);
+  await page.mouse.down({ button: "middle" });
   await expect
     .poll(() => page.evaluate(() => !!document.pointerLockElement))
-    .toBeTruthy();
+    .toBeFalsy();
   await page.mouse.move(880, 430);
   await expect
     .poll(() => page.evaluate(() => window.__game!.cameraYaw))
     .not.toBe(before);
+  await page.mouse.up({ button: "middle" });
   await page.mouse.down({ button: "right" });
   await expect
     .poll(() => page.evaluate(() => window.__game!.guarding))
@@ -285,7 +287,7 @@ test("mobile multitouch movement + sprint + camera, held block and release clean
   });
   await expect
     .poll(() => page.evaluate(() => window.__game!.chargeTime))
-    .toBe(1.2);
+    .toBe(0.65);
   await cdp.send("Input.dispatchTouchEvent", {
     type: "touchCancel",
     touchPoints: [],
@@ -298,7 +300,7 @@ test("mobile multitouch movement + sprint + camera, held block and release clean
   });
   await expect
     .poll(() => page.evaluate(() => window.__game!.chargeTime))
-    .toBe(1.2);
+    .toBe(0.65);
   const hpBeforeSpin = await page.evaluate(() => window.__game!.boss.hp);
   await cdp.send("Input.dispatchTouchEvent", {
     type: "touchEnd",
@@ -387,7 +389,7 @@ test("first left click attacks, camera settings persist and portrait view expand
     .toBeLessThan(stamina);
   await expect
     .poll(() => page.evaluate(() => !!document.pointerLockElement))
-    .toBeTruthy();
+    .toBeFalsy();
   await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "设置", exact: true }).click();
   await page.getByText("视角与鼠标设置", { exact: true }).click();
@@ -691,7 +693,7 @@ test("hold left mouse charges, releases one radial spin and clears its effects",
   await page.mouse.down();
   await expect
     .poll(() => page.evaluate(() => window.__game!.chargeTime))
-    .toBe(1.2);
+    .toBe(0.65);
   await expect(page.getByLabel("蓄力旋转斩", { exact: true })).toBeVisible();
   await page.screenshot({ path: "artifacts/sword-charge.png" });
   await page.evaluate(() => {

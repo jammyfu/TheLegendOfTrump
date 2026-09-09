@@ -128,6 +128,7 @@ export class Simulation {
   coyoteTime = 0;
   lockObscuredTime = 0;
   lockRangeElapsed = 0;
+  fcUnlocked = false;
   mouseLookSuspended = false;
   private directionHeld = false;
   private lastInput: Input = { x: 0, z: 0, sprint: false };
@@ -540,6 +541,7 @@ export class Simulation {
   start() {
     this.phase = "playing";
     this.boss = new Boss();
+    this.fcUnlocked = false;
     this.zone = "grounds";
     this.x = 0;
     this.z = LANDING.heroZ;
@@ -899,6 +901,7 @@ export class Simulation {
     }
     if (this.phase === "dialogue") {
       this.phase = "won";
+      this.fcUnlocked = true;
       this.events.push("win");
       return;
     }
@@ -1541,9 +1544,10 @@ export class Simulation {
       this.spinTime <= 0 &&
       this.stamina > 0 &&
       this.dodgeTime <= 0;
-    let speed = this.sprinting ? 7 : 4.2;
-    if (this.guarding || this.chargeTime > 0 || this.aiming) speed = 2;
-    if (this.spinTime > 0) speed = 0.8;
+    let speed = this.sprinting ? 9.5 : 5.6;
+    if (this.guarding || this.aiming) speed = 2;
+    else if (this.chargeTime > 0) speed = 2.8;
+    if (this.spinTime > 0) speed = 1.6;
     if (this.attackTime > 0) speed *= 0.5;
     if (this.sprinting) {
       this.stamina = Math.max(0, this.stamina - 25 * dt);

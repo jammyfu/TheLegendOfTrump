@@ -1,3 +1,4 @@
+import { EndingReward } from "./components/EndingReward";
 import { t } from "./game/i18n";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { getAudioSettings } from "./game/audioSettings";
@@ -200,6 +201,7 @@ export default function App() {
                     ? t("你已完成南草坪的试炼，开启白宫的新篇章。")
                     : t("避开巡逻守卫，或挥剑将它们解除。")}
                 </p>
+                {game.phase === "won" && game.fcUnlocked && <EndingReward />}
                 <div className="result-stats">
                   <div>
                     <strong>{game.gems}</strong>
@@ -280,7 +282,7 @@ export default function App() {
             <dl>
               {[
                 [t("WASD / 方向键"), t("按镜头方向移动")],
-                [t("鼠标 / 滚轮"), t("转动视角 / 调整距离")],
+                [t("中键按住 / 滚轮"), t("转动视角 / 调整距离")],
                 [t("左键 / J"), t("拔剑攻击")],
                 [t("右键 / F"), t("举盾防御（按住）")],
                 ["Space / Shift", t("跳跃 / 冲刺（按住）")],
@@ -298,7 +300,7 @@ export default function App() {
             </dl>
             <p className="help-note">
               {t(
-                "桌面左键直接攻击并启用鼠标视角，滚轮调整距离。暂停菜单可设置视野、距离与灵敏度。无法锁定时按住中键拖动。手机左摇杆移动，推满自动冲刺；右半屏滑动视角，右侧四键为攻击、防御、跳跃、翻滚；顶部切换锁定，防御需按住。剑盾不用时背在身后；冲刺、翻滚、攻击和格挡消耗体力；普通跳跃不消耗体力。",
+                "桌面左键仅攻击，按住中键拖动视角，松开停止，滚轮调整距离。暂停菜单可设置视野、距离与灵敏度。手机左摇杆移动，推满自动冲刺；右半屏滑动视角，右侧四键为攻击、防御、跳跃、翻滚；顶部切换锁定，防御需按住。剑盾不用时背在身后；冲刺、翻滚、攻击和格挡消耗体力；普通跳跃不消耗体力。",
               )}
             </p>
             <button className="primary" onClick={() => setHelp(false)}>

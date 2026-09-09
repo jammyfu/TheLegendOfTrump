@@ -31,42 +31,28 @@ test("unlock stops residual mouse motion; directional combat roll and sprint jum
       window.__game!.cameraPitch,
     ]),
   ).toEqual(before);
-  const delayedRelease = await page.evaluate(async () => {
+  const lockRequests = await page.evaluate(async () => {
     const input = await import(
       /* @vite-ignore */ "/src/game/input.ts" as string
     );
     const canvas = document.querySelector("canvas")!;
     const original = canvas.requestPointerLock;
-    let locked: Element | null = null;
-    let finish!: () => void;
-    const old = Object.getOwnPropertyDescriptor(document, "pointerLockElement");
-    const exit = document.exitPointerLock;
-    Object.defineProperty(document, "pointerLockElement", {
-      configurable: true,
-      get: () => locked,
-    });
-    document.exitPointerLock = () => {
-      locked = null;
-      document.dispatchEvent(new Event("pointerlockchange"));
+    let count = 0;
+    canvas.requestPointerLock = () => {
+      count++;
+      return Promise.resolve();
     };
-    canvas.requestPointerLock = () =>
-      new Promise<void>((resolve) => {
-        finish = resolve;
-      });
     input.requestMouseLook();
-    input.releaseMouse();
-    locked = canvas;
-    document.dispatchEvent(new Event("pointerlockchange"));
-    finish();
-    await Promise.resolve();
-    const released = locked === null;
+    canvas.dispatchEvent(
+      new MouseEvent("mousedown", { bubbles: true, button: 0, buttons: 1 }),
+    );
+    canvas.dispatchEvent(
+      new MouseEvent("mouseup", { bubbles: true, button: 0 }),
+    );
     canvas.requestPointerLock = original;
-    document.exitPointerLock = exit;
-    if (old) Object.defineProperty(document, "pointerLockElement", old);
-    else Reflect.deleteProperty(document, "pointerLockElement");
-    return released;
+    return count;
   });
-  expect(delayedRelease).toBe(true);
+  expect(lockRequests).toBe(0);
   await page.keyboard.down("Shift");
   await page.keyboard.down("KeyW");
   await page.keyboard.press("Space");

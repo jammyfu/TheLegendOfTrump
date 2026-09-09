@@ -142,7 +142,7 @@ export function Character() {
       ? (SPIN.duration - game.spinTime) / SPIN.duration
       : 0;
     root.current.rotation.y =
-      game.yaw + (spinning ? Math.PI * 2 * spinProgress : 0);
+      game.yaw + (spinning ? Math.PI * 2 * SPIN.turns * spinProgress : 0);
     root.current.visible =
       game.dodgeTime > 0 ||
       game.invincible <= 0 ||

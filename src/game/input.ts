@@ -3,14 +3,14 @@ import { unlockAudio } from "./audio";
 export const keys = new Set<string>();
 export const joystick = { x: 0, z: 0 };
 const mouse = { guard: false };
-let lookRequested = false,
-  requestSerial = 0,
+let middleDrag = false,
   intentionalRelease = false;
 export const held = { sprint: false, guard: false };
 export function clearInput() {
   game.cancelCharge();
   game.jumpBuffer = 0;
   mouse.guard = false;
+  middleDrag = false;
   keys.clear();
   joystick.x = 0;
   joystick.z = 0;
@@ -32,35 +32,13 @@ export function getInput() {
   };
 }
 export function releaseMouse() {
-  lookRequested = false;
-  requestSerial++;
+  middleDrag = false;
   intentionalRelease = !!document.pointerLockElement;
   if (document.pointerLockElement) document.exitPointerLock();
 }
 export function requestMouseLook() {
-  if (game.phase !== "playing") return;
-  const canvas = document.querySelector("canvas");
-  if (!canvas) return;
-  lookRequested = true;
-  game.mouseLookSuspended = false;
-  const serial = ++requestSerial;
-  try {
-    const request = canvas.requestPointerLock();
-    request?.then(
-      () => {
-        if (!lookRequested || game.mouseLookSuspended) releaseMouse();
-      },
-      () => {
-        if (serial === requestSerial) {
-          lookRequested = false;
-          game.notify("鼠标锁定不可用，可按住中键拖动视角");
-        }
-      },
-    );
-  } catch {
-    lookRequested = false;
-    game.notify("按住鼠标中键拖动视角");
-  }
+  releaseMouse();
+  game.notify("按住鼠标中键拖动视角，松开停止 · 左键仅攻击");
 }
 export function bindInput() {
   const down = (e: KeyboardEvent) => {
@@ -145,9 +123,10 @@ export function bindInput() {
     unlockAudio();
     if (e.button === 0) {
       game.pressAttack();
-      if (!document.pointerLockElement) requestMouseLook();
     }
     if (e.button === 1) {
+      e.preventDefault();
+      middleDrag = true;
       game.mouseLookSuspended = false;
     }
     if (e.button === 2) {
@@ -156,6 +135,7 @@ export function bindInput() {
     }
   };
   const mouseUp = (e: MouseEvent) => {
+    if (e.button === 1) middleDrag = false;
     if (e.button === 0) game.releaseAttack();
     if (e.button === 2) mouse.guard = false;
   };
@@ -169,12 +149,7 @@ export function bindInput() {
       (document.pointerLockElement || e.target instanceof HTMLCanvasElement)
     )
       mouse.guard = !!(e.buttons & 2);
-    if (
-      game.phase === "playing" &&
-      ((lookRequested &&
-        document.pointerLockElement instanceof HTMLCanvasElement) ||
-        (e.buttons === 4 && e.target instanceof HTMLCanvasElement))
-    )
+    if (game.phase === "playing" && middleDrag && (e.buttons & 4) !== 0)
       game.look(e.movementX, e.movementY);
   };
   const wheel = (e: WheelEvent) => {
@@ -192,12 +167,12 @@ export function bindInput() {
       e.preventDefault();
   };
   const lock = () => {
-    if (document.pointerLockElement && !lookRequested) {
+    if (document.pointerLockElement) {
       releaseMouse();
       return;
     }
     if (!document.pointerLockElement) {
-      lookRequested = false;
+      middleDrag = false;
       clearInput();
       if (!intentionalRelease && game.phase === "playing") game.pause();
       intentionalRelease = false;

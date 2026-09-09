@@ -107,10 +107,11 @@ export function attackPose(stage: number, elapsed: number): Pose {
 }
 
 export const SPIN = {
-  minCharge: 1.2,
-  maxCharge: 1.2,
-  duration: 0.8,
-  hit: 0.22,
+  minCharge: 0.65,
+  maxCharge: 0.65,
+  duration: 0.65,
+  turns: 2,
+  hit: 0.16,
   cost: 26,
   radius: 3.8,
 };
