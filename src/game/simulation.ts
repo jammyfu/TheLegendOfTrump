@@ -25,6 +25,7 @@ import {
   gateCollider,
   cratePositions,
   interactions,
+  OFFICE_SCALE,
   type Collider,
   type Interaction,
   type Zone,
@@ -673,7 +674,7 @@ export class Simulation {
       this.hp = 3;
       this.stamina = this.maxStamina;
       this.x = 0;
-      this.z = 6;
+      this.z = 6 * OFFICE_SCALE;
       this.y = 0;
       this.vy = 0;
       this.grounded = true;
@@ -898,8 +899,8 @@ export class Simulation {
         zone: "office",
         x: this.boss.x,
         z: this.boss.z,
-        radius: 0.8,
-        top: 4.3,
+        radius: 0.8 * OFFICE_SCALE,
+        top: 4.3 * OFFICE_SCALE,
       });
     if (this.zone === "office")
       for (const g of this.minions)
@@ -959,8 +960,9 @@ export class Simulation {
       this.events.push("win");
       return;
     }
-    if (this.phase !== "playing") return;
     const i = this.interaction;
+    // The final signing scene keeps the exit prompt active.
+    if (this.phase !== "playing" && !(this.phase === "won" && i?.kind === "exit")) return;
     if (!i) return;
     switch (i.kind) {
       case "field-sign":
@@ -1013,7 +1015,7 @@ export class Simulation {
         this.zone = "office";
         this.yaw = Math.PI;
         this.x = 0;
-        this.z = 6;
+        this.z = 6 * OFFICE_SCALE;
         this.y = 0;
         this.vy = 0;
         this.cameraYaw = 0;
@@ -1040,13 +1042,17 @@ export class Simulation {
         this.supplies = [];
         this.lockedTarget = null;
         this.zone = "grounds";
+        // Leave the signing camera state before the outdoor scene is rendered.
+        this.phase = "playing";
         this.x = 0;
         this.z = -10;
         this.y = 0;
         this.vy = 0;
         this.yaw = 0;
         this.cameraYaw = 0;
+        this.cameraPitch = 0.3;
         this.cameraDistance = this.cameraSettings.distance;
+        this.version++;
         this.events.push("door");
         break;
       case "desk":
@@ -1056,7 +1062,7 @@ export class Simulation {
         }
         this.phase = "dialogue";
         this.x = 0;
-        this.z = -11.25;
+        this.z = -11.25 * OFFICE_SCALE;
         this.y = 0;
         this.yaw = 0;
         this.moving = false;

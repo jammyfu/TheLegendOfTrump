@@ -1,4 +1,6 @@
 export const GARDEN_HEDGE_HEIGHT = 3.6;
+/** The Oval Office is a ceremonial hall, scaled beyond exterior player space. */
+export const OFFICE_SCALE = 2;
 import { landscapeColliders } from "./landscape";
 import { CAMPS, FIELD_CHESTS, FIELD_HERBS, FIELD_CRATES } from "./expedition";
 import { estateColliders } from "./estate";
@@ -185,7 +187,11 @@ export const interactions: Interaction[] = [
     kind: "fountain",
     label: "在喷泉边恢复体力",
   },
-];
+].map((interaction): Interaction =>
+  interaction.zone === "office"
+    ? ({ ...interaction, x: interaction.x * OFFICE_SCALE, z: interaction.z * OFFICE_SCALE } as Interaction)
+    : (interaction as Interaction),
+);
 const box = (
   id: string,
   zone: Zone,
@@ -323,7 +329,18 @@ export const staticColliders: Collider[] = [
   box("gatepost-west", "grounds", -16.4, 0.6, 0.35, 0.4, GARDEN_HEDGE_HEIGHT + 0.2),
   box("gatepost-east", "grounds", -9.6, 0.6, 0.35, 0.4, GARDEN_HEDGE_HEIGHT + 0.2),
   box("lever", "grounds", -7, 1, 0.85, 0.85, 0.9),
-];
+].map((collider): Collider => {
+  if (collider.zone !== "office") return collider;
+  return {
+    ...collider,
+    x: collider.x * OFFICE_SCALE,
+    z: collider.z * OFFICE_SCALE,
+    top: collider.top * OFFICE_SCALE,
+    ...(collider.radius ? { radius: collider.radius * OFFICE_SCALE } : {}),
+    ...(collider.w ? { w: collider.w * OFFICE_SCALE } : {}),
+    ...(collider.d ? { d: collider.d * OFFICE_SCALE } : {}),
+  };
+});
 export const gateCollider = box(
   "garden-gate",
   "grounds",

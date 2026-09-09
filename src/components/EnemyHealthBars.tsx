@@ -18,7 +18,7 @@ function EnemyHealthBar({ id, boss = false }: { id: number; boss?: boolean }) {
       Math.hypot(enemy.x - game.x, enemy.z - game.z) <= 75,
     );
     if (!group.current.visible || !enemy) return;
-    const size = guard ? enemyScale(guard) : 1.5;
+    const size = guard ? enemyScale(guard) : 3;
     // Summoned guards use light-unit health; captains scale their base health.
     const maxHp = boss ? game.boss.maxHp : game.zone === "office" ? ENEMY_RULES.archer.hp :
       Math.round(ENEMY_RULES[guard!.kind].hp * (guard!.sizeMultiplier ?? 1));

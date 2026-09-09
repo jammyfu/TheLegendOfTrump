@@ -91,7 +91,7 @@ export function EnemyModel({
     const recovering = !boss && guard!.attackTime > 0;
     ref.current.visible = game.phase !== "intro" && (alive || g.defeatTime > 0);
     const death = deathPose(g.defeatTime, boss ? DEATH.boss : DEATH.enemy);
-    const size = boss ? 1 : enemyScale(guard!);
+    const size = boss ? 2 : enemyScale(guard!);
     model.scale.setScalar(size);
     ref.current.position.set(g.x, alive ? 0 : 0.45 * size * death.fall, g.z);
     const recoil = boss

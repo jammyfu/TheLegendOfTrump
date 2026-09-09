@@ -5,7 +5,7 @@ export type BossMove = "sweep" | "slam" | "wave" | "dart";
 export class Boss {
   id = 100;
   x = 0;
-  z = -0.5;
+  z = -1;
   yaw = 0;
   hp = 18;
   maxHp = 18;

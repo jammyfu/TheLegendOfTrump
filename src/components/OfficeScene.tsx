@@ -1,8 +1,10 @@
 import { useFrame, useLoader } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { Box3, Mesh, Vector3 } from "three";
+import { Box3, Mesh, SRGBColorSpace, TextureLoader, Vector3 } from "three";
 import { game } from "../game/simulation";
+import { applyLegendMaterials } from "../game/materials";
+import { OFFICE_SCALE } from "../game/world";
 import {
   cutawayFade,
   obscuresSubject,
@@ -13,8 +15,15 @@ export function OfficeScene() {
     GLTFLoader,
     import.meta.env.BASE_URL + "models/oval-cutaway.glb",
   );
+  const portrait = useLoader(
+    TextureLoader,
+    import.meta.env.BASE_URL + "textures/portraits/creator-presidential-portrait.png",
+  );
+  portrait.colorSpace = SRGBColorSpace;
   const model = useMemo(() => {
     const m = gltf.scene.clone(true);
+    m.scale.setScalar(OFFICE_SCALE);
+    applyLegendMaterials(m);
     m.traverse((n) => {
       if (n instanceof Mesh) {
         n.castShadow = true;
@@ -119,16 +128,20 @@ export function OfficeScene() {
   return (
     <>
       <primitive object={model} />
+      <mesh position={[0, 11, -31.56]}>
+        <planeGeometry args={[17.2, 11.4]} />
+        <meshStandardMaterial map={portrait} roughness={0.42} metalness={0.06} />
+      </mesh>
       <pointLight
-        position={[0, 7, -5]}
-        intensity={110}
-        distance={35}
+        position={[0, 14, -10]}
+        intensity={180}
+        distance={70}
         color="#ffe5b2"
       />
       <pointLight
-        position={[0, 6, 7]}
-        intensity={65}
-        distance={30}
+        position={[0, 12, 14]}
+        intensity={120}
+        distance={60}
         color="#d4e6ff"
       />
     </>
