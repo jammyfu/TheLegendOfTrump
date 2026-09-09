@@ -127,7 +127,9 @@ export function bindInput() {
     if (game.phase !== "playing" || !(e.target instanceof HTMLCanvasElement))
       return;
     unlockAudio();
-    if (e.button === 0) {
+    // A shield hold takes priority over attack. This also avoids a left-click
+    // from briefly starting a swing and dropping a held right-click guard.
+    if (e.button === 0 && !mouse.guard && !held.guard && !keys.has("KeyF")) {
       game.pressAttack();
     }
     if (e.button === 1) {
@@ -150,11 +152,10 @@ export function bindInput() {
       if (document.pointerLockElement) releaseMouse();
       return;
     }
-    if (
-      game.phase === "playing" &&
-      (document.pointerLockElement || e.target instanceof HTMLCanvasElement)
-    )
-      mouse.guard = !!(e.buttons & 2);
+    // Do not derive a held right button from mousemove.buttons. Some touchpads
+    // and pointer-lock transitions report 0 for a single move, which made the
+    // shield flash off despite the player still holding the button. mouseDown,
+    // mouseUp, blur and clearInput own this state instead.
     if (game.phase === "playing" && middleDrag && (e.buttons & 4) !== 0)
       game.look(e.movementX, e.movementY);
   };
