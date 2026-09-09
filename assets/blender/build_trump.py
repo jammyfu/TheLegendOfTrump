@@ -24,7 +24,7 @@ def build():
     body=empty('TorsoPivot',parent=root)
     head=empty('HeadPivot',(0,0,2.18),body)
     limbs={}
-    for s,label in [(-1,'Left'),(1,'Right')]:
+    for s,label in [(-1,'Right'),(1,'Left')]:
         limbs[label+'Arm']=empty(label+'ArmPivot',(s*.55,0,1.98),body)
         limbs[label+'Leg']=empty(label+'LegPivot',(s*.27,0,1.06),root)
     objects=[]
@@ -68,7 +68,7 @@ def build():
     bevelbox('Flag_Pin',(.34,-.288,1.94),(.17,.016,.105),'white',body,0)
     for i in range(4):bevelbox('Pin_Stripe_%d'%i,(.34,-.301,1.902+i*.027),(.17,.005,.013),'tie',body,0)
     bevelbox('Pin_Canton',(.296,-.309,1.965),(.08,.006,.055),'blue',body,0)
-    for s,label in [(-1,'Left'),(1,'Right')]:
+    for s,label in [(-1,'Right'),(1,'Left')]:
         arm=limbs[label+'Arm'];leg=limbs[label+'Leg']
         ringmesh(label+'_Sleeve',[(0,.205,.205,0,0),(-.32,.16,.17,s*.15,0),(-.71,.16,.17,s*.29,-.01)],'suit',arm)
         ringmesh(label+'_Cuff',[(-.72,.14,.14,s*.29,-.01),(-.76,.14,.14,s*.3,-.01)],'white',arm)
@@ -86,7 +86,7 @@ def build():
         for i in range(8):face_faces.append((r*8+i,r*8+(i+1)%8,(r+1)*8+(i+1)%8,(r+1)*8+i))
     face_faces.append(tuple(range(40,48)))
     mesh('Head_Faceted',face_vertices,face_faces,'skinlight',head)
-    for s,label in [(-1,'Left'),(1,'Right')]:
+    for s,label in [(-1,'Right'),(1,'Left')]:
         ringmesh(label+'_Ear',[(.18,.08,.075,s*.355,.0),(.3,.105,.08,s*.38,-.005),(.4,.06,.06,s*.355,.005)],'skin',head,segments=5)
         # Inward-sloping eyes / strong brow, the most distinctive facial detail.
         x=s*.17
@@ -99,13 +99,13 @@ def build():
     poly('Frown',[(-.112,-.309,.274),(-.052,-.314,.295),(.012,-.316,.3),(.076,-.311,.281),(.125,-.307,.26),(.063,-.315,.274),(0,-.32,.283),(-.054,-.316,.28)],'mouth',head)
     # Big swept golden quiff, with deliberate asymmetric wedge-shaped polygon locks.
     ringmesh('Hair_Back',[(.18,.31,.24,0,.115),(.49,.4,.31,0,.1),(.77,.39,.3,0,.08),(.88,.31,.24,0,.06)],'hairshade',head,segments=8)
-    for s,label in [(-1,'Left'),(1,'Right')]:
+    for s,label in [(-1,'Right'),(1,'Left')]:
         ringmesh(label+'_Sideburn',[(.28,.085,.18,s*.34,.012),(.54,.115,.24,s*.34,.018),(.78,.1,.22,s*.31,.025)],'hair',head,segments=6)
     mesh('Swept_Gold_Quiff',[(-.4,-.23,.64),(-.37,-.38,.85),(-.29,-.24,1.015),(.15,-.2,1.055),(.58,-.12,1.03),(.43,-.37,.865),(.29,-.34,.67),(-.12,-.39,.7),(-.34,.25,.9),(.27,.28,.94),(.38,.15,.73)],[(0,1,7),(1,2,3,5),(3,4,5),(5,6,7,1),(0,7,6,10),(2,8,9,3),(3,9,4),(4,9,10,6,5),(0,8,2,1),(8,0,10,9)],'hair',head)
     quiff=objects[-1];quiff.data.materials.append(mats['hairlight']);quiff.data.materials.append(mats['hairshade'])
     for i,p in enumerate(quiff.data.polygons):p.material_index=[2,1,1,0,2,1,1,0,0,2][i]
     # Detachable sword, hidden by runtime except during the swing.
-    sword=empty('SwordPivot',(0.37,-.04,-.94),limbs['RightArm'])
+    sword=empty('SwordPivot',(-0.37,-.04,-.94),limbs['RightArm'])
     bevelbox('Sword_Grip',(0,-.05,0),(.09,.26,.09),'hilt',sword,.015)
     bevelbox('Sword_Crossguard',(0,-.19,0),(.49,.07,.13),'hilt',sword,.02)
     mesh('Sword_Blade',[(-.085,-.23,0),(.085,-.23,0),(.065,-1.12,0),(0,-1.38,0),(-.065,-1.12,0),(0,-.23,.048),(0,-1.1,.038)],[(0,5,6,4),(5,1,2,6),(4,6,3),(6,2,3),(0,4,3,2,1)],'silver',sword)

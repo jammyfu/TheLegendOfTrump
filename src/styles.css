@@ -1351,3 +1351,298 @@ kbd {
   filter: drop-shadow(1px 2px 1px #000);
   pointer-events: none;
 }
+/* Adventure input: independent movement, camera and simultaneous held actions. */
+.adventure-menu {
+  position: absolute;
+  z-index: 6;
+  top: 22px;
+  right: 24px;
+  display: flex;
+  gap: 8px;
+}
+.adventure-menu button {
+  border: 1px solid #dbc68a66;
+  background: #122823b8;
+  color: #ecdbac;
+  padding: 9px 12px;
+  border-radius: 5px;
+  font-size: 11px;
+}
+.stamina {
+  width: 128px;
+  margin-top: 10px;
+}
+.stamina meter {
+  display: block;
+  width: 100%;
+  height: 8px;
+  appearance: none;
+  border: 1px solid #d5e8a388;
+  background: #344b34;
+  border-radius: 9px;
+  overflow: hidden;
+}
+.stamina meter::-webkit-meter-bar {
+  background: #283c32;
+  border: 0;
+}
+.stamina meter::-webkit-meter-optimum-value {
+  background: #9ad768;
+}
+.stamina span {
+  font: 9px monospace;
+  color: #e2e9c8;
+  display: block;
+  margin-top: 5px;
+  text-shadow: 1px 1px 2px #000;
+}
+.quest {
+  top: 26px;
+  bottom: auto;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 16px;
+}
+.gem-count {
+  bottom: 73px;
+}
+.toast {
+  bottom: 105px;
+  max-width: 480px;
+}
+.interact-prompt {
+  bottom: 163px;
+}
+.adventure-controls {
+  position: absolute;
+  left: 26px;
+  right: 26px;
+  bottom: 22px;
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  z-index: 4;
+  font-size: 10px;
+  color: #e4e4d2;
+  text-shadow: 1px 2px 2px #000;
+}
+.lock-label {
+  position: absolute;
+  top: 78px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: #ffd389;
+  background: #26160ca6;
+  padding: 6px 12px;
+  border-radius: 4px;
+  z-index: 4;
+}
+.adventure-touch,
+.look-pad {
+  display: none;
+}
+.help-panel {
+  max-height: 92dvh;
+  overflow-y: auto;
+}
+.help-panel dl div {
+  margin: 12px 0;
+}
+.menu-panel p {
+  max-width: 100%;
+}
+.game:has(.modal-shade) .adventure-touch {
+  display: none;
+}
+@media (pointer: coarse) {
+  .adventure-controls,
+  .mouse-look {
+    display: none;
+  }
+  .adventure-touch {
+    display: block;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 6;
+  }
+  .adventure-touch .joystick {
+    position: absolute;
+    bottom: max(28px, env(safe-area-inset-bottom));
+    left: 22px;
+    width: 114px;
+    height: 114px;
+    pointer-events: auto;
+  }
+  .adventure-buttons {
+    position: absolute;
+    right: 16px;
+    bottom: 25px;
+    width: 188px;
+    height: 188px;
+    pointer-events: none;
+  }
+  .adventure-buttons button {
+    position: absolute;
+    pointer-events: auto;
+    touch-action: none;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 51px;
+    height: 51px;
+    border: 1px solid #e4d09a88;
+    background: #163934ba;
+    border-radius: 50%;
+    color: #f0dfb0;
+    font-size: 21px;
+    box-shadow:
+      inset 1px 2px 3px #d0c08133,
+      1px 2px 3px #10252177;
+  }
+  .adventure-buttons button small {
+    font-size: 8px;
+    letter-spacing: 1px;
+    margin-top: 1px;
+  }
+  .adventure-buttons .attack-button {
+    width: 66px;
+    height: 66px;
+    right: 0;
+    top: 58px;
+    background: #877444df;
+    font-size: 27px;
+  }
+  .guard-button {
+    right: 66px;
+    top: 10px;
+  }
+  .jump-button {
+    right: 61px;
+    bottom: 0;
+  }
+  .dodge-button {
+    left: 0;
+    top: 78px;
+  }
+  .sprint-button {
+    left: 0;
+    bottom: 0;
+  }
+  .lock-button {
+    right: 0;
+    top: 0;
+  }
+  .look-pad {
+    display: block;
+    position: absolute;
+    z-index: 3;
+    left: 38%;
+    right: 0;
+    top: 105px;
+    bottom: 216px;
+    touch-action: none;
+  }
+  .look-pad span {
+    position: absolute;
+    right: 24px;
+    top: 24px;
+    font: 9px sans-serif;
+    color: #eef0d899;
+    text-shadow: 1px 1px 2px #123;
+  }
+  .minimap {
+    bottom: 240px;
+    right: 17px;
+    width: 103px;
+  }
+  .gem-count {
+    bottom: 165px;
+    left: 25px;
+  }
+  .toast {
+    bottom: 238px;
+    max-width: 68%;
+  }
+  .interact-prompt {
+    bottom: 290px;
+  }
+  .quest {
+    top: 94px;
+    left: 20px;
+    transform: none;
+    max-width: calc(100% - 40px);
+    padding: 7px 10px;
+  }
+  .quest p {
+    font-size: 10px;
+  }
+  .adventure-menu {
+    top: 20px;
+    right: 17px;
+  }
+  .lock-label {
+    top: 132px;
+    left: 20px;
+    transform: none;
+  }
+  .vital-hud {
+    left: 18px;
+    top: 18px;
+  }
+  .game {
+    min-height: 420px;
+  }
+}
+@media (max-width: 960px) and (pointer: fine) {
+  .adventure-controls {
+    font-size: 8px;
+    gap: 9px;
+  }
+  .quest {
+    top: 105px;
+    left: 24px;
+    transform: none;
+  }
+}
+@media (max-height: 520px) and (pointer: coarse) {
+  .quest {
+    top: 86px;
+  }
+  .adventure-buttons {
+    transform: scale(0.83);
+    transform-origin: bottom right;
+    bottom: 14px;
+  }
+  .adventure-touch .joystick {
+    width: 100px;
+    height: 100px;
+    bottom: 14px;
+  }
+  .look-pad {
+    top: 80px;
+    bottom: 175px;
+  }
+  .interact-prompt {
+    bottom: 145px;
+  }
+  .toast {
+    bottom: 192px;
+  }
+  .gem-count {
+    bottom: 125px;
+  }
+  .lock-label {
+    top: 120px;
+  }
+  .minimap {
+    bottom: 185px;
+    width: 80px;
+  }
+  .stamina {
+    width: 100px;
+  }
+}

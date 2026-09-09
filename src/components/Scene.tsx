@@ -2,11 +2,13 @@ import { Suspense, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Group, Vector3 } from "three";
 import { game } from "../game/simulation";
-import { getInput } from "../game/input";
+import { getInput, releaseMouse } from "../game/input";
 import { playSound } from "../game/audio";
 import { Grounds, Office } from "./World";
 import { Character } from "./Character";
 import { Box, Cylinder } from "./Primitives";
+import { cameraFraction } from "../game/collision";
+import { InteractiveProps } from "./InteractiveProps";
 const desired = new Vector3(),
   target = new Vector3();
 function Runtime() {
@@ -34,19 +36,31 @@ function Runtime() {
     ) {
       desired.set(0, 3.2, 1.8);
       target.set(0, 2.05, -5.6);
-    } else if (game.zone === "office") {
-      desired.set(game.x * 0.4, 7.5, Math.max(game.z + 8, 7));
-      target.set(game.x * 0.45, 1.6, game.z - 3);
     } else {
-      const yaw = game.cameraYaw;
+      const distance = game.cameraDistance,
+        yaw = game.cameraYaw,
+        pitch = game.cameraPitch;
+      target.set(game.x, game.y + 1.9, game.z);
       desired.set(
-        game.x + Math.sin(yaw) * 10.5,
-        4.9,
-        game.z + Math.cos(yaw) * 10.5,
+        target.x + Math.sin(yaw) * Math.cos(pitch) * distance,
+        target.y + Math.sin(pitch) * distance,
+        target.z + Math.cos(yaw) * Math.cos(pitch) * distance,
       );
-      target.set(game.x - Math.sin(yaw) * 2, 2.6, game.z - Math.cos(yaw) * 2);
+      desired.lerpVectors(
+        target,
+        desired,
+        cameraFraction(game.colliders, target, desired),
+      );
     }
-    camera.position.lerp(desired, first.current ? 1 : 1 - Math.exp(-delta * 5));
+    if (game.phase !== "playing" && document.pointerLockElement) releaseMouse();
+    camera.position.lerp(desired, first.current ? 1 : 1 - Math.exp(-delta * 9));
+    if (game.phase === "playing" || game.phase === "paused") {
+      camera.position.lerpVectors(
+        target,
+        camera.position,
+        cameraFraction(game.colliders, target, camera.position),
+      );
+    }
     camera.lookAt(target);
     first.current = false;
   });
@@ -76,7 +90,12 @@ function Runtime() {
       />
       {zone === "grounds" ? <Grounds /> : <Office />}
       <Character />
-      {zone === "grounds" && <Entities />}
+      {zone === "grounds" && (
+        <>
+          <Entities />
+          <InteractiveProps />
+        </>
+      )}
       <DoorMarker />
     </>
   );
@@ -104,7 +123,11 @@ function Entities() {
         0.12 + Math.sin(clock.elapsedTime * 3 + i) * 0.12,
         guard.z,
       );
-      child.rotation.y = -game.elapsed * 0.55 - i * Math.PI;
+      child.rotation.y = guard.yaw;
+      child.scale.setScalar(guard.windup > 0 ? 1.05 : 1);
+      const warning = child.getObjectByName("guard-warning");
+      if (warning)
+        warning.visible = guard.windup > 0 || game.lockedTarget === guard.id;
     });
   });
   return (
@@ -175,6 +198,10 @@ function Entities() {
       <group ref={guards}>
         {game.guards.map((g) => (
           <group key={g.id}>
+            <mesh name="guard-warning" position={[0, 3, 0]}>
+              <octahedronGeometry args={[0.2]} />
+              <meshBasicMaterial color="#ff714d" />
+            </mesh>
             <Cylinder
               position={[0, 0.35, 0]}
               radius={0.5}
@@ -251,23 +278,15 @@ export function Scene() {
   return (
     <Canvas
       shadows
+      onCreated={({ scene, camera }) => {
+        if (import.meta.env.DEV) {
+          window.__scene = scene;
+          window.__camera = camera;
+        }
+      }}
       dpr={[1, 1.5]}
       camera={{ fov: 48, near: 0.1, far: 140 }}
       gl={{ antialias: true, powerPreference: "high-performance" }}
-      onPointerDown={(e) => {
-        if (e.button !== 0 || game.phase !== "playing") return;
-        const element = e.target as HTMLCanvasElement;
-        element.setPointerCapture(e.pointerId);
-      }}
-      onPointerMove={(e) => {
-        if (
-          e.buttons === 1 &&
-          game.phase === "playing" &&
-          game.zone === "grounds" &&
-          e.pointerType === "mouse"
-        )
-          game.cameraYaw -= e.movementX * 0.006;
-      }}
     >
       <Suspense fallback={null}>
         <Runtime />

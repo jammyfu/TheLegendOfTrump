@@ -31,3 +31,31 @@ test("shipped Blender character contains only the intended scene and animation p
     "model should not load unrelated image assets",
   );
 });
+
+test("adventure assets contain isolated models and required animation pivots", () => {
+  const assets = {
+    "hero-sword": ["GearSword"],
+    "hero-shield": ["GearShield"],
+    "adventure-chest": ["AdventureChest", "LidPivot"],
+    "adventure-lever": ["AdventureLever", "HandlePivot"],
+    "adventure-crate": ["AdventureCrate"],
+    "adventure-herb": ["AdventureHerb"],
+  };
+  for (const [file, names] of Object.entries(assets)) {
+    const bytes = readFileSync(
+      new URL(`../public/models/${file}.glb`, import.meta.url),
+    );
+    assert.equal(bytes.toString("ascii", 0, 4), "glTF");
+    assert.ok(bytes.length < 100_000, file);
+    const gltf = JSON.parse(
+      bytes.toString("utf8", 20, 20 + bytes.readUInt32LE(12)),
+    );
+    assert.equal(gltf.scenes.length, 1, file);
+    assert.ok(!gltf.images?.length, file);
+    for (const name of names)
+      assert.ok(
+        gltf.nodes.some((node: { name: string }) => node.name === name),
+        name,
+      );
+  }
+});

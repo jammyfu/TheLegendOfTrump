@@ -1,6 +1,12 @@
 import { useRef, useState } from "react";
 import { game } from "../game/simulation";
-import { clearInput, joystick } from "../game/input";
+import {
+  clearInput,
+  joystick,
+  held,
+  getInput,
+  requestMouseLook,
+} from "../game/input";
 import { Heart, GemIcon } from "./Icons";
 export function Minimap() {
   const office = game.zone === "office";
@@ -71,7 +77,9 @@ export function Minimap() {
   );
 }
 export function Hud() {
-  const [mapOpen, setMapOpen] = useState(true);
+  const [mapOpen, setMapOpen] = useState(
+    () => !matchMedia("(pointer:coarse)").matches,
+  );
   return (
     <>
       <div className="vital-hud">
@@ -80,55 +88,32 @@ export function Hud() {
             <Heart key={n} empty={n > game.hp} />
           ))}
         </div>
+        <div className="stamina">
+          <meter min="0" max="100" value={game.stamina} aria-label="体力" />
+          <span>
+            {game.guarding
+              ? "防御中"
+              : game.sprinting
+                ? "冲刺"
+                : game.dodgeTime > 0
+                  ? "闪避"
+                  : "体力"}{" "}
+            {Math.ceil(game.stamina)}
+          </span>
+        </div>
       </div>
       <div className="gem-count" aria-label={`翡翠 ${game.gems} 枚`}>
         <GemIcon />
         <strong>{String(game.gems).padStart(2, "0")}</strong>
-        <span>/ 08</span>
       </div>
-      <div className="retro-actions">
-        <button
-          className="retro-action sword-action"
-          onClick={() => game.attack()}
-          aria-label="剑击"
-        >
-          ⚔
+      <div className="adventure-menu">
+        <button className="mouse-look" onClick={requestMouseLook}>
+          ⌖ {document.pointerLockElement ? "鼠标已锁定" : "启用鼠标视角"}
+        </button>
+        <button aria-label="切换地图" onClick={() => setMapOpen(!mapOpen)}>
+          地图
         </button>
         <button
-          className="retro-action use-action"
-          onClick={() => game.interact()}
-          aria-label="动作"
-        >
-          A
-        </button>
-        <div className="c-buttons">
-          <button
-            onClick={() => (game.cameraYaw -= Math.PI / 4)}
-            aria-label="左转镜头"
-          >
-            ◀
-          </button>
-          <button onClick={() => (game.cameraYaw = 0)} aria-label="重置镜头">
-            ▲
-          </button>
-          <button
-            onClick={() => (game.cameraYaw += Math.PI / 4)}
-            aria-label="右转镜头"
-          >
-            ▶
-          </button>
-        </div>
-      </div>
-      <div className="hud-top-right">
-        <button
-          className="small-button"
-          aria-label="切换地图"
-          onClick={() => setMapOpen(!mapOpen)}
-        >
-          ⌖
-        </button>
-        <button
-          className="small-button"
           aria-label="暂停游戏"
           onClick={() => {
             game.pause();
@@ -139,17 +124,13 @@ export function Hud() {
         </button>
       </div>
       <div className="quest">
-        <span className="quest-diamond">◇</span>
-        <div>
-          <span className="eyebrow">CHAPTER 01 · 初入白宫</span>
-          <p>
-            {game.zone === "office"
-              ? "走近书桌，签署冒险宣言"
-              : game.gems >= 8
-                ? "大门已开启 · 进入白宫"
-                : "探索南草坪，收集 8 枚翡翠"}
-          </p>
-        </div>
+        <p>
+          {game.zone === "office"
+            ? "走近书桌，签署冒险宣言"
+            : game.gems >= 8
+              ? "大门已开启 · 进入白宫"
+              : "探索南草坪，收集 8 枚翡翠"}
+        </p>
       </div>
       {mapOpen && <Minimap />}
       {game.toast && (
@@ -164,20 +145,18 @@ export function Hud() {
           <span>↵</span>
         </button>
       )}
-      <div className="desktop-controls">
-        <span>
-          <kbd>W A S D</kbd> 移动
-        </span>
-        <span>
-          <kbd>SPACE</kbd> 挥剑
-        </span>
-        <span>
-          <kbd>E</kbd> 交互
-        </span>
-        <span>
-          <kbd>SHIFT</kbd> 奔跑
-        </span>
-        <span className="extra-control">拖拽视角 · R 复位</span>
+      {game.lockedTarget !== null && (
+        <div className="lock-label">◆ 目标锁定 · Q 解除</div>
+      )}
+      <div className="adventure-controls">
+        <span>WASD 移动</span>
+        <span>鼠标 视角</span>
+        <span>左键 / J 攻击</span>
+        <span>右键 / F 防御</span>
+        <span>Space 跳跃</span>
+        <span>Shift 冲刺</span>
+        <span>Ctrl 闪避</span>
+        <span>E 互动 · Q 锁定</span>
       </div>
       <TouchControls />
     </>
@@ -185,18 +164,19 @@ export function Hud() {
 }
 function TouchControls() {
   const pad = useRef<HTMLDivElement>(null);
+  const look = useRef({ x: 0, y: 0 });
   const [knob, setKnob] = useState({ x: 0, y: 0 });
   const update = (e: React.PointerEvent) => {
     const rect = pad.current!.getBoundingClientRect();
     let x = e.clientX - rect.left - rect.width / 2,
       y = e.clientY - rect.top - rect.height / 2;
     const l = Math.hypot(x, y);
-    if (l > 36) {
-      x = (x / l) * 36;
-      y = (y / l) * 36;
+    if (l > 38) {
+      x = (x / l) * 38;
+      y = (y / l) * 38;
     }
-    joystick.x = x / 36;
-    joystick.z = y / 36;
+    joystick.x = x / 38;
+    joystick.z = y / 38;
     setKnob({ x, y });
   };
   const reset = () => {
@@ -205,33 +185,104 @@ function TouchControls() {
     setKnob({ x: 0, y: 0 });
   };
   return (
-    <div className="touch-controls">
+    <>
       <div
-        className="joystick"
-        ref={pad}
+        className="look-pad"
+        aria-label="滑动转动视角"
         onPointerDown={(e) => {
+          if (e.pointerType === "mouse") return;
           e.currentTarget.setPointerCapture(e.pointerId);
-          update(e);
+          look.current = { x: e.clientX, y: e.clientY };
         }}
         onPointerMove={(e) => {
-          if (e.currentTarget.hasPointerCapture(e.pointerId)) update(e);
+          if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+            game.look(e.clientX - look.current.x, e.clientY - look.current.y);
+            look.current = { x: e.clientX, y: e.clientY };
+          }
         }}
-        onPointerUp={reset}
-        onPointerCancel={reset}
-        onLostPointerCapture={reset}
       >
-        <span style={{ transform: `translate(${knob.x}px,${knob.y}px)` }}>
-          ✦
-        </span>
+        <span>滑动视角</span>
       </div>
-      <div className="touch-actions">
-        <button aria-label="交互" onPointerDown={() => game.interact()}>
-          E
-        </button>
-        <button aria-label="挥剑" onPointerDown={() => game.attack()}>
-          ⚔
-        </button>
+      <div className="adventure-touch">
+        <div
+          className="joystick"
+          ref={pad}
+          aria-label="移动摇杆"
+          onPointerDown={(e) => {
+            e.currentTarget.setPointerCapture(e.pointerId);
+            update(e);
+          }}
+          onPointerMove={(e) => {
+            if (e.currentTarget.hasPointerCapture(e.pointerId)) update(e);
+          }}
+          onPointerUp={reset}
+          onPointerCancel={reset}
+          onLostPointerCapture={reset}
+        >
+          <span style={{ transform: `translate(${knob.x}px,${knob.y}px)` }}>
+            ✦
+          </span>
+        </div>
+        <div className="adventure-buttons">
+          <button
+            className="attack-button"
+            aria-label="挥剑"
+            onPointerDown={() => game.attack()}
+          >
+            ⚔<small>攻击</small>
+          </button>
+          <HoldButton action="guard" label="防御" />
+          <button
+            className="jump-button"
+            aria-label="跳跃"
+            onPointerDown={() => game.jump()}
+          >
+            ↑<small>跳跃</small>
+          </button>
+          <button
+            className="dodge-button"
+            aria-label="闪避"
+            onPointerDown={() => game.dodge(getInput())}
+          >
+            ↝<small>闪避</small>
+          </button>
+          <HoldButton action="sprint" label="冲刺" />
+          <button
+            className="lock-button"
+            aria-label="锁定目标"
+            onPointerDown={() => game.toggleLock()}
+          >
+            ◎<small>锁定</small>
+          </button>
+        </div>
       </div>
-    </div>
+    </>
+  );
+}
+function HoldButton({
+  action,
+  label,
+}: {
+  action: "guard" | "sprint";
+  label: string;
+}) {
+  const reset = () => {
+    held[action] = false;
+  };
+  return (
+    <button
+      className={action + "-button"}
+      aria-label={label}
+      onPointerDown={(e) => {
+        e.currentTarget.setPointerCapture(e.pointerId);
+        held[action] = true;
+      }}
+      onPointerUp={reset}
+      onPointerCancel={reset}
+      onLostPointerCapture={reset}
+    >
+      {action === "guard" ? "◈" : "»"}
+      <small>{label}</small>
+    </button>
   );
 }

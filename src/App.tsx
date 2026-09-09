@@ -145,6 +145,18 @@ export default function App() {
               </section>
             </div>
           )}
+          {game.phase === "reading" && (
+            <div className="modal-shade">
+              <section className="menu-panel">
+                <span className="eyebrow">EXPLORER NOTES</span>
+                <h2>{game.reading.title}</h2>
+                <p>{game.reading.text}</p>
+                <button className="primary" onClick={() => game.interact()}>
+                  继续冒险 <kbd>E</kbd>
+                </button>
+              </section>
+            </div>
+          )}
           {game.phase === "dialogue" && (
             <div className="dialogue">
               <span className="eyebrow">THE OVAL OFFICE</span>
@@ -221,46 +233,26 @@ export default function App() {
               枚翡翠，进入白宫，在办公室书桌前签署宣言。陶罐里也藏着翡翠。
             </p>
             <dl>
-              <div>
-                <dt>
-                  <kbd>W A S D</kbd> / 方向键
-                </dt>
-                <dd>移动角色</dd>
-              </div>
-              <div>
-                <dt>
-                  <kbd>SHIFT</kbd>
-                </dt>
-                <dd>按住奔跑</dd>
-              </div>
-              <div>
-                <dt>
-                  <kbd>SPACE</kbd> / <kbd>J</kbd>
-                </dt>
-                <dd>挥剑 · 击碎陶罐 / 解除守卫</dd>
-              </div>
-              <div>
-                <dt>
-                  <kbd>E</kbd>
-                </dt>
-                <dd>进入大门 / 与书桌交互</dd>
-              </div>
-              <div>
-                <dt>
-                  鼠标拖拽 / <kbd>R</kbd>
-                </dt>
-                <dd>环绕视角 / 视角复位</dd>
-              </div>
-              <div>
-                <dt>
-                  <kbd>ESC</kbd>
-                </dt>
-                <dd>暂停或继续</dd>
-              </div>
+              {[
+                ["WASD / 方向键", "按镜头方向移动"],
+                ["鼠标 / 滚轮", "转动视角 / 调整距离"],
+                ["左键 / J", "拔剑攻击"],
+                ["右键 / F", "举盾防御（按住）"],
+                ["Space / Shift", "跳跃 / 冲刺（按住）"],
+                ["Ctrl / K", "闪避"],
+                ["E / Q", "互动 / 锁定目标"],
+                ["Esc / R", "暂停、释放鼠标 / 镜头复位"],
+              ].map(([key, label]) => (
+                <div key={key}>
+                  <dt>
+                    <kbd>{key}</kbd>
+                  </dt>
+                  <dd>{label}</dd>
+                </div>
+              ))}
             </dl>
             <p className="help-note">
-              手机 /
-              平板：左侧摇杆移动，右侧按钮挥剑与交互。三颗爱心耗尽后可重新开始。
+              桌面点击场景启用鼠标视角。无法锁定时按住中键拖动。手机左摇杆移动、右半屏滑动视角，虚拟按钮支持同时按住防御或冲刺。剑盾不用时背在身后；冲刺、跳跃、攻击和格挡消耗体力。
             </p>
             <button className="primary" onClick={() => setHelp(false)}>
               明白了 <span>→</span>
