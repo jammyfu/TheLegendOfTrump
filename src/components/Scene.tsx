@@ -23,6 +23,8 @@ import { getInput, releaseMouse } from "../game/input";
 import { playSound, rotorSound } from "../game/audio";
 import { Grounds, Office } from "./World";
 import { Character } from "./Character";
+import { CharacterSun } from "./CharacterSun";
+import { EnemyHealthBars } from "./EnemyHealthBars";
 import { Box, Cylinder } from "./Primitives";
 import {
   cameraBoom,
@@ -261,18 +263,7 @@ function RuntimeContent() {
       />
       <ambientLight intensity={zone === "grounds" ? 0.8 : 1.1} />
       <hemisphereLight args={["#bac6ed", "#6b655c", 0.8]} />
-      <directionalLight
-        position={[-18, 28, 15]}
-        intensity={1.8}
-        color="#fff6e3"
-        castShadow
-        shadow-mapSize={[1024, 1024]}
-        shadow-camera-left={-32}
-        shadow-camera-right={32}
-        shadow-camera-top={32}
-        shadow-camera-bottom={-32}
-        shadow-normalBias={0.06}
-      />
+      <CharacterSun />
       {zone === "grounds" ? (
         <>
           <AdventureSky />
@@ -283,6 +274,7 @@ function RuntimeContent() {
         <Office />
       )}
       <Character />
+      <EnemyHealthBars />
       <CombatEffects />
       <RangedCombat />
       {zone === "office" && (
