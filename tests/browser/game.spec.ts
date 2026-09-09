@@ -155,6 +155,8 @@ test("interactive props, occlusion, secret chest and complete adventure", async 
     .toBe("office");
   await page.evaluate(() => {
     window.__game!.boss.hp = 0;
+    window.__game!.lockedTarget = null;
+    window.__game!.cameraYaw = 0;
   }); // Isolate traversal; boss is covered below.
   await page.keyboard.down("KeyW");
   await expect

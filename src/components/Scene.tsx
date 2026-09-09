@@ -1,3 +1,4 @@
+import { AdaptiveResolution } from "./AdaptiveResolution";
 import { LANDING } from "../game/expedition";
 import { RangedCombat } from "./RangedCombat";
 import { rayFraction } from "../game/collision";
@@ -8,7 +9,7 @@ import { musicPhase } from "../game/music";
 import { AdventureSky } from "./AdventureSky";
 import { Arrival } from "./Arrival";
 import { INTRO_DURATION, introPose } from "../game/intro";
-import { Suspense, useRef, useState } from "react";
+import { Suspense, useRef, useState, memo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import {
   Group,
@@ -34,7 +35,8 @@ import { cameraFraction } from "../game/collision";
 import { InteractiveProps } from "./InteractiveProps";
 const desired = new Vector3(),
   target = new Vector3();
-function Runtime() {
+const Runtime = memo(RuntimeContent);
+function RuntimeContent() {
   const tension = useRef(0);
   const previousZone = useRef(game.zone);
   const previousPhase = useRef(game.phase);
@@ -244,7 +246,7 @@ function Runtime() {
         intensity={1.8}
         color="#fff6e3"
         castShadow
-        shadow-mapSize={[2048, 2048]}
+        shadow-mapSize={[1024, 1024]}
         shadow-camera-left={-32}
         shadow-camera-right={32}
         shadow-camera-top={32}
@@ -394,6 +396,7 @@ function DoorMarker() {
   );
 }
 export function Scene() {
+  const [resolution, setResolution] = useState(1);
   return (
     <Canvas
       frameloop={game.phase === "title" ? "never" : "always"}
@@ -404,10 +407,11 @@ export function Scene() {
           window.__camera = camera;
         }
       }}
-      dpr={[1, 1.5]}
+      dpr={resolution}
       camera={{ fov: 48, near: 0.1, far: 2400 }}
       gl={{ antialias: true, powerPreference: "high-performance" }}
     >
+      <AdaptiveResolution onChange={setResolution} />
       <Suspense fallback={null}>
         <Runtime />
       </Suspense>

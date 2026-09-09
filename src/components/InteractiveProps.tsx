@@ -1,4 +1,6 @@
-import { useMemo, useRef } from "react";
+import { batchStatic } from "../game/staticBatch";
+import { StaticBatch } from "./StaticBatch";
+import { useMemo, useRef, useLayoutEffect } from "react";
 import { useFrame, useLoader } from "@react-three/fiber";
 import { Group, Mesh } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
@@ -29,6 +31,12 @@ export function Asset({
     });
     return object;
   }, [gltf]);
+  useLayoutEffect(
+    () => batchStatic(model, ["LidPivot", "HandlePivot"]),
+    [model],
+  );
+  const lid = useMemo(() => model.getObjectByName("LidPivot"), [model]);
+  const lever = useMemo(() => model.getObjectByName("HandlePivot"), [model]);
   useFrame((_, dt) => {
     if (!root.current) return;
     root.current.visible = id.startsWith("herb")
@@ -36,12 +44,10 @@ export function Asset({
       : id.startsWith("crate-")
         ? !game.crates[Number(id.split("-")[1])].broken
         : true;
-    const lid = model.getObjectByName("LidPivot");
     if (lid)
       lid.rotation.x +=
         ((game.opened.has(id) ? -1.6 : 0) - lid.rotation.x) *
         Math.min(1, dt * 8);
-    const lever = model.getObjectByName("HandlePivot");
     if (lever)
       lever.rotation.x +=
         ((game.gateOpen ? -0.7 : 0.6) - lever.rotation.x) * Math.min(1, dt * 8);
@@ -159,30 +165,32 @@ export function InteractiveProps() {
           />
         </mesh>
       </group>
-      {[-1, 1].map((s) => (
-        <group key={s}>
-          {Array.from({ length: 22 }, (_, i) => (
-            <group key={i} position={[s * 25.8, 0, 22 - i * 2]}>
-              <Cylinder
-                position={[0, 0.85, 0]}
-                radius={0.05}
-                rise={1.7}
-                color="#384c43"
-              />
-              <Box
-                position={[0, 1.4, 0]}
-                scale={[0.08, 0.08, 2]}
-                color="#384c43"
-              />
-              <Box
-                position={[0, 0.6, 0]}
-                scale={[0.08, 0.08, 2]}
-                color="#384c43"
-              />
-            </group>
-          ))}
-        </group>
-      ))}
+      <StaticBatch>
+        {[-1, 1].map((s) => (
+          <group key={s}>
+            {Array.from({ length: 22 }, (_, i) => (
+              <group key={i} position={[s * 25.8, 0, 22 - i * 2]}>
+                <Cylinder
+                  position={[0, 0.85, 0]}
+                  radius={0.05}
+                  rise={1.7}
+                  color="#384c43"
+                />
+                <Box
+                  position={[0, 1.4, 0]}
+                  scale={[0.08, 0.08, 2]}
+                  color="#384c43"
+                />
+                <Box
+                  position={[0, 0.6, 0]}
+                  scale={[0.08, 0.08, 2]}
+                  color="#384c43"
+                />
+              </group>
+            ))}
+          </group>
+        ))}
+      </StaticBatch>
     </>
   );
 }

@@ -191,6 +191,7 @@ test("guard telegraphs damage; directional block consumes stamina and dodge avoi
   assert.equal(dodge.hp, 3);
   const back = setup();
   back.yaw = 0;
+  back.autoLockCooldown = 4; // Intentionally free-looking away from the attacker.
   tick(back, 0.12, { ...idle, guard: true });
   assert.equal(back.hp, 2);
 });

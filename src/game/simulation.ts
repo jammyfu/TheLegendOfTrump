@@ -128,6 +128,8 @@ export class Simulation {
   coyoteTime = 0;
   lockObscuredTime = 0;
   lockRangeElapsed = 0;
+  autoLockCooldown = 0;
+  private autoLockScan = 0;
   hp = 3;
   gems = 0;
   coins = 0;
@@ -548,6 +550,7 @@ export class Simulation {
     this.grounded = true;
     this.jumpBuffer = this.coyoteTime = this.lockObscuredTime = 0;
     this.lockRangeElapsed = 0;
+    this.autoLockCooldown = this.autoLockScan = 0;
     this.hp = 3;
     this.gems = 0;
     this.coins = 0;
@@ -683,12 +686,46 @@ export class Simulation {
     this.setCamera({ distance: this.cameraDistance + delta * 0.007 });
   }
 
+  /** Sticky acquisition: scan at 5 Hz; never steal a live lock. */
+  acquireAutoTarget(force = false) {
+    if (
+      this.phase !== "playing" ||
+      this.lockTarget ||
+      (!force && this.autoLockCooldown > 0)
+    )
+      return;
+    const range = this.weapon === "bow" ? 22 : this.zone === "office" ? 18 : 12;
+    const candidates = this.combatTargets
+      .filter((g) => g.hp > 0)
+      .map((g) => {
+        const dx = g.x - this.x,
+          dz = g.z - this.z;
+        const distance = Math.hypot(dx, dz);
+        const facing =
+          -(dx * Math.sin(this.cameraYaw) + dz * Math.cos(this.cameraYaw)) /
+          Math.max(0.01, distance);
+        return { g, distance, facing, score: distance * (1.3 - 0.3 * facing) };
+      })
+      .filter((c) => c.distance < range && (c.distance < 5 || c.facing > -0.25))
+      .sort((a, b) => a.score - b.score);
+    const target = candidates.find((c) =>
+      this.visible(c.g.x, c.g.z, "guard-" + c.g.id),
+    );
+    if (target) {
+      this.lockedTarget = target.g.id;
+      this.lockRangeElapsed = this.lockObscuredTime = 0;
+      this.autoLockCooldown = 0;
+    }
+  }
+
   toggleLock() {
     if (this.phase !== "playing") return;
     if (this.lockedTarget !== null) {
       this.lockedTarget = null;
+      this.autoLockCooldown = 4;
       return;
     }
+    this.autoLockCooldown = 0;
     const g = this.combatTargets
       .filter(
         (g) =>
@@ -1054,6 +1091,7 @@ export class Simulation {
       this.dodgeTime > 0
     )
       return;
+    this.acquireAutoTarget(true);
     if (this.weapon === "bow") {
       if (this.cooldown > 0 || this.stamina < 10) return;
       if (this.arrows <= 0) {
@@ -1423,6 +1461,12 @@ export class Simulation {
     if (this.toastTime > 0) {
       this.toastTime -= dt;
       if (this.toastTime <= 0) this.toast = "";
+    }
+    this.autoLockCooldown = Math.max(0, this.autoLockCooldown - dt);
+    this.autoLockScan -= dt;
+    if (this.autoLockScan <= 0) {
+      this.autoLockScan = 0.2;
+      this.acquireAutoTarget();
     }
     let locked = this.combatTargets.find(
       (g) => g.id === this.lockedTarget && g.hp > 0,

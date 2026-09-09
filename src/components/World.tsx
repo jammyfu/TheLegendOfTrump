@@ -1,3 +1,4 @@
+import { StaticBatch } from "./StaticBatch";
 import { Landscape } from "./Landscape";
 import { Expedition } from "./Expedition";
 import { Estate } from "./Estate";
@@ -215,46 +216,48 @@ export function Grounds() {
       <Landscape />
       <Expedition />
       <Fountain />
-      {[-1, 1].flatMap((s) =>
-        [-11, -1, 10, 20].map((z, i) => (
-          <Tree
-            key={`${s}-${z}`}
-            x={s * (21 + (i % 2) * 3)}
-            z={z}
-            size={1.05 + i * 0.12}
-          />
-        )),
-      )}
-      {[-1, 1].flatMap((s) =>
-        [-10, 5, 17].map((z) => <Lamp key={`${s}-${z}`} x={s * 6.7} z={z} />),
-      )}
-      {[-1, 1].map((s) => (
-        <group key={s}>
-          <Flag position={[s * 8, 0, -12]} scale={1.05} />
-          {[3, 13].map((z) => (
-            <group position={[s * 18, 0, z]} key={z}>
-              <Box
-                position={[0, 0.65, 0]}
-                scale={[1.1, 0.17, 3]}
-                color="#75593e"
-              />
-              <Box
-                position={[s * 0.45, 1.1, 0]}
-                scale={[0.14, 0.85, 3]}
-                color="#806345"
-              />
-              {[-1, 1].map((a) => (
+      <StaticBatch>
+        {[-1, 1].flatMap((s) =>
+          [-11, -1, 10, 20].map((z, i) => (
+            <Tree
+              key={`${s}-${z}`}
+              x={s * (21 + (i % 2) * 3)}
+              z={z}
+              size={1.05 + i * 0.12}
+            />
+          )),
+        )}
+        {[-1, 1].flatMap((s) =>
+          [-10, 5, 17].map((z) => <Lamp key={`${s}-${z}`} x={s * 6.7} z={z} />),
+        )}
+        {[-1, 1].map((s) => (
+          <group key={s}>
+            <Flag position={[s * 8, 0, -12]} scale={1.05} />
+            {[3, 13].map((z) => (
+              <group position={[s * 18, 0, z]} key={z}>
                 <Box
-                  key={a}
-                  position={[0, 0.3, a]}
-                  scale={[0.8, 0.6, 0.13]}
-                  color="#344a40"
+                  position={[0, 0.65, 0]}
+                  scale={[1.1, 0.17, 3]}
+                  color="#75593e"
                 />
-              ))}
-            </group>
-          ))}
-        </group>
-      ))}
+                <Box
+                  position={[s * 0.45, 1.1, 0]}
+                  scale={[0.14, 0.85, 3]}
+                  color="#806345"
+                />
+                {[-1, 1].map((a) => (
+                  <Box
+                    key={a}
+                    position={[0, 0.3, a]}
+                    scale={[0.8, 0.6, 0.13]}
+                    color="#344a40"
+                  />
+                ))}
+              </group>
+            ))}
+          </group>
+        ))}
+      </StaticBatch>
     </group>
   );
 }
