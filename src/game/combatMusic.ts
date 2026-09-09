@@ -12,7 +12,8 @@ export function combatMusicHold(
     phase === "title" ||
     phase === "intro" ||
     phase === "won" ||
-    phase === "lost"
+    phase === "lost" ||
+    phase === "dying"
   )
     return 0;
   if (phase !== "playing") return previous;

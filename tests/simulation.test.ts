@@ -353,6 +353,8 @@ test("finisher has stronger stagger, collision-limited knockback and visible def
   assert.ok(enemy.stun > 0.85);
   assert.ok(enemy.defeatTime > 0);
   tick(g, 1);
+  assert.ok(enemy.defeatTime > 0);
+  tick(g, 2);
   assert.equal(enemy.defeatTime, 0);
   const blocked = moveAndSlide(
     [{ id: "wall", zone: "grounds", x: 0, z: 0, w: 5, d: 0.5, top: 4 }],

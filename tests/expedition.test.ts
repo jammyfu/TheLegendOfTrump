@@ -170,9 +170,9 @@ function archer() {
 test("archer telegraphs and fires a nonhoming shot that can be dodged or shielded", () => {
   const { g, e } = archer();
   tick(g, 0.05);
-  assert.ok(e.windup > 1);
+  assert.ok(e.windup > 0.8);
   assert.equal(g.projectiles.length, 0);
-  tick(g, 1.18);
+  tick(g, 0.98);
   assert.ok(g.projectiles.some((p) => p.owner === e.id));
   g.x = 4;
   tick(g, 1.5);

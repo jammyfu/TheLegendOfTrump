@@ -1,3 +1,5 @@
+import { DEATH, deathPose } from "../game/enemyMotion";
+import { ENEMY_RULES } from "../game/expedition";
 import { useMemo, useRef } from "react";
 import { useLoader, useFrame } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
@@ -80,7 +82,10 @@ export function EnemyModel({
     const flash = boss ? game.boss.flash : guard!.hitFlash;
     const windup = boss ? game.boss.state === "windup" : guard!.windup > 0;
     ref.current.visible = game.phase !== "intro" && (alive || g.defeatTime > 0);
-    ref.current.position.set(g.x, 0, g.z);
+    const death = deathPose(g.defeatTime, boss ? DEATH.boss : DEATH.enemy);
+    const size = boss ? 1 : ENEMY_RULES[kind].scale;
+    model.scale.setScalar(size);
+    ref.current.position.set(g.x, alive ? 0 : 0.45 * size * death.fall, g.z);
     const recoil = boss
       ? Math.min(1, stunned / 0.36)
       : guard!.stunDuration > 0
@@ -89,10 +94,11 @@ export function EnemyModel({
     ref.current.rotation.set(
       -Math.sin(recoil * Math.PI * 0.7) * 0.4,
       g.yaw,
-      alive ? 0 : (1 - g.defeatTime / (boss ? 1.2 : 0.65)) * 1.5,
+      alive ? 0 : death.fall * 1.48,
     );
     const walk =
       alive &&
+      game.phase === "playing" &&
       !windup &&
       stunned === 0 &&
       (!boss || game.boss.state === "chase")
@@ -144,10 +150,21 @@ export function EnemyModel({
       const bow = model.getObjectByName("ArcherBow");
       if (bow) bow.rotation.x = -joints.LeftArm.rotation.x;
     }
+    if (!alive) {
+      joints.LeftArm.rotation.x = joints.RightArm.rotation.x = -0.6;
+      joints.LeftKnee.rotation.x = joints.RightKnee.rotation.x =
+        0.7 * death.fall;
+    }
     model.traverse((n) => {
       if (n instanceof Mesh)
         for (const m of Array.isArray(n.material) ? n.material : [n.material])
           if (m instanceof MeshStandardMaterial) {
+            if (m.transparent !== !alive) {
+              m.transparent = !alive;
+              m.needsUpdate = true;
+            }
+            m.opacity = alive ? 1 : death.opacity;
+            m.depthWrite = alive || death.opacity > 0.95;
             m.emissive.setHex(
               flash > 0 ? 0xffba60 : (m.userData.baseEmission ?? 0),
             );
@@ -166,7 +183,7 @@ export function EnemyModel({
           : 3.1
         : kind === "archer"
           ? 1
-          : 2.1;
+          : 2.1 * ENEMY_RULES[kind].scale;
       warning.current.scale.set(r, r, 1);
       (warning.current.material as MeshStandardMaterial).color.set(
         boss && game.boss.move !== "sweep"

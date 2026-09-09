@@ -1,3 +1,4 @@
+import { DEATH, steerEnemy } from "./enemyMotion";
 import {
   LANDING,
   ENEMY_SPAWNS,
@@ -41,6 +42,7 @@ export type Phase =
   | "reading"
   | "dialogue"
   | "won"
+  | "dying"
   | "lost";
 export interface Input {
   x: number;
@@ -67,6 +69,9 @@ export interface Guard {
   id: number;
   x: number;
   z: number;
+  alertUntil?: number;
+  lastSeenX?: number;
+  lastSeenZ?: number;
   originX: number;
   originZ: number;
   hp: number;
@@ -128,6 +133,7 @@ export class Simulation {
   coyoteTime = 0;
   lockObscuredTime = 0;
   lockRangeElapsed = 0;
+  deathTime = 0;
   fcUnlocked = false;
   mouseLookSuspended = false;
   private directionHeld = false;
@@ -279,7 +285,7 @@ export class Simulation {
     this.lockRangeElapsed = 0;
   }
   private guardDefeated(g: Guard) {
-    g.defeatTime = 0.65;
+    g.defeatTime = DEATH.enemy;
     if (this.zone === "grounds") {
       if (g.id < 2) this.gems++;
       this.coinDrops.push({
@@ -300,7 +306,7 @@ export class Simulation {
     this.summonTime = 0;
     for (const g of this.minions) {
       g.hp = 0;
-      g.defeatTime = 0.65;
+      g.defeatTime = DEATH.enemy;
       g.windup = 0;
     }
     this.lockedTarget = null;
@@ -392,8 +398,8 @@ export class Simulation {
               this.impact(this.x, this.z);
               this.notify("被箭矢击中 · 横移躲箭或举盾格挡");
               if (this.hp <= 0) {
-                this.phase = "lost";
-                this.moving = false;
+                this.beginDefeat();
+                return;
               }
             }
           }
@@ -542,6 +548,7 @@ export class Simulation {
     this.phase = "playing";
     this.boss = new Boss();
     this.fcUnlocked = false;
+    this.deathTime = 0;
     this.zone = "grounds";
     this.x = 0;
     this.z = LANDING.heroZ;
@@ -617,6 +624,7 @@ export class Simulation {
     }
   }
   retry() {
+    this.deathTime = 0;
     if (this.zone === "office" && this.boss.active) {
       this.boss.reset();
       this.resetEncounter();
@@ -834,8 +842,8 @@ export class Simulation {
             zone: this.zone,
             x: g.x,
             z: g.z,
-            radius: 0.48,
-            top: 2.5,
+            radius: 0.48 * ENEMY_RULES[g.kind].scale,
+            top: 2.5 * ENEMY_RULES[g.kind].scale,
           });
     }
     if (this.zone === "office" && this.boss.active && this.boss.hp > 0)
@@ -855,8 +863,8 @@ export class Simulation {
             zone: this.zone,
             x: g.x,
             z: g.z,
-            radius: 0.48,
-            top: 2.5,
+            radius: 0.48 * ENEMY_RULES[g.kind].scale,
+            top: 2.5 * ENEMY_RULES[g.kind].scale,
           });
     return list;
   }
@@ -1319,6 +1327,27 @@ export class Simulation {
       }
     this.version++;
   }
+  beginDefeat() {
+    if (this.phase !== "playing") return;
+    this.phase = "dying";
+    this.hp = 0;
+    this.deathTime = DEATH.player;
+    this.cancelCombo();
+    this.dodgeTime = this.jumpBuffer = this.coyoteTime = 0;
+    this.moving = this.sprinting = this.guarding = this.aiming = false;
+    this.lockedTarget = null;
+    this.projectiles = [];
+    for (const g of this.activeGuards) {
+      g.windup = 0;
+      g.hitFlash = g.stun = 0;
+      g.cooldown = Math.max(1, g.cooldown);
+    }
+    if (this.boss.hp > 0) {
+      this.boss.state = "recover";
+      this.boss.wave = -1;
+    }
+    this.invincible = 0;
+  }
   blocked(x: number, z: number) {
     return occupied(this.colliders, x, z, this.y);
   }
@@ -1327,6 +1356,20 @@ export class Simulation {
     if (this.phase === "intro") {
       this.introTime -= dt;
       if (this.introTime <= 0) this.skipIntro();
+      return;
+    }
+    if (this.phase === "dying") {
+      this.impactTime = Math.max(0, this.impactTime - dt);
+      for (const effect of this.effects) effect.age += dt;
+      this.effects = this.effects.filter((effect) => effect.age < 0.36);
+      this.deathTime = Math.max(0, this.deathTime - dt);
+      this.vy -= 18 * dt;
+      const floor = floorAt(this.colliders, this.x, this.z, this.y);
+      this.y = Math.max(floor, this.y + this.vy * dt);
+      if (this.y === floor) this.vy = 0;
+      for (const g of this.activeGuards)
+        g.defeatTime = Math.max(0, g.defeatTime - dt);
+      if (this.deathTime === 0) this.phase = "lost";
       return;
     }
     if (this.phase !== "playing") return;
@@ -1338,6 +1381,7 @@ export class Simulation {
       return;
     }
     this.updateRanged(dt);
+    if (this.phase !== "playing") return;
     if (this.zone === "office") {
       this.updateSummons(dt);
       const move =
@@ -1391,8 +1435,7 @@ export class Simulation {
           this.impact(this.x, this.z, true);
           this.notify(waveHit ? "跳跃越过冲击波！" : "留意预警，闪避重锤！");
           if (this.hp <= 0) {
-            this.phase = "lost";
-            this.moving = false;
+            this.beginDefeat();
             return;
           }
         }
@@ -1645,7 +1688,7 @@ export class Simulation {
             g.knockX * dt,
             g.knockZ * dt,
             false,
-            0.48,
+            0.48 * ENEMY_RULES[g.kind].scale,
           );
           g.x = moved.x;
           g.z = moved.z;
@@ -1662,7 +1705,7 @@ export class Simulation {
           g.windup = Math.max(0, g.windup - dt);
           if (g.windup === 0) {
             g.cooldown =
-              g.kind === "archer" ? 2.4 : g.kind === "brute" ? 2 : 1.4;
+              g.kind === "archer" ? 1.7 : g.kind === "brute" ? 1.55 : 0.95;
             if (g.kind === "archer") {
               if (distance < 28 && this.visible(g.x, g.z, "guard-" + g.id)) {
                 const dx = (g.shotX ?? this.x) - g.x,
@@ -1688,7 +1731,7 @@ export class Simulation {
               (this.x - g.x) * Math.sin(g.yaw) +
               (this.z - g.z) * Math.cos(g.yaw);
             if (
-              distance < 2.1 &&
+              distance < 2.1 * rules.scale &&
               forward > 0 &&
               this.y < 1.3 &&
               this.invincible === 0 &&
@@ -1720,8 +1763,8 @@ export class Simulation {
                 this.invincible = 1.1;
                 this.notify("受到攻击！右键防御或 Ctrl 闪避");
                 if (this.hp <= 0) {
-                  this.phase = "lost";
-                  this.moving = false;
+                  this.beginDefeat();
+                  return;
                 }
               }
               this.version++;
@@ -1729,38 +1772,45 @@ export class Simulation {
           }
           continue;
         }
+        const sight =
+          distance < rules.range && this.visible(g.x, g.z, "guard-" + g.id);
+        if (sight) {
+          g.alertUntil = this.elapsed + 4;
+          g.lastSeenX = this.x;
+          g.lastSeenZ = this.z;
+        }
         const chasing =
-          distance <
-            (this.zone === "office" ? 30 : g.id < 2 ? 7 : rules.range) &&
-          this.visible(g.x, g.z, "guard-" + g.id);
-        if (
-          g.kind === "archer" &&
-          chasing &&
-          distance >= 6 &&
-          g.cooldown === 0
-        ) {
+          sight ||
+          ((g.alertUntil ?? 0) > this.elapsed && distance < rules.range + 8);
+        if (g.kind === "archer" && sight && distance >= 6 && g.cooldown === 0) {
           // A small global attack budget avoids overlapping volleys and melee dogpiles.
           if (
             this.activeGuards.filter((other) => other.windup > 0).length < 2
           ) {
-            g.shotX = this.x;
-            g.shotZ = this.z;
+            g.shotX = this.x + ((this.x - oldX) / Math.max(dt, 0.001)) * 0.2;
+            g.shotZ = this.z + ((this.z - oldZ) / Math.max(dt, 0.001)) * 0.2;
             g.yaw = Math.atan2(this.x - g.x, this.z - g.z);
             g.windup = rules.windup;
           }
           continue;
         }
-        const retreat = g.kind === "archer" && chasing && distance < 8;
+        const retreat = g.kind === "archer" && sight && distance < 10;
+        const flank =
+          sight && g.kind !== "archer" && distance > 3
+            ? (g.id % 2 ? 1 : -1) * 1.8
+            : 0;
         const tx = retreat
             ? g.x + (g.x - this.x)
             : chasing
-              ? this.x
+              ? (g.lastSeenX ?? this.x) +
+                (flank * (this.z - g.z)) / Math.max(distance, 0.01)
               : g.originX +
                 Math.sin(this.elapsed * 0.45 + g.id * Math.PI) * 1.1,
           tz = retreat
             ? g.z + (g.z - this.z)
             : chasing
-              ? this.z
+              ? (g.lastSeenZ ?? this.z) -
+                (flank * (this.x - g.x)) / Math.max(distance, 0.01)
               : g.originZ +
                 Math.cos(this.elapsed * 0.45 + g.id * Math.PI) * 2.2;
         const vx = tx - g.x,
@@ -1770,19 +1820,27 @@ export class Simulation {
         if (
           g.kind !== "archer" &&
           chasing &&
-          distance < 2.2 &&
+          sight &&
+          distance < 2.1 * rules.scale &&
           g.cooldown === 0
         ) {
           if (
-            this.activeGuards.some((other) => other !== g && other.windup > 0)
+            this.activeGuards.filter((other) => other !== g && other.windup > 0)
+              .length >= 2
           )
             continue;
-          g.windup = this.zone === "office" ? 0.95 : rules.windup;
+          g.windup =
+            rules.windup +
+            (this.activeGuards.some((other) => other.windup > 0) ? 0.2 : 0);
           continue;
         }
         if (
           l > 0.2 &&
-          (g.kind !== "archer" || !chasing || distance < 8 || distance > 18) &&
+          (g.kind !== "archer" ||
+            !chasing ||
+            !sight ||
+            distance < 10 ||
+            distance > 17) &&
           (!chasing || distance > 1.6 || retreat)
         ) {
           const obstacles = colliders.filter((c) => c.id !== "guard-" + g.id);
@@ -1794,14 +1852,14 @@ export class Simulation {
             radius: 0.38,
             top: 3,
           });
-          const moved = moveAndSlide(
+          const moved = steerEnemy(
             obstacles,
             g.x,
             g.z,
-            0,
             (vx / l) * dt * (chasing ? rules.speed : 1),
             (vz / l) * dt * (chasing ? rules.speed : 1),
-            false,
+            0.48 * rules.scale,
+            g.id % 2 ? 1 : -1,
           );
           g.x = moved.x;
           g.z = moved.z;

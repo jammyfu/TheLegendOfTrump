@@ -1,3 +1,4 @@
+import { DEATH } from "./enemyMotion";
 import { moveAndSlide } from "./collision";
 import type { Collider } from "./world";
 export type BossMove = "sweep" | "slam" | "wave";
@@ -36,7 +37,7 @@ export class Boss {
     if (this.state !== "windup") this.stagger = finisher ? 0.36 : 0.12;
     if (!this.hp) {
       this.state = "dead";
-      this.defeatTime = 1.2;
+      this.defeatTime = DEATH.boss;
       this.wave = -1;
     }
     return true;

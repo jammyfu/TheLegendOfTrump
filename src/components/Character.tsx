@@ -1,3 +1,4 @@
+import { DEATH, deathPose } from "../game/enemyMotion";
 import { introPose } from "../game/intro";
 import { useMemo, useRef } from "react";
 import { useFrame, useLoader } from "@react-three/fiber";
@@ -137,6 +138,10 @@ export function Character() {
             (game.moving ? Math.abs(Math.sin(game.elapsed * 12)) * 0.045 : 0),
       game.z,
     );
+    const defeated =
+      game.phase === "dying" || (game.phase === "lost" && game.hp <= 0);
+    const dying = deathPose(game.deathTime, DEATH.player);
+    root.current.rotation.x = root.current.rotation.z = 0;
     const spinning = game.spinTime > 0;
     const spinProgress = spinning
       ? (SPIN.duration - game.spinTime) / SPIN.duration
@@ -144,6 +149,7 @@ export function Character() {
     root.current.rotation.y =
       game.yaw + (spinning ? Math.PI * 2 * SPIN.turns * spinProgress : 0);
     root.current.visible =
+      defeated ||
       game.dodgeTime > 0 ||
       game.invincible <= 0 ||
       Math.floor(game.invincible * 12) % 2 === 0;
@@ -350,6 +356,12 @@ export function Character() {
       parts.leftKnee.rotation.x = 1.2;
       parts.rightKnee.rotation.x = 1.2;
     }
+    if (defeated) {
+      root.current.rotation.z = -1.48 * dying.fall;
+      root.current.position.y += 0.45 * dying.fall;
+      parts.leftArm.rotation.x = parts.rightArm.rotation.x = -0.7;
+      parts.leftKnee.rotation.x = parts.rightKnee.rotation.x = 0.8 * dying.fall;
+    }
     if (drawn) {
       root.current.updateMatrixWorld(true);
       parts.rightWrist.getWorldQuaternion(gripRotation).invert();
@@ -377,7 +389,7 @@ export function Character() {
         : Math.sin(clock.elapsedTime * 1.5) * 0.007;
   });
   return (
-    <group ref={root} scale={0.92}>
+    <group ref={root} name="hero-model" scale={0.92}>
       <primitive object={model} />
       <mesh
         ref={slash}
