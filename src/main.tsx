@@ -6,6 +6,7 @@ import { game } from "./game/simulation";
 if (import.meta.env.DEV) window.__game = game;
 import "./styles.css";
 import "./components/GameMenus.css";
+import "./components/RelicTypography.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />

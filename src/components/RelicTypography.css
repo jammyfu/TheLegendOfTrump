@@ -1,0 +1,45 @@
+@font-face {
+  font-family: "Legend Relic Latin";
+  src: url("../../public/fonts/legend-relic-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Legend Relic SC";
+  src: url("../../public/fonts/legend-relic-sc.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Legend Relic JP";
+  src: url("../../public/fonts/legend-relic-jp.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+}
+.game {
+  --game-font: "Legend Relic Latin", "Legend Relic SC", "Noto Serif SC", "Songti SC", Georgia, serif;
+  font-family: var(--game-font);
+}
+:lang(ja) .game {
+  --game-font: "Legend Relic Latin", "Legend Relic JP", "Legend Relic SC", "Yu Mincho", serif;
+}
+:lang(ko) .game {
+  --game-font: "Legend Relic Latin", "Noto Serif KR", "Batang", "Legend Relic SC", serif;
+}
+.game :is(button, input, select, option, label, output, kbd, p, span, small, strong, h1, h2, h3, dt, dd, summary, footer, .menu-panel, .dialogue) {
+  font-family: var(--game-font);
+  font-synthesis: none;
+}
+.game :is(.lt-menu-label, .menu-panel h2, .dialogue h2, .intro-location strong) {
+  color: #fff3c4;
+  text-shadow: 0 1px 0 #ad9461, 0 3px 2px #0b1524, 0 0 12px #e6cf8c22;
+  letter-spacing: .035em;
+  font-weight: 700;
+}
+.game .lt-menu-label { font-size: clamp(26px, 3vw, 38px); }
+.game .lt-controls .lt-menu-label { font-size: 21px; }
+.game .menu-panel h2 { line-height: 1.45; }
+.game .settings-panel label, .game .music-settings dl { line-height: 1.65; }

@@ -1,0 +1,35 @@
+{
+  "Legend Relic Latin": {
+    "characters": " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~·…→↗◆",
+    "count": 100,
+    "woff2": "legend-relic-latin.woff2"
+  },
+  "Legend Relic SC": {
+    "characters": "、。一上下不与专东中为主举之乐也书了互亚交以们件份休优会传伦位住体作你依侧保倒值停儿先光入全公关兵再冒写军冲准凉出击切刚创到刺刻前剑劈力办功加动区升半华单南卫印厅原反发取受口召可右后向吗吧启吹告命和哥唤喷器四回园图圆圈在地场坐坪垂声处备复大头奇好始存它守完定宝宣室宫寻封射将小尘尽屏巡左已带并度开式弓当形往得御心态总恢息意戏成或战所手才打扩扫找技护拉拔拖招择拾指按挑挡挥换掉探接推援摇操支收改攻放效敌敏整文斗斩新方旅旋无日时明星普景暂曲有木未本机杆束条来松枚查标格桌椅椭横次正步武段比水没泉法波浏消清游源滑滚满灵炼然爱片版特状现生用由甲画留白的盛目直盾看着瞄矢短破砸硬碎示离秒秘移竖章笛第签简箭箱篇精索红终经结给统继续绽罐置署翠翡翻者而耗背胜脚脱自色花草获菜落蓄蓝藏行衔补被西要视览角解言語警认设试语请读调负败走趁越跃距跳身躲转轮载辑边过近返还进远连选途通速逻避部配采释里重野量金铁锁锤键镜长门闪闭阅防阶附除险陶集雾需露面音顶顿预领颗题风馈默鼠齐！（），：；？",
+    "count": 430,
+    "woff2": "legend-relic-sc.woff2"
+  },
+  "Legend Relic JP": {
+    "characters": "、。あいうえおかがきぎくけこさしじすずせそただっつづてでとなにのはばひびぶへべまみむめもよらりるれをんアィイウェオカガキクグゲコサザシジスセタダチッテトドナニハバフブプヘベホボマミムメャュョラリルレロワン・ー一上下中了予今仕以休伝体作使保個倒停備兆入全兵円再冒切初剣力功効動務化南印原反取口叩右名向吹告命器噴回固園地執場壊声壺外大始存守完定宝宣室対封巡左広度座庭引弾待御復必意感成戦戻扉払択押挑振掛採探撃操攻整敵文斬新方旅日時暴曲替最有期木末本机東果検楽次止正武段水波注消涼済準溜点無物狙用甲画登矢短石破示秒秘移突端箱約索終給統継続練縦署者自色草薙衛衝被補西要見視角解言記設試語説読調護象費赤走起越足距跳転込近遠選避部野量金鉄長門閉開間闘防除険階隙隠集離面音響領風！（）：？",
+    "count": 337,
+    "woff2": "legend-relic-jp.woff2"
+  },
+  "sources": {
+    "caps": {
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/cinzeldecorative/CinzelDecorative-Bold.ttf",
+      "sha256": "e854e68a388aa50d742a4415c1ae5c17a617ef7956c95a70021d0a4a44f20518"
+    },
+    "text": {
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/cormorantgaramond/CormorantGaramond%5Bwght%5D.ttf",
+      "sha256": "b20b7d9626dd956b2c5e558692ad328b1f19e3275e2782db4fa07670d83f35e0"
+    },
+    "zh": {
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/notoserifsc/NotoSerifSC%5Bwght%5D.ttf",
+      "sha256": "050080d9255a86808f2945bffac582b31ef32bc36411ce29563b4961670c66f9"
+    },
+    "ja": {
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/notoserifjp/NotoSerifJP%5Bwght%5D.ttf",
+      "sha256": "2fd527ba12b6a44ec30d796d633360da0aeba6c5d4af1304ce12bb4dc15a7dfc"
+    }
+  }
+}
