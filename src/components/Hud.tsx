@@ -1,3 +1,4 @@
+import { ATTACKS } from "../game/combat";
 import { useRef, useState } from "react";
 import { game } from "../game/simulation";
 import {
@@ -102,6 +103,20 @@ export function Hud() {
           </span>
         </div>
       </div>
+      {(game.attackTime > 0 || game.comboWindow > 0) && (
+        <div className="combo-status" aria-label="连招状态">
+          <strong>
+            {game.combo + 1} / 3 · {ATTACKS[game.combo].name}
+          </strong>
+          <span>
+            {game.combo === 2
+              ? "终结技"
+              : game.comboQueued
+                ? "已衔接下一式"
+                : "再按攻击衔接"}
+          </span>
+        </div>
+      )}
       <div className="gem-count" aria-label={`翡翠 ${game.gems} 枚`}>
         <GemIcon />
         <strong>{String(game.gems).padStart(2, "0")}</strong>

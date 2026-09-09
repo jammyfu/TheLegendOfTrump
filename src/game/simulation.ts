@@ -1,3 +1,4 @@
+import { ATTACKS, COMBO_GRACE } from "./combat";
 import {
   staticColliders,
   gateCollider,
@@ -47,6 +48,11 @@ export interface Guard {
   cooldown: number;
   yaw: number;
   stun: number;
+  stunDuration: number;
+  hitFlash: number;
+  knockX: number;
+  knockZ: number;
+  defeatTime: number;
 }
 export const REQUIRED_GEMS = 8;
 export const GEM_POSITIONS = [
@@ -96,6 +102,9 @@ export class Simulation {
   invincible = 0;
   hitPending = false;
   combo = 0;
+  comboWindow = 0;
+  comboQueued = false;
+  hitStop = 0;
   toast = "";
   toastTime = 0;
   reading = { title: "", text: "" };
@@ -146,6 +155,11 @@ export class Simulation {
       cooldown: 1,
       yaw: 0,
       stun: 0,
+      stunDuration: 0,
+      hitFlash: 0,
+      knockX: 0,
+      knockZ: 0,
+      defeatTime: 0,
     }));
   }
   start() {
@@ -164,6 +178,10 @@ export class Simulation {
     this.staminaDelay = 0;
     this.elapsed = 0;
     this.attackTime = 0;
+    this.combo = 0;
+    this.comboWindow = 0;
+    this.comboQueued = false;
+    this.hitStop = 0;
     this.cooldown = 0;
     this.invincible = 0;
     this.dodgeTime = 0;
@@ -284,6 +302,7 @@ export class Simulation {
     }
     this.stamina -= 24;
     this.staminaDelay = 1;
+    this.cancelCombo();
     this.dodgeTime = 0.38;
     this.invincible = Math.max(this.invincible, 0.28);
     this.guarding = false;
@@ -506,21 +525,42 @@ export class Simulation {
     this.version++;
   }
   attack() {
-    if (
-      this.phase !== "playing" ||
-      this.cooldown > 0 ||
-      this.stamina < 8 ||
-      this.dodgeTime > 0
-    )
+    if (this.phase !== "playing" || this.dodgeTime > 0) return;
+    if (this.attackTime > 0) {
+      // One buffered press, only after the initial anticipation. Holding a key
+      // or spamming cannot skip a stage or stack several future attacks.
+      if (
+        this.combo < 2 &&
+        ATTACKS[this.combo].duration - this.attackTime >= 0.08
+      )
+        this.comboQueued = true;
       return;
-    this.stamina -= 8;
+    }
+    if (this.cooldown > 0) return;
+    const stage = this.comboWindow > 0 && this.combo < 2 ? this.combo + 1 : 0;
+    this.beginAttack(stage);
+  }
+  private beginAttack(stage: number) {
+    const spec = ATTACKS[stage];
+    this.comboQueued = false;
+    if (this.stamina < spec.cost) return;
+    this.combo = stage;
+    this.comboWindow = 0;
+    this.stamina -= spec.cost;
     this.staminaDelay = 0.6;
-    this.attackTime = 0.38;
-    this.cooldown = 0.43;
+    this.attackTime = spec.duration;
+    this.cooldown = spec.duration;
     this.hitPending = true;
-    this.combo = (this.combo + 1) % 3;
     this.guarding = false;
     this.events.push("sword");
+    this.version++;
+  }
+  private cancelCombo() {
+    this.attackTime = 0;
+    this.hitPending = false;
+    this.comboQueued = false;
+    this.comboWindow = 0;
+    this.hitStop = 0;
   }
   strike() {
     if (this.zone !== "grounds") return;
@@ -552,11 +592,18 @@ export class Simulation {
     for (const g of this.guards)
       if (g.hp > 0 && reachable(g.x, g.z, "guard-" + g.id)) {
         g.hp--;
-        g.stun = 0.45;
+        const spec = ATTACKS[this.combo];
+        g.stun = g.stunDuration = spec.stun;
+        g.hitFlash = 0.14;
+        const distance = Math.hypot(g.x - this.x, g.z - this.z) || 1;
+        g.knockX = ((g.x - this.x) / distance) * spec.push;
+        g.knockZ = ((g.z - this.z) / distance) * spec.push;
+        this.hitStop = this.combo === 2 ? 0.075 : 0.045;
         g.windup = 0;
         g.cooldown = 0.8;
         this.events.push("hit");
         if (g.hp === 0) {
+          g.defeatTime = 0.65;
           this.gems++;
           if (this.lockedTarget === g.id) this.lockedTarget = null;
           this.notify("守卫已解除 · +1 翡翠");
@@ -575,15 +622,30 @@ export class Simulation {
       return;
     }
     if (this.phase !== "playing") return;
+    if (this.hitStop > 0) {
+      this.hitStop = Math.max(0, this.hitStop - dt);
+      return;
+    }
     this.elapsed += dt;
+    const wasAttacking = this.attackTime > 0;
     this.attackTime = Math.max(0, this.attackTime - dt);
+    this.comboWindow = Math.max(0, this.comboWindow - dt);
     this.cooldown = Math.max(0, this.cooldown - dt);
     this.invincible = Math.max(0, this.invincible - dt);
     this.restCooldown = Math.max(0, this.restCooldown - dt);
     this.staminaDelay = Math.max(0, this.staminaDelay - dt);
-    if (this.hitPending && this.attackTime < 0.25) {
+    if (
+      this.hitPending &&
+      ATTACKS[this.combo].duration - this.attackTime >= ATTACKS[this.combo].hit
+    ) {
       this.hitPending = false;
       this.strike();
+    }
+    if (wasAttacking && this.attackTime === 0) {
+      this.comboWindow = this.combo < 2 ? COMBO_GRACE : 0;
+      if (this.combo === 2) this.cooldown = 0.22;
+      if (this.comboQueued && this.combo < 2) this.beginAttack(this.combo + 1);
+      else this.comboQueued = false;
     }
     if (this.toastTime > 0) {
       this.toastTime -= dt;
@@ -628,7 +690,7 @@ export class Simulation {
       mz = this.dodgeZ;
       speed = 10;
     }
-    if (length > 0.1 && !locked && !this.guarding)
+    if (length > 0.1 && !locked && !this.guarding && this.attackTime === 0)
       this.yaw = Math.atan2(mx, mz);
     const colliders = this.colliders,
       oldX = this.x,
@@ -682,9 +744,28 @@ export class Simulation {
           this.version++;
         }
       for (const g of this.guards) {
+        g.defeatTime = Math.max(0, g.defeatTime - dt);
+        g.hitFlash = Math.max(0, g.hitFlash - dt);
+        if (g.stun > 0) {
+          const obstacles = colliders.filter((c) => c.id !== "guard-" + g.id);
+          const moved = moveAndSlide(
+            obstacles,
+            g.x,
+            g.z,
+            0,
+            g.knockX * dt,
+            g.knockZ * dt,
+            false,
+            0.48,
+          );
+          g.x = moved.x;
+          g.z = moved.z;
+          g.knockX *= Math.exp(-9 * dt);
+          g.knockZ *= Math.exp(-9 * dt);
+        }
+        g.stun = Math.max(0, g.stun - dt);
         if (g.hp <= 0) continue;
         g.cooldown = Math.max(0, g.cooldown - dt);
-        g.stun = Math.max(0, g.stun - dt);
         if (g.stun > 0) continue;
         const distance = Math.hypot(g.x - this.x, g.z - this.z);
         if (g.windup > 0) {
@@ -710,6 +791,7 @@ export class Simulation {
                 this.notify("成功格挡 · -20 体力");
               } else {
                 this.hp--;
+                this.cancelCombo();
                 this.invincible = 1.1;
                 this.notify("受到攻击！右键防御或 Ctrl 闪避");
                 if (this.hp <= 0) {

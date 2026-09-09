@@ -1,6 +1,6 @@
 import { Suspense, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Group, Vector3 } from "three";
+import { Group, Vector3, Mesh, MeshStandardMaterial } from "three";
 import { game } from "../game/simulation";
 import { getInput, releaseMouse } from "../game/input";
 import { playSound } from "../game/audio";
@@ -63,7 +63,7 @@ function Runtime() {
     }
     camera.lookAt(target);
     first.current = false;
-  });
+  }, -1);
   return (
     <>
       <color
@@ -117,14 +117,40 @@ function Entities() {
     });
     guards.current?.children.forEach((child, i) => {
       const guard = game.guards[i];
-      child.visible = guard.hp > 0;
+      child.visible = guard.hp > 0 || guard.defeatTime > 0;
       child.position.set(
         guard.x,
-        0.12 + Math.sin(clock.elapsedTime * 3 + i) * 0.12,
+        0.12 + (guard.stun > 0 ? 0 : Math.sin(game.elapsed * 3 + i) * 0.12),
         guard.z,
       );
-      child.rotation.y = guard.yaw;
-      child.scale.setScalar(guard.windup > 0 ? 1.05 : 1);
+      const recoil =
+        guard.stunDuration > 0 ? guard.stun / guard.stunDuration : 0;
+      child.rotation.set(
+        -Math.sin(recoil * Math.PI * 0.7) * 0.4,
+        guard.yaw,
+        guard.hp <= 0
+          ? (1 - guard.defeatTime / 0.65) * 1.5
+          : Math.sin(recoil * Math.PI * 3) * 0.07,
+      );
+      child.traverse((node) => {
+        if (node instanceof Mesh) {
+          for (const material of Array.isArray(node.material)
+            ? node.material
+            : [node.material]) {
+            if (material instanceof MeshStandardMaterial) {
+              material.emissive.setHex(0xffc078);
+              material.emissiveIntensity = guard.hitFlash > 0 ? 0.45 : 0;
+            }
+          }
+        }
+      });
+      child.scale.setScalar(
+        guard.hp <= 0
+          ? Math.min(1, guard.defeatTime * 4)
+          : guard.windup > 0
+            ? 1.05
+            : 1,
+      );
       const warning = child.getObjectByName("guard-warning");
       if (warning)
         warning.visible = guard.windup > 0 || game.lockedTarget === guard.id;
@@ -197,7 +223,7 @@ function Entities() {
       </group>
       <group ref={guards}>
         {game.guards.map((g) => (
-          <group key={g.id}>
+          <group key={g.id} name={`guard-${g.id}`}>
             <mesh name="guard-warning" position={[0, 3, 0]}>
               <octahedronGeometry args={[0.2]} />
               <meshBasicMaterial color="#ff714d" />

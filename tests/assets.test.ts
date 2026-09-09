@@ -11,8 +11,8 @@ test("shipped Blender character contains only the intended scene and animation p
   const gltf = JSON.parse(bytes.toString("utf8", 20, 20 + length));
   assert.equal(gltf.scenes.length, 1);
   assert.equal(gltf.scenes[0].name, "Trump_Video_Character");
-  assert.equal(gltf.meshes.length, 7);
-  assert.ok(gltf.nodes.length < 30);
+  assert.equal(gltf.meshes.length, 13);
+  assert.ok(gltf.nodes.length < 40);
   for (const name of [
     "TrumpRoot",
     "LeftArmPivot",
@@ -20,12 +20,35 @@ test("shipped Blender character contains only the intended scene and animation p
     "LeftLegPivot",
     "RightLegPivot",
     "HeadPivot",
+    "WaistPivot",
+    "RightElbowPivot",
+    "LeftElbowPivot",
+    "RightWristPivot",
+    "LeftWristPivot",
+    "RightKneePivot",
+    "LeftKneePivot",
     "SwordPivot",
   ])
     assert.ok(
       gltf.nodes.some((n: { name: string }) => n.name === name),
       name,
     );
+  for (const side of ["Right", "Left"]) {
+    for (const [parent, child] of [
+      [`${side}ArmPivot`, `${side}ElbowPivot`],
+      [`${side}ElbowPivot`, `${side}WristPivot`],
+      [`${side}LegPivot`, `${side}KneePivot`],
+    ]) {
+      const node = gltf.nodes.find((n: { name: string }) => n.name === parent);
+      const childIndex = gltf.nodes.findIndex(
+        (n: { name: string }) => n.name === child,
+      );
+      assert.ok(
+        node.children.includes(childIndex),
+        `${child} must follow ${parent}`,
+      );
+    }
+  }
   assert.ok(
     !gltf.images?.length,
     "model should not load unrelated image assets",

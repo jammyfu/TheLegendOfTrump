@@ -42,6 +42,7 @@ export function moveAndSlide(
   dx: number,
   dz: number,
   step: boolean,
+  radius = PLAYER_RADIUS,
 ) {
   const count = Math.max(1, Math.ceil(Math.hypot(dx, dz) / 0.12));
   let height = y;
@@ -50,14 +51,14 @@ export function moveAndSlide(
       nz = z + dz / count;
     const nextFloor = step ? floorAt(colliders, nx, nz, height + 0.26) : height;
     const ny = Math.max(height, nextFloor);
-    if (!occupied(colliders, nx, nz, ny)) {
+    if (!occupied(colliders, nx, nz, ny, radius)) {
       x = nx;
       z = nz;
       height = ny;
       continue;
     }
-    if (!occupied(colliders, nx, z, height)) x = nx;
-    if (!occupied(colliders, x, nz, height)) z = nz;
+    if (!occupied(colliders, nx, z, height, radius)) x = nx;
+    if (!occupied(colliders, x, nz, height, radius)) z = nz;
   }
   return { x, z, y: height };
 }

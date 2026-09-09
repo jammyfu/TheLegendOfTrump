@@ -41,13 +41,13 @@ test("desktop controls, back equipment, jump, block, attack and mouse camera", a
   await page.keyboard.down("KeyF");
   await expect
     .poll(() => parents(page))
-    .toEqual({ sword: "TorsoPivot", shield: "LeftArmPivot" });
+    .toEqual({ sword: "TorsoPivot", shield: "LeftWristPivot" });
   await page.screenshot({ path: "artifacts/adventure-shield-block.png" });
   await page.keyboard.up("KeyF");
   await page.keyboard.press("KeyJ");
   await expect
     .poll(async () => (await parents(page)).sword, { intervals: [20, 30, 50] })
-    .toBe("RightArmPivot");
+    .toBe("RightWristPivot");
   await expect.poll(async () => (await parents(page)).sword).toBe("TorsoPivot");
   const before = await page.evaluate(() => window.__game!.cameraYaw);
   await page.getByRole("button", { name: "启用鼠标视角" }).click();
@@ -210,7 +210,7 @@ test("mobile multitouch movement + sprint + camera, held block and release clean
   });
   await expect
     .poll(async () => (await parents(page)).shield)
-    .toBe("LeftArmPivot");
+    .toBe("LeftWristPivot");
   await cdp.send("Input.dispatchTouchEvent", {
     type: "touchCancel",
     touchPoints: [],
@@ -226,4 +226,61 @@ test("mobile multitouch movement + sprint + camera, held block and release clean
   ).toBeTruthy();
   expect(errors).toEqual([]);
   await context.close();
+});
+
+test("jointed three-hit combo animates wrists and visibly staggers an enemy", async ({
+  page,
+}) => {
+  await start(page);
+  await page.evaluate(() => {
+    const g = window.__game!;
+    g.x = 0;
+    g.z = 12;
+    g.yaw = Math.PI;
+    g.cameraYaw = 0.6;
+    g.cameraDistance = 9;
+    Object.assign(g.guards[0], { x: 0, z: 10, hp: 3, cooldown: 5 });
+    g.guards[1].hp = 0;
+  });
+  await page.keyboard.press("KeyJ");
+  for (let stage = 0; stage < 3; stage++) {
+    await expect
+      .poll(() => page.evaluate(() => window.__game!.combo))
+      .toBe(stage);
+    await expect
+      .poll(() => page.evaluate(() => window.__game!.guards[0].hp), {
+        intervals: [20, 30, 50],
+      })
+      .toBe(2 - stage);
+    if (stage < 2) await page.keyboard.press("KeyJ");
+    await page.evaluate(() => {
+      window.__game!.hitStop = 100;
+    });
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          Math.abs(window.__scene!.getObjectByName("guard-0")!.rotation.x),
+        ),
+      )
+      .toBeGreaterThan(0.05);
+    const pose = await page.evaluate(() => ({
+      wrist: window.__scene!.getObjectByName("EquippedSword")!.parent!.name,
+      elbow: window.__scene!.getObjectByName("RightElbowPivot")!.rotation.x,
+      waist: window.__scene!.getObjectByName("WaistPivot")!.rotation.y,
+      recoil: window.__scene!.getObjectByName("guard-0")!.rotation.x,
+      stun: window.__game!.guards[0].stun,
+    }));
+    expect(pose.wrist).toBe("RightWristPivot");
+    expect(Math.abs(pose.elbow)).toBeGreaterThan(0.1);
+    expect(Math.abs(pose.recoil)).toBeGreaterThan(0.05);
+    expect(pose.stun).toBeGreaterThan(0);
+    await page.screenshot({ path: `artifacts/combo-${stage + 1}.png` });
+    await page.evaluate(() => {
+      window.__game!.hitStop = 0;
+    });
+  }
+  await expect
+    .poll(() => page.evaluate(() => window.__game!.guards[0].defeatTime))
+    .toBe(0);
+  await expect.poll(async () => (await parents(page)).sword).toBe("TorsoPivot");
 });

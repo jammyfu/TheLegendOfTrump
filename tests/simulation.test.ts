@@ -251,3 +251,109 @@ test("lawn pickup route remains traversable around new props and hedges", () => 
   }
   assert.ok(g.gems >= 8);
 });
+
+test("three-stage combo buffers one press, costs stamina per stage and resets after recovery", () => {
+  const g = quiet();
+  g.attack();
+  g.attack(); // initial anticipation rejects button spam
+  assert.equal(g.comboQueued, false);
+  tick(g, 0.1);
+  g.attack();
+  g.attack();
+  assert.equal(g.comboQueued, true);
+  tick(g, 0.38);
+  assert.equal(g.combo, 1);
+  assert.equal(g.stamina, 83);
+  tick(g, 0.12);
+  g.attack();
+  tick(g, 0.4);
+  assert.equal(g.combo, 2);
+  assert.equal(g.stamina, 71);
+  g.attack();
+  assert.equal(g.comboQueued, false);
+  tick(g, 0.9);
+  g.attack();
+  assert.equal(g.combo, 0);
+  const b = quiet();
+  b.attack();
+  tick(b, 0.85);
+  b.attack();
+  assert.equal(b.combo, 0, "expired chain restarts at slash one");
+});
+test("insufficient stamina and dodge cancel buffered chains without phantom damage", () => {
+  const g = quiet();
+  g.stamina = 8;
+  g.attack();
+  tick(g, 0.1);
+  g.attack();
+  tick(g, 0.4);
+  assert.equal(g.combo, 0);
+  assert.equal(g.attackTime, 0);
+  assert.equal(g.comboQueued, false);
+  const b = quiet();
+  b.attack();
+  tick(b, 0.1);
+  b.attack();
+  b.dodge();
+  assert.equal(b.attackTime, 0);
+  assert.equal(b.hitPending, false);
+  tick(b, 0.7);
+  assert.equal(b.comboQueued, false);
+});
+test("strikes interrupt enemy windup, stagger once per swing, then allow recovery", () => {
+  const g = fresh();
+  g.x = 0;
+  g.z = 12;
+  g.yaw = Math.PI;
+  const enemy = g.guards[0];
+  Object.assign(enemy, { x: 0, z: 10, windup: 0.6, hp: 10 });
+  g.guards[1].hp = 0;
+  g.attack();
+  tick(g, 0.18);
+  assert.equal(enemy.hp, 9);
+  assert.equal(enemy.windup, 0);
+  assert.ok(enemy.stun > 0.4);
+  assert.ok(g.hitStop > 0);
+  const attackTime = g.attackTime;
+  g.update(0.01, idle);
+  assert.equal(
+    g.attackTime,
+    attackTime,
+    "impact briefly freezes the strike pose",
+  );
+  tick(g, 0.3);
+  assert.equal(enemy.hp, 9, "one swing only damages once");
+  assert.ok(enemy.z < 10, "enemy recoils away from impact");
+  assert.equal(g.hp, 3, "staggered enemy cannot deal queued attack damage");
+  tick(g, 1);
+  assert.equal(enemy.stun, 0);
+});
+test("finisher has stronger stagger, collision-limited knockback and visible defeat", () => {
+  const g = fresh();
+  g.x = 0;
+  g.z = 12;
+  g.yaw = Math.PI;
+  const enemy = g.guards[0];
+  Object.assign(enemy, { x: 0, z: 10, hp: 1, windup: 0.5 });
+  g.guards[1].hp = 0;
+  g.combo = 1;
+  g.comboWindow = 0.2;
+  g.attack();
+  tick(g, 0.3);
+  assert.equal(enemy.hp, 0);
+  assert.ok(enemy.stun > 0.85);
+  assert.ok(enemy.defeatTime > 0);
+  tick(g, 1);
+  assert.equal(enemy.defeatTime, 0);
+  const blocked = moveAndSlide(
+    [{ id: "wall", zone: "grounds", x: 0, z: 0, w: 5, d: 0.5, top: 4 }],
+    0,
+    1,
+    0,
+    0,
+    -8,
+    false,
+    0.48,
+  );
+  assert.ok(blocked.z >= 0.72);
+});

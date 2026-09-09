@@ -21,12 +21,16 @@ def build():
     def empty(name,loc=(0,0,0),parent=None):
         o=bpy.data.objects.new(name,None);scene.collection.objects.link(o);o.location=loc;o.parent=parent;return o
     root=empty('TrumpRoot')
-    body=empty('TorsoPivot',parent=root)
+    waist=empty('WaistPivot',(0,0,1.23),root)
+    body=empty('TorsoPivot',(0,0,-1.23),waist)
     head=empty('HeadPivot',(0,0,2.18),body)
     limbs={}
     for s,label in [(-1,'Right'),(1,'Left')]:
         limbs[label+'Arm']=empty(label+'ArmPivot',(s*.55,0,1.98),body)
         limbs[label+'Leg']=empty(label+'LegPivot',(s*.27,0,1.06),root)
+        limbs[label+'Elbow']=empty(label+'ElbowPivot',(s*.15,0,-.36),limbs[label+'Arm'])
+        limbs[label+'Wrist']=empty(label+'WristPivot',(s*.15,-.01,-.38),limbs[label+'Elbow'])
+        limbs[label+'Knee']=empty(label+'KneePivot',(s*.065,0,-.42),limbs[label+'Leg'])
     objects=[]
     def mesh(name,verts,faces,material,parent=None):
         data=bpy.data.meshes.new(name);data.from_pydata(verts,[],faces);data.materials.append(mats[material]);data.update()
@@ -70,12 +74,15 @@ def build():
     bevelbox('Pin_Canton',(.296,-.309,1.965),(.08,.006,.055),'blue',body,0)
     for s,label in [(-1,'Right'),(1,'Left')]:
         arm=limbs[label+'Arm'];leg=limbs[label+'Leg']
-        ringmesh(label+'_Sleeve',[(0,.205,.205,0,0),(-.32,.16,.17,s*.15,0),(-.71,.16,.17,s*.29,-.01)],'suit',arm)
-        ringmesh(label+'_Cuff',[(-.72,.14,.14,s*.29,-.01),(-.76,.14,.14,s*.3,-.01)],'white',arm)
-        ringmesh(label+'_Fist',[(-.73,.125,.13,s*.31,-.02),(-.85,.205,.205,s*.35,-.045),(-1.03,.19,.17,s*.37,-.06),(-1.13,.11,.12,s*.32,-.045)],'skinlight',arm,segments=7)
-        ringmesh(label+'_Thumb',[(-.8,.08,.08,s*.19,-.13),(-.99,.085,.09,s*.17,-.18),(-1.04,.05,.065,s*.18,-.14)],'skin',arm,segments=5)
-        ringmesh(label+'_Trousers',[(0,.235,.235,0,0),(-.42,.21,.21,s*.065,0),(-.79,.245,.235,s*.12,-.01)],'suit',leg)
-        bevelbox(label+'_Shoe',(s*.125,-.135,-.91),(.49,.75,.28),'black',leg,.055)
+        elbow=limbs[label+'Elbow']; wrist=limbs[label+'Wrist']; knee=limbs[label+'Knee']
+        ringmesh(label+'_UpperSleeve',[(0,.205,.205,0,0),(-.26,.175,.18,s*.11,0),(-.39,.16,.17,s*.15,0)],'suit',arm)
+        ringmesh(label+'_Forearm',[(.035,.165,.17,0,0),(-.17,.16,.17,s*.07,0),(-.37,.15,.16,s*.14,-.01)],'suit',elbow)
+        ringmesh(label+'_Cuff',[(-.35,.14,.14,s*.14,-.01),(-.4,.14,.14,s*.15,-.01)],'white',elbow)
+        ringmesh(label+'_Fist',[(.01,.125,.13,s*.01,-.01),(-.11,.205,.205,s*.05,-.035),(-.29,.19,.17,s*.07,-.05),(-.39,.11,.12,s*.02,-.035)],'skinlight',wrist,segments=7)
+        ringmesh(label+'_Thumb',[(-.06,.08,.08,-s*.11,-.12),(-.25,.085,.09,-s*.13,-.17),(-.3,.05,.065,-s*.12,-.13)],'skin',wrist,segments=5)
+        ringmesh(label+'_Thigh',[(0,.235,.235,0,0),(-.28,.22,.22,s*.04,0),(-.45,.21,.21,s*.065,0)],'suit',leg)
+        ringmesh(label+'_Shin',[(.035,.215,.215,0,0),(-.18,.23,.225,s*.03,0),(-.37,.245,.235,s*.055,-.01)],'suit',knee)
+        bevelbox(label+'_Shoe',(s*.06,-.135,-.49),(.49,.75,.28),'black',knee,.055)
     # Faceted broad face with cheek planes and a protruding jaw.
     face_rings=[(.03,.235,.25),(.13,.33,.29),(.33,.37,.31),(.57,.36,.295),(.75,.31,.27),(.82,.23,.24)]
     face_vertices=[]

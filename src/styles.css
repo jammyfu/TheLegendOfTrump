@@ -1646,3 +1646,28 @@ kbd {
     width: 100px;
   }
 }
+
+.combo-status {
+  position: absolute;
+  left: 50%;
+  top: 100px;
+  transform: translateX(-50%);
+  display: grid;
+  gap: 4px;
+  text-align: center;
+  color: #fff0bd;
+  text-shadow: 0 2px 4px #000;
+  pointer-events: none;
+}
+.combo-status strong {
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+.combo-status span {
+  font-size: 12px;
+}
+@media (pointer: coarse) {
+  .combo-status {
+    top: 120px;
+  }
+}
