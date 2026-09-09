@@ -108,7 +108,7 @@ export function TitleScreen({
           aria-pressed={sound}
         >
           {sound ? "♪" : "♩"}
-          <span>{sound ? "SOUND ON" : "SOUND OFF"}</span>
+          <span>{t("音效：")} {t(sound ? "开启" : "关闭")}</span>
         </button>
       </footer>
     </section>

@@ -24,7 +24,10 @@ python3 -m venv /tmp/legend-font-build
 /tmp/legend-font-build/bin/python scripts/build-interface-fonts.py --fetch
 /tmp/legend-font-build/bin/python scripts/trace-generated-fonts.py
 /tmp/legend-font-build/bin/python scripts/complete-interface-fonts.py
+/tmp/legend-font-build/bin/python scripts/normalize-cjk-spacing.py
 /tmp/legend-font-build/bin/python scripts/check-interface-fonts.py
 ```
 
 The script caches full CJK sources in a temporary directory and exports only interface subsets. Latin sources are in `assets/fonts/sources/`. Keep the six accompanying OFL license files when redistributing these derivatives. Upstream sources: [Cinzel Decorative](https://github.com/google/fonts/tree/main/ofl/cinzeldecorative), [Cormorant Garamond](https://github.com/google/fonts/tree/main/ofl/cormorantgaramond), [Noto Serif SC](https://github.com/google/fonts/tree/main/ofl/notoserifsc), [Noto Serif JP](https://github.com/google/fonts/tree/main/ofl/notoserifjp).
+
+Han characters and full-width punctuation use uniform 750-unit advance cells with centered bearings. Run normalization after regenerating outlines to preserve consistent Chinese spacing.

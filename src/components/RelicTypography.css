@@ -119,3 +119,24 @@
 }
 .game :is(.menu-panel, .dialogue) summary,
 .game :is(.menu-panel, .dialogue) summary span { font-size: 20px; line-height: 1.5; }
+
+/* CJK uses uniform font cells; Latin-style tracking made Chinese look scattered. */
+:lang(zh) .game :is(button, p, li, label, select, output, dt, dd, span, small, strong, h2, h3, summary),
+:lang(ja) .game :is(button, p, li, label, select, output, dt, dd, span, small, strong, h2, h3, summary) {
+  letter-spacing: normal;
+  word-spacing: normal;
+  font-kerning: none;
+}
+.game .help-panel p.help-note {
+  font-size: 20px;
+  line-height: 1.9;
+  letter-spacing: normal;
+  word-spacing: normal;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: break-word;
+  padding: 16px 18px;
+}
+@media (max-width: 600px) {
+  .game .help-panel p.help-note { font-size: 18px; line-height: 1.85; padding: 14px; }
+}

@@ -104,3 +104,7 @@
   .game .hud-layout .combo-status { padding: 5px 8px; }
   .game .hud-layout .combo-status span { display: none; }
 }
+@media (pointer: coarse) and (max-width: 600px) {
+  .game .hud-layout { grid-template-rows: auto auto auto auto minmax(36px,1fr) auto auto auto; }
+  .game .hud-layout:has(.boss-hud) .weapon-hud small { display: none; }
+}
