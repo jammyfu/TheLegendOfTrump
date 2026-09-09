@@ -1,0 +1,28 @@
+.hud-layout .hud-disclosure { position:absolute; top:82px; right:16px; pointer-events:auto; color:#f4e5be; z-index:30; }
+.hud-layout .quest-disclosure { right:68px; }
+.hud-layout .hud-disclosure summary { list-style:none; cursor:pointer; width:38px; height:38px; display:grid; place-items:center; background:#211f1ed9; border:1px solid #a28a58; font:22px Georgia,serif; }
+.hud-layout .hud-disclosure summary::-webkit-details-marker { display:none; }
+.hud-layout .hud-disclosure summary svg { width:22px; height:22px; }
+.hud-layout .hud-disclosure[open] { width:min(340px,calc(100vw - 32px)); padding:12px; background:#211f1ef5; border:1px solid #a28a58; }
+.hud-layout .hud-disclosure[open] summary { margin-left:auto; }
+.hud-layout .hud-disclosure .quest, .hud-layout .hud-disclosure .adventure-controls { position:static; transform:none; display:flex; flex-direction:column; align-items:flex-start; width:auto; max-width:none; padding:12px 0; margin:0; border:0; background:none; box-shadow:none; font-size:14px; gap:10px; }
+.hud-layout .hud-disclosure .quest > svg { display:none; }
+.hud-layout .hud-disclosure p { margin:8px 0; font-size:14px; }
+.hud-layout .weapon-hud { width:auto; }
+.hud-layout .weapon-hud > button { width:42px; min-width:42px; padding:8px; }
+.hud-layout .weapon-hud > button span, .hud-layout .weapon-hud > button kbd,
+.hud-layout .weapon-hud.no-bow .ammunition, .hud-layout .lock-label,
+.hud-layout .target-reticle > span, .hud-layout .menu-action-label,
+.hud-layout .field-route, .hud-layout .stamina > span,
+.hud-layout .combo-status > span { display:none !important; }
+.hud-layout .expedition-hud { top:160px; }
+.hud-layout .adventure-menu [data-tooltip]::after { display:none !important; }
+@media(max-width:700px) { .hud-layout .hud-disclosure { top:66px; } .hud-layout .quest-disclosure { right:60px; } }
+@media(max-height:500px) {
+  .game .hud-layout .adventure-menu { display:flex !important; flex-wrap:nowrap !important; width:auto !important; max-width:none !important; right:10px; top:10px; gap:6px; }
+  .game .hud-layout .adventure-menu button { width:34px !important; height:34px !important; min-width:34px !important; min-height:34px !important; padding:6px; }
+  .hud-layout .hud-disclosure { top:54px; right:10px; }
+  .hud-layout .quest-disclosure { right:56px; }
+  .hud-layout .hud-disclosure[open] { max-height:calc(100dvh - 74px); overflow:auto; }
+  .game .hud-layout .expedition-hud { top:170px !important; left:10px !important; right:auto !important; }
+}

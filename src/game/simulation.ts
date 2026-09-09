@@ -490,7 +490,7 @@ export class Simulation {
             Object.assign(g, {
               x: g.originX,
               z: g.originZ,
-              hp: 2,
+              hp: ENEMY_RULES.archer.hp,
               windup: 0,
               attackTime: 0,
               cooldown: 0.8,

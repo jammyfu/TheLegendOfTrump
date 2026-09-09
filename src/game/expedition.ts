@@ -4,7 +4,7 @@ export type EnemyKind = "sentinel" | "archer" | "brute";
 export const ENEMY_RULES = {
   sentinel: {
     name: "剑盾卫兵",
-    hp: 3,
+    hp: 5,
     speed: 3.3,
     scale: 1.22,
     range: 18,
@@ -13,7 +13,7 @@ export const ENEMY_RULES = {
   },
   archer: {
     name: "游猎弓箭手",
-    hp: 2,
+    hp: 4,
     speed: 3.5,
     scale: 1.15,
     range: 28,
@@ -22,7 +22,7 @@ export const ENEMY_RULES = {
   },
   brute: {
     name: "重甲卫兵",
-    hp: 6,
+    hp: 10,
     speed: 2.6,
     scale: 1.3,
     range: 20,

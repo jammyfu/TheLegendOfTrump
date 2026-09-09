@@ -9,7 +9,7 @@ test("enemy bars track damage, scaled health, summons and death; sun follows pla
     const g = window.__game!;
     const enemy = g.guards.find(e => e.sizeMultiplier === 1.5)!;
     Object.assign(g, { x: 0, z: 150, y: 0, grounded: true, yaw: 0 });
-    Object.assign(enemy, { x: 0, z: 143, hp: 9, stun: 100 });
+    Object.assign(enemy, { x: 0, z: 143, hp: 15, stun: 100 });
     return enemy.id;
   });
   const read = () => page.evaluate(id => {
@@ -18,9 +18,9 @@ test("enemy bars track damage, scaled health, summons and death; sun follows pla
     const fill = scene.getObjectByName(`enemy-health-fill-${id}`)!;
     return { visible: bar.visible, ratio: fill.scale.x, maxHp: bar.userData.maxHp };
   }, id);
-  await expect.poll(read).toEqual({ visible: true, ratio: 1, maxHp: 9 });
-  await page.evaluate(id => { window.__game!.guards.find(e => e.id === id)!.hp = 3; }, id);
-  await expect.poll(read).toEqual({ visible: true, ratio: 1 / 3, maxHp: 9 });
+  await expect.poll(read).toEqual({ visible: true, ratio: 1, maxHp: 15 });
+  await page.evaluate(id => { window.__game!.guards.find(e => e.id === id)!.hp = 5; }, id);
+  await expect.poll(read).toEqual({ visible: true, ratio: 1 / 3, maxHp: 15 });
   await expect.poll(() => page.evaluate(() => {
     const sun = window.__scene!.getObjectByName("character-follow-sun")!;
     return Math.abs(sun.position.z - (window.__game!.z + 15)) < 0.1;
@@ -33,7 +33,7 @@ test("enemy bars track damage, scaled health, summons and death; sun follows pla
     g.zone = "office";
     Object.assign(g, { x: 0, z: 10 });
     Object.assign(g.boss, { active: true, hp: 9, x: 0, z: -5 });
-    Object.assign(g.minions[0], { hp: 2, x: -4, z: 2, stun: 100 });
+    Object.assign(g.minions[0], { hp: 4, x: -4, z: 2, stun: 100 });
   });
   await expect.poll(() => page.evaluate(() => {
     const scene = window.__scene!;

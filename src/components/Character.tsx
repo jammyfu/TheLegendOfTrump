@@ -256,7 +256,7 @@ export function Character() {
     const swordParent = drawn ? parts.rightWrist : parts.torso;
     if (gear.sword.parent !== swordParent) swordParent.add(gear.sword);
     gear.sword.position.set(
-      ...((drawn ? [-0.06, -0.19, 0.06] : [0.35, 2.05, -0.43]) as [
+      ...((drawn ? [-0.06, -0.19, 0.06] : [0.35, 2.05, -0.28]) as [
         number,
         number,
         number,
@@ -272,7 +272,7 @@ export function Character() {
     const shieldParent = blocking ? parts.leftWrist : parts.torso;
     if (gear.shield.parent !== shieldParent) shieldParent.add(gear.shield);
     gear.shield.position.set(
-      ...((blocking ? [0.03, -0.08, 0.24] : [0, 1.5, -0.55]) as [
+      ...((blocking ? [0.03, -0.08, 0.24] : [0, 1.5, -0.35]) as [
         number,
         number,
         number,
@@ -298,10 +298,10 @@ export function Character() {
     const bowParent = usingBow ? parts.leftWrist : parts.torso;
     if (gear.bow.parent !== bowParent) bowParent.add(gear.bow);
     if (gear.quiver.parent !== parts.torso) parts.torso.add(gear.quiver);
-    gear.quiver.position.set(-0.42, 1.55, -0.78);
+    gear.quiver.position.set(-0.42, 1.55, -0.48);
     gear.quiver.rotation.set(0, 0, -0.3);
     gear.bow.position.set(
-      ...((usingBow ? [0, -0.2, 0.12] : [-0.35, 1.5, -0.88]) as [
+      ...((usingBow ? [0, -0.2, 0.12] : [-0.35, 1.5, -0.56]) as [
         number,
         number,
         number,

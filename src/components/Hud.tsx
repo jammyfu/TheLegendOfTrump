@@ -1,4 +1,5 @@
 import { ExpeditionHud } from "./ExpeditionHud";
+import "./CompactHud.css";
 import { ENEMY_RULES, CAMPS, FIELD_CHESTS } from "../game/expedition";
 import { t } from "../game/i18n";
 import { ATTACKS, SPIN } from "../game/combat";
@@ -145,9 +146,7 @@ export function Minimap() {
   );
 }
 export function Hud() {
-  const [mapOpen, setMapOpen] = useState(
-    () => !matchMedia("(pointer:coarse)").matches,
-  );
+  const [mapOpen, setMapOpen] = useState(false);
   return (
     <div className="hud-layout">
       <ExpeditionHud />
@@ -361,6 +360,8 @@ export function Hud() {
           <GameIcon name="pause" />
         </button>
       </div>
+      <details className="hud-disclosure quest-disclosure">
+        <summary aria-label="查看任务" title="查看任务"><GameIcon name="compass" /></summary>
       <div className="quest">
         <GameIcon name="compass" />
         <p>
@@ -377,6 +378,8 @@ export function Hud() {
                 : t("探索南草坪，收集 8 枚翡翠")}
         </p>
       </div>
+      {!game.bowUnlocked && <p>白宫门口右侧宝箱 · 获取弓箭</p>}
+      </details>
       {mapOpen && <Minimap />}
       {game.toast && (
         <div className="toast" role="status">
@@ -394,6 +397,8 @@ export function Hud() {
       {game.lockedTarget !== null && (
         <div className="lock-label">{t("◆ 目标锁定 · Tab 切换 · Q 解除")}</div>
       )}
+      <details className="hud-disclosure controls-disclosure">
+        <summary aria-label="查看操作帮助" title="查看操作帮助">?</summary>
       <div className="adventure-controls">
         <span>{t("WASD 移动")}</span>
         <span>{t("中键按住 视角")}</span>
@@ -404,6 +409,7 @@ export function Hud() {
         <span>{t("Shift + 方向 翻滚")}</span>
         <span>{t("E 互动 · Q 锁定")}</span>
       </div>
+      </details>
       <TouchControls />
     </div>
   );

@@ -58,7 +58,7 @@ export function moveVertical(
   }
   let floor = 0;
   for (const c of colliders)
-    if (c.top <= y + 0.015 && overlaps(c, x, z)) floor = Math.max(floor, c.top);
+    if (!c.id.startsWith("guard-") && c.top <= y + 0.015 && overlaps(c, x, z)) floor = Math.max(floor, c.top);
   return {
     y: Math.max(floor, nextY),
     grounded: nextY <= floor,
@@ -75,6 +75,39 @@ export function moveAndSlide(
   step: boolean,
   radius = PLAYER_RADIUS,
 ) {
+  // Recover existing overlaps (moving enemies, knockback, corner contacts).
+  // Enemy heads are rounded bodies, not standing platforms.
+  for (let pass = 0; pass < 12; pass++) {
+    let corrected = false;
+    for (const c of colliders) {
+      if (y + PLAYER_HEIGHT <= (c.bottom ?? 0) + 0.01 ||
+          y >= c.top + (c.id.startsWith("guard-") ? 0.08 : -0.025) ||
+          !overlaps(c, x, z, radius)) continue;
+      if (c.radius !== undefined) {
+        const ox = x - c.x, oz = z - c.z;
+        const distance = Math.hypot(ox, oz);
+        const push = c.radius + radius + 0.002 - distance;
+        x += (distance > 1e-6 ? ox / distance : 1) * push;
+        z += (distance > 1e-6 ? oz / distance : 0) * push;
+      } else {
+        const halfX = (c.w ?? 0) / 2, halfZ = (c.d ?? 0) / 2;
+        const qx = Math.max(c.x - halfX, Math.min(x, c.x + halfX));
+        const qz = Math.max(c.z - halfZ, Math.min(z, c.z + halfZ));
+        const ox = x - qx, oz = z - qz, distance = Math.hypot(ox, oz);
+        if (distance > 1e-6) {
+          x += ox / distance * (radius + 0.002 - distance);
+          z += oz / distance * (radius + 0.002 - distance);
+        } else {
+          const pushX = halfX + radius + 0.002 - Math.abs(x - c.x);
+          const pushZ = halfZ + radius + 0.002 - Math.abs(z - c.z);
+          if (pushX < pushZ) x += (x >= c.x ? 1 : -1) * pushX;
+          else z += (z >= c.z ? 1 : -1) * pushZ;
+        }
+      }
+      corrected = true;
+    }
+    if (!corrected) break;
+  }
   // Conservative swept bounds: keep every obstacle any substep can reach,
   // then run the same precise circle/box checks against this small local set.
   const minX = Math.min(x, x + dx) - radius,
