@@ -1,0 +1,106 @@
+/* Each HUD region owns a grid cell; content growth never reuses fixed offsets. */
+.game .hud-layout {
+  position: absolute; inset: 0; z-index: 6; pointer-events: none;
+  display: grid; gap: 12px 20px;
+  padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  grid-template-columns: minmax(180px, 240px) minmax(0, 1fr) minmax(200px, 280px);
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto auto;
+  grid-template-areas: "vital quest tools" "weapon boss map" "pack combo map" "gems toast map" ". prompt ." "controls controls controls";
+  font-size: 18px; box-sizing: border-box;
+}
+.game .hud-layout > :is(.vital-hud,.weapon-hud,.expedition-hud,.gem-count,.adventure-menu,.quest,.minimap,.boss-hud,.combo-status,.toast,.interact-prompt,.adventure-controls) {
+  position: relative; inset: auto; transform: none; margin: 0; min-width: 0;
+  max-width: 100%; width: auto; align-self: start; box-sizing: border-box;
+}
+.game .hud-layout button { pointer-events: auto; }
+.game .hud-layout .vital-hud { grid-area: vital; }
+.game .hud-layout .weapon-hud { grid-area: weapon; display: grid; gap: 8px; }
+.game .hud-layout .expedition-hud { grid-area: pack; display: flex; flex-wrap: wrap; gap: 8px; }
+.game .hud-layout .gem-count { grid-area: gems; }
+.game .hud-layout .adventure-menu { grid-area: tools; display: flex; flex-wrap: wrap; justify-content: end; gap: 8px; }
+.game .hud-layout .quest { grid-area: quest; padding: 10px; }
+.game .hud-layout .minimap { grid-area: map; width: 160px; justify-self: end; align-self: end; }
+.game .hud-layout .boss-hud { grid-area: boss; }
+.game .hud-layout .combo-status { grid-area: combo; justify-self: center; }
+.game .hud-layout .toast { grid-area: toast; justify-self: center; }
+.game .hud-layout .interact-prompt { grid-area: prompt; justify-self: center; display: flex; align-items: center; gap: 10px; }
+.game .hud-layout .adventure-controls { grid-area: controls; flex-wrap: wrap; gap: 6px 16px; }
+.game .hud-layout :is(.quest p,.toast,.interact-prompt,.weapon-hud button,.expedition-hud,.boss-hud > span,.combo-status strong) { font-size: 20px; line-height: 1.5; }
+.game .hud-layout :is(.ammunition,.weapon-hud small,.stamina span,.boss-hud small,.combo-status span,.adventure-controls,.target-reticle span,.map-caption,.map-heading,kbd) { font-size: 16px; line-height: 1.5; }
+.game .hud-layout .quest p { margin: 0; }
+.game .hud-layout :is(.weapon-hud button,.expedition-hud button,.adventure-menu button) { min-height: 46px; }
+.game .hud-layout .ammunition { width: auto; white-space: normal; }
+.game .hud-layout .adventure-menu button { width: 46px; min-width: 46px; padding: 8px; }
+.game .hud-layout .menu-action-label { display: none; }
+.game .hud-layout .game-icon { position: static; flex: 0 0 auto; width: 24px; height: 24px; }
+.game .hud-layout .target-reticle > .game-icon { width: 100%; height: 100%; }
+.game .hud-layout .stamina { width: 140px; }
+.game .hud-layout .map-heading { flex-wrap: wrap; justify-content: space-between; }
+.game .hud-layout .map-heading .game-icon { width: 16px; height: 16px; }
+.game .hud-layout .adventure-menu button[data-tooltip]::after { font-size: 16px; }
+@media (max-width: 1000px) {
+  .game .hud-layout { grid-template-columns: minmax(160px, 210px) minmax(0,1fr) minmax(160px,210px); gap: 10px; padding: 12px; }
+  .game .hud-layout .minimap { width: 130px; }
+}
+@media (pointer: coarse), (max-width: 600px) {
+  .game .hud-layout {
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    grid-template-rows: auto auto auto auto minmax(0,1fr) auto auto auto;
+    grid-template-areas: "vital tools" "weapon pack" "quest quest" "boss boss" "gems map" "combo combo" "toast toast" "prompt prompt";
+    gap: 8px 12px; padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
+  }
+  .game .hud-layout .adventure-controls { display: none; }
+  .game .hud-layout :is(.quest p,.toast,.interact-prompt,.weapon-hud button,.expedition-hud,.boss-hud > span,.combo-status strong) { font-size: 18px; }
+  .game .hud-layout .adventure-menu { gap: 6px; }
+  .game .hud-layout .adventure-menu button { min-width: 44px; width: 44px; min-height: 44px; }
+  .game .hud-layout .stamina { width: 120px; }
+  .game .hud-layout .minimap { width: 120px; max-height: 100%; overflow: auto; pointer-events: auto; }
+  .game .hud-layout .expedition-hud > :is(span,button) { white-space: normal; padding: 6px; }
+  .game .hud-layout .gem-count { align-self: end; }
+}
+@media (pointer: coarse) {
+  .game .hud-layout { padding-bottom: max(188px, calc(env(safe-area-inset-bottom) + 176px)); }
+  .game .hud-layout .adventure-touch { inset: 0; }
+  .game .hud-layout .adventure-buttons {
+    display: grid; grid-template-columns: repeat(2, 68px); grid-template-rows: repeat(2, 68px); gap: 10px;
+    width: auto; height: auto; right: max(12px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); transform: none;
+  }
+  .game .hud-layout .adventure-buttons button {
+    position: static; inset: auto; width: 68px; height: 68px; min-width: 0; padding: 5px; gap: 4px;
+  }
+  .game .hud-layout .adventure-buttons button small { font-size: 15px; line-height: 1.1; margin: 0; letter-spacing: 0; }
+  .game .hud-layout .adventure-buttons button .game-icon { width: 26px; height: 26px; }
+  .game .hud-layout .adventure-touch .joystick { width: 108px; height: 108px; left: max(12px, env(safe-area-inset-left)); bottom: max(24px, env(safe-area-inset-bottom)); }
+  .game .hud-layout .look-pad { top: 190px; bottom: 180px; }
+  .game .hud-layout .look-pad span { display: none; }
+}
+@media (max-height: 540px) and (min-width: 601px) {
+  .game .hud-layout {
+    grid-template-columns: 190px minmax(0,1fr) 190px;
+    grid-template-rows: auto auto minmax(0,1fr) auto auto;
+    grid-template-areas: "vital quest tools" "weapon boss pack" ". combo ." ". toast ." ". prompt .";
+    padding: 10px; gap: 6px 12px;
+  }
+  .game .hud-layout .gem-count { position: absolute; left: 138px; top: auto; bottom: 16px; width: 60px; }
+  .game .hud-layout .minimap { grid-area: combo; position: relative; inset: auto; width: 112px; height: 130px; max-height: 100%; align-self: start; overflow: auto; pointer-events: auto; }
+  .game .hud-layout:has(.minimap) .combo-status { max-width: calc(100% - 120px); justify-self: start; }
+  .game .hud-layout .adventure-controls { display: none; }
+  .game .hud-layout .adventure-buttons { grid-template-columns: repeat(2,60px); grid-template-rows: repeat(2,60px); gap: 8px; }
+  .game .hud-layout .adventure-buttons button { width: 60px; height: 60px; }
+}
+/* The game surface must follow short mobile viewports, not the legacy 420px floor. */
+.game:has(.hud-layout) { min-height: 0; height: 100dvh; }
+@media (pointer: coarse) and (max-width: 600px) {
+  .game .hud-layout .combo-status span { display: none; }
+  .game .hud-layout:has(.boss-hud) .quest { display: none; }
+  /* Opening the map prioritizes navigation; closing it restores inventory. */
+  .game .hud-layout:has(.minimap) > :is(.weapon-hud,.expedition-hud,.quest,.combo-status,.gem-count) { display: none; }
+  .game .hud-layout:has(.minimap) .minimap {
+    grid-area: weapon; grid-column: 1 / -1; width: 140px; height: 150px;
+    max-height: 150px; justify-self: center; align-self: start;
+  }
+}
+@media (max-height: 540px) and (min-width: 601px) {
+  .game .hud-layout .combo-status { padding: 5px 8px; }
+  .game .hud-layout .combo-status span { display: none; }
+}

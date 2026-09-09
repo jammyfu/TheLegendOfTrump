@@ -141,7 +141,7 @@ export function Hud() {
     () => !matchMedia("(pointer:coarse)").matches,
   );
   return (
-    <>
+    <div className="hud-layout">
       <ExpeditionHud />
       <div
         id="lock-reticle"
@@ -354,7 +354,7 @@ export function Hud() {
         <span>{t("E 互动 · Q 锁定")}</span>
       </div>
       <TouchControls />
-    </>
+    </div>
   );
 }
 function TouchControls() {

@@ -1,3 +1,4 @@
+@import "./HudLayout.css";
 @font-face {
   font-family: "Legend Relic Latin";
   src: url("../../public/fonts/legend-relic-latin.woff2") format("woff2");
