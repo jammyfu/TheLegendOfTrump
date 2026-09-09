@@ -211,7 +211,7 @@ function Ground() {
 }
 export function Grounds() {
   return (
-    <group>
+    <group name="camera-occluders">
       <Ground />
       <Estate />
       <Landscape />

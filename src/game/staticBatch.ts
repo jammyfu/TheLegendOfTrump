@@ -2,11 +2,14 @@ import {
   Group,
   Mesh,
   Matrix4,
+  Box3,
+  Vector3,
   type Object3D,
   type Material,
   type BufferGeometry,
 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import { canFadeForCamera } from "./occlusion";
 
 /** Bake only explicitly static subtrees. Animated pivots remain separate batches. */
 export function batchStatic(root: Object3D, pivots: string[] = []) {
@@ -31,7 +34,10 @@ export function batchStatic(root: Object3D, pivots: string[] = []) {
         const json = o.material.toJSON();
         delete (json as Partial<typeof json>).uuid;
         delete (json as Partial<typeof json>).metadata;
+        // Keep batches local so fading one obstructing tree cannot fade the park.
+        const center = new Box3().setFromObject(o).getCenter(new Vector3());
         const key =
+          `${Math.floor(center.x / 6)},${Math.floor(center.z / 6)}:${canFadeForCamera(o)}:` +
           JSON.stringify(json) +
           o.castShadow +
           o.receiveShadow +
@@ -63,6 +69,7 @@ export function batchStatic(root: Object3D, pivots: string[] = []) {
       if (!geometry) continue;
       allocated.push(geometry);
       const mesh = new Mesh(geometry, material);
+      mesh.userData.cameraFade = canFadeForCamera(meshes[0]);
       mesh.castShadow = meshes[0].castShadow;
       mesh.receiveShadow = meshes[0].receiveShadow;
       batch.add(mesh);

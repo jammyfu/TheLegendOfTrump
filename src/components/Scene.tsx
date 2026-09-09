@@ -1,4 +1,5 @@
 import { AdaptiveResolution } from "./AdaptiveResolution";
+import { CameraOcclusion } from "./CameraOcclusion";
 import { LANDING } from "../game/expedition";
 import { RangedCombat } from "./RangedCombat";
 import { rayFraction } from "../game/collision";
@@ -291,6 +292,7 @@ function RuntimeContent() {
         </>
       )}
       <DoorMarker />
+      <CameraOcclusion />
     </>
   );
 }
