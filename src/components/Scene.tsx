@@ -1,3 +1,6 @@
+import { CombatEffects } from "./CombatEffects";
+import { Arrival } from "./Arrival";
+import { introPose } from "../game/intro";
 import { Suspense, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import {
@@ -41,8 +44,23 @@ function Runtime() {
       desired.set(16, 9.5, 29);
       target.set(-1, 3, -5);
     } else if (game.phase === "intro") {
-      desired.set(game.x + 0.25, 1.55, game.z + 6.2);
-      target.set(game.x, 1.6, game.z);
+      const pose = introPose(game.introTime);
+      desired.set(...pose.camera);
+      target.set(...pose.target);
+      if (pose.t > 12) {
+        const q = Math.min(1, (pose.t - 12) / 3);
+        const d = game.cameraDistance,
+          yaw = game.cameraYaw,
+          pitch = game.cameraPitch;
+        desired.lerp(
+          new Vector3(
+            Math.sin(yaw) * Math.cos(pitch) * d,
+            1.9 + Math.sin(pitch) * d,
+            15 + Math.cos(yaw) * Math.cos(pitch) * d,
+          ),
+          q * q * (3 - 2 * q),
+        );
+      }
     } else if (
       game.zone === "office" &&
       (game.phase === "dialogue" || game.phase === "won")
@@ -97,6 +115,16 @@ function Runtime() {
       }
     }
     camera.lookAt(target);
+    if (
+      game.phase === "playing" &&
+      game.cameraSettings.shake &&
+      game.impactTime > 0 &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      const strength = game.impactStrength * (game.impactTime / 0.2) ** 2;
+      camera.rotateX(Math.sin(game.impactTime * 95) * 0.008 * strength);
+      camera.rotateY(Math.sin(game.impactTime * 77) * 0.009 * strength);
+    }
     first.current = false;
   }, -1);
   return (
@@ -123,8 +151,16 @@ function Runtime() {
         shadow-camera-bottom={-32}
         shadow-normalBias={0.06}
       />
-      {zone === "grounds" ? <Grounds /> : <Office />}
+      {zone === "grounds" ? (
+        <>
+          <Grounds />
+          <Arrival />
+        </>
+      ) : (
+        <Office />
+      )}
       <Character />
+      <CombatEffects />
       {zone === "grounds" && (
         <>
           <Entities />
@@ -346,7 +382,7 @@ export function Scene() {
         }
       }}
       dpr={[1, 1.5]}
-      camera={{ fov: 48, near: 0.1, far: 140 }}
+      camera={{ fov: 48, near: 0.1, far: 300 }}
       gl={{ antialias: true, powerPreference: "high-performance" }}
     >
       <Suspense fallback={null}>

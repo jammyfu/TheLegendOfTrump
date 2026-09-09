@@ -57,6 +57,14 @@ export function CameraSettings() {
         />
         反转垂直视角
       </label>
+      <label className="camera-checkbox">
+        <input
+          type="checkbox"
+          checked={settings.shake}
+          onChange={(e) => update({ shake: e.target.checked })}
+        />
+        命中镜头反馈
+      </label>
       <p>滚轮可调整距离。手机竖屏自动扩大视野，设置保存在本机。</p>
       <button className="secondary" onClick={() => update(DEFAULT_CAMERA)}>
         恢复默认视角

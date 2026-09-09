@@ -14,7 +14,7 @@ test("portrait preserves horizontal context and camera settings clamp invalid va
   assert.ok(portrait > 85 && portrait < 105);
   assert.deepEqual(
     sanitizeCamera({ distance: -1, fov: Infinity, sensitivity: 50 }),
-    { distance: 5, fov: 60, sensitivity: 2, invertY: false },
+    { distance: 5, fov: 60, sensitivity: 2, invertY: false, shake: true },
   );
 });
 test("camera ignores combatants, contracts at walls and recovers smoothly", () => {

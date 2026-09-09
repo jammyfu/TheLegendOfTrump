@@ -41,7 +41,7 @@ test("desktop controls, back equipment, jump, block, attack and mouse camera", a
   await page.keyboard.down("KeyF");
   await expect
     .poll(() => parents(page))
-    .toEqual({ sword: "TorsoPivot", shield: "LeftWristPivot" });
+    .toEqual({ sword: "RightWristPivot", shield: "LeftWristPivot" });
   await page.screenshot({ path: "artifacts/adventure-shield-block.png" });
   await page.keyboard.up("KeyF");
   await page.keyboard.press("KeyJ");
@@ -336,4 +336,51 @@ test("first left click attacks, camera settings persist and portrait view expand
     .poll(() => page.evaluate(() => window.__game!.stamina))
     .toBeLessThan(before);
   expect(await page.evaluate(() => document.pointerLockElement)).toBeNull();
+});
+
+test("helicopter has proportional fuselage, working door and articulated rotors", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: /开始冒险/ }).click();
+  await expect
+    .poll(() =>
+      page.evaluate(() => !!window.__scene?.getObjectByName("ArrivalAircraft")),
+    )
+    .toBeTruthy();
+  await page.evaluate(() => {
+    window.__game!.introTime = 8.7;
+    window.__game!.update = () => {};
+  });
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => window.__scene!.getObjectByName("arrival-helicopter")!.visible,
+      ),
+    )
+    .toBeTruthy();
+  const before = await page.evaluate(
+    () => window.__scene!.getObjectByName("ArrivalRotor")!.rotation.y,
+  );
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => window.__scene!.getObjectByName("ArrivalRotor")!.rotation.y,
+      ),
+    )
+    .not.toBe(before);
+  await page.waitForTimeout(500);
+  await page.screenshot({ path: "artifacts/helicopter-arrival.png" });
+  await page.evaluate(() => {
+    window.__game!.introTime = 6.5;
+  });
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => window.__scene!.getObjectByName("ArrivalDoor")!.position.z,
+      ),
+    )
+    .toBeLessThan(-0.7);
+  await page.getByRole("button", { name: "跳过片头 · E" }).click();
+  await expect(page.getByLabel("体力", { exact: true })).toBeVisible();
 });

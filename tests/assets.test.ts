@@ -82,3 +82,29 @@ test("adventure assets contain isolated models and required animation pivots", (
       );
   }
 });
+
+test("arrival helicopter ships an isolated proportional hull and five-blade rotor rig", () => {
+  const bytes = readFileSync(
+    new URL("../public/models/arrival-helicopter.glb", import.meta.url),
+  );
+  assert.ok(bytes.length < 400_000);
+  const gltf = JSON.parse(
+    bytes.toString("utf8", 20, 20 + bytes.readUInt32LE(12)),
+  );
+  assert.equal(gltf.scenes.length, 1);
+  const find = (name: string) =>
+    gltf.nodes.find((n: { name: string }) => n.name === name);
+  for (const name of [
+    "ArrivalAircraft",
+    "ArrivalRotor",
+    "ArrivalTailRotor",
+    "ArrivalDoor",
+    "Sculpted boat hull",
+    "Tapered tail boom",
+  ])
+    assert.ok(find(name), name);
+  assert.equal(find("ArrivalRotor").children.length, 5);
+  assert.ok(Math.abs(find("ArrivalRotor").translation[1] - 5.6) < 0.001);
+  assert.ok(Math.abs(find("ArrivalTailRotor").translation[2]) > 11);
+  assert.ok(!gltf.images?.length);
+});

@@ -4,7 +4,7 @@ export const ATTACKS = [
   { name: "反手斩", duration: 0.5, hit: 0.19, cost: 9, stun: 0.6, push: 2.1 },
   { name: "下劈", duration: 0.66, hit: 0.27, cost: 12, stun: 0.95, push: 4.2 },
 ] as const;
-export const COMBO_GRACE = 0.26;
+export const COMBO_GRACE = 0.34;
 export type JointRotation = [number, number, number];
 type Pose = {
   shoulder: JointRotation;

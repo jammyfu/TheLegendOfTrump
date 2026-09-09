@@ -1,3 +1,4 @@
+import { INTRO_DURATION } from "./intro";
 import {
   loadCamera,
   saveCamera,
@@ -81,7 +82,16 @@ export const POT_POSITIONS = [
   [-11, -7],
   [11, -7],
 ];
-export type SoundEvent = "gem" | "sword" | "hit" | "break" | "door" | "win";
+export type SoundEvent =
+  | "gem"
+  | "sword"
+  | "hit"
+  | "heavy"
+  | "block"
+  | "hurt"
+  | "break"
+  | "door"
+  | "win";
 export class Simulation {
   phase: Phase = "title";
   zone: Zone = "grounds";
@@ -111,6 +121,15 @@ export class Simulation {
   comboWindow = 0;
   comboQueued = false;
   hitStop = 0;
+  impactTime = 0;
+  impactStrength = 0;
+  effects: {
+    x: number;
+    z: number;
+    age: number;
+    heavy: boolean;
+    block: boolean;
+  }[] = [];
   toast = "";
   toastTime = 0;
   reading = { title: "", text: "" };
@@ -189,6 +208,9 @@ export class Simulation {
     this.comboWindow = 0;
     this.comboQueued = false;
     this.hitStop = 0;
+    this.impactTime = 0;
+    this.impactStrength = 0;
+    this.effects = [];
     this.cooldown = 0;
     this.invincible = 0;
     this.dodgeTime = 0;
@@ -210,7 +232,7 @@ export class Simulation {
   beginIntro() {
     this.start();
     this.phase = "intro";
-    this.introTime = 2.8;
+    this.introTime = INTRO_DURATION;
     this.yaw = 0;
   }
   skipIntro() {
@@ -553,7 +575,7 @@ export class Simulation {
       // or spamming cannot skip a stage or stack several future attacks.
       if (
         this.combo < 2 &&
-        ATTACKS[this.combo].duration - this.attackTime >= 0.08
+        ATTACKS[this.combo].duration - this.attackTime >= 0.035
       )
         this.comboQueued = true;
       return;
@@ -566,6 +588,32 @@ export class Simulation {
     const spec = ATTACKS[stage];
     this.comboQueued = false;
     if (this.stamina < spec.cost) return;
+    const target = this.guards
+      .filter((g) => {
+        const dx = g.x - this.x,
+          dz = g.z - this.z,
+          d = Math.hypot(dx, dz);
+        return (
+          this.zone === "grounds" &&
+          g.hp > 0 &&
+          d < 3.6 &&
+          d > 0.1 &&
+          (dx * Math.sin(this.yaw) + dz * Math.cos(this.yaw)) / d > 0.5 &&
+          this.visible(g.x, g.z, "guard-" + g.id)
+        );
+      })
+      .sort(
+        (a, b) =>
+          Math.hypot(a.x - this.x, a.z - this.z) -
+          Math.hypot(b.x - this.x, b.z - this.z),
+      )[0];
+    if (target) {
+      const angle = Math.atan2(target.x - this.x, target.z - this.z) - this.yaw;
+      this.yaw += Math.max(
+        -0.35,
+        Math.min(0.35, Math.atan2(Math.sin(angle), Math.cos(angle))),
+      );
+    }
     this.combo = stage;
     this.comboWindow = 0;
     this.stamina -= spec.cost;
@@ -583,6 +631,12 @@ export class Simulation {
     this.comboQueued = false;
     this.comboWindow = 0;
     this.hitStop = 0;
+  }
+  impact(x: number, z: number, heavy = false, block = false) {
+    this.impactTime = 0.2;
+    this.impactStrength = heavy ? 1 : block ? 0.35 : 0.55;
+    this.effects.push({ x, z, age: 0, heavy, block });
+    if (this.effects.length > 8) this.effects.shift();
   }
   strike() {
     if (this.zone !== "grounds") return;
@@ -605,6 +659,7 @@ export class Simulation {
       for (const p of list)
         if (!p.broken && reachable(p.x, p.z, prefix + p.id)) {
           p.broken = true;
+          this.impact(p.x, p.z);
           this.gems += reward;
           this.events.push("break");
           this.notify(
@@ -620,10 +675,11 @@ export class Simulation {
         const distance = Math.hypot(g.x - this.x, g.z - this.z) || 1;
         g.knockX = ((g.x - this.x) / distance) * spec.push;
         g.knockZ = ((g.z - this.z) / distance) * spec.push;
-        this.hitStop = this.combo === 2 ? 0.075 : 0.045;
+        this.hitStop = this.combo === 2 ? 0.1 : 0.06;
+        this.impact(g.x, g.z, this.combo === 2);
         g.windup = 0;
         g.cooldown = 0.8;
-        this.events.push("hit");
+        this.events.push(this.combo === 2 ? "heavy" : "hit");
         if (g.hp === 0) {
           g.defeatTime = 0.65;
           this.gems++;
@@ -644,6 +700,9 @@ export class Simulation {
       return;
     }
     if (this.phase !== "playing") return;
+    this.impactTime = Math.max(0, this.impactTime - dt);
+    for (const effect of this.effects) effect.age += dt;
+    this.effects = this.effects.filter((e) => e.age < 0.36);
     if (this.hitStop > 0) {
       this.hitStop = Math.max(0, this.hitStop - dt);
       return;
@@ -662,6 +721,15 @@ export class Simulation {
     ) {
       this.hitPending = false;
       this.strike();
+    }
+    if (
+      this.comboQueued &&
+      this.combo < 2 &&
+      this.attackTime > 0 &&
+      this.attackTime <= 0.1 &&
+      this.stamina >= ATTACKS[this.combo + 1].cost
+    ) {
+      this.beginAttack(this.combo + 1);
     }
     if (wasAttacking && this.attackTime === 0) {
       this.comboWindow = this.combo < 2 ? COMBO_GRACE : 0;
@@ -717,13 +785,22 @@ export class Simulation {
     const colliders = this.colliders,
       oldX = this.x,
       oldZ = this.z;
+    const attackElapsed = ATTACKS[this.combo].duration - this.attackTime;
+    const lunge =
+      this.grounded &&
+      this.attackTime > 0 &&
+      attackElapsed < ATTACKS[this.combo].hit + 0.06
+        ? this.combo === 2
+          ? 2.8
+          : 2.1
+        : 0;
     const next = moveAndSlide(
       colliders,
       this.x,
       this.z,
       this.y,
-      mx * speed * dt,
-      mz * speed * dt,
+      (mx * speed + Math.sin(this.yaw) * lunge) * dt,
+      (mz * speed + Math.cos(this.yaw) * lunge) * dt,
       this.grounded,
     );
     this.x = next.x;
@@ -811,8 +888,13 @@ export class Simulation {
                 this.stamina -= 20;
                 this.staminaDelay = 1;
                 this.notify("成功格挡 · -20 体力");
+                this.events.push("block");
+                this.impact(this.x, this.z, false, true);
+                g.stun = g.stunDuration = 0.25;
               } else {
                 this.hp--;
+                this.events.push("hurt");
+                this.impact(this.x, this.z);
                 this.cancelCombo();
                 this.invincible = 1.1;
                 this.notify("受到攻击！右键防御或 Ctrl 闪避");
@@ -821,7 +903,6 @@ export class Simulation {
                   this.moving = false;
                 }
               }
-              this.events.push("hit");
               this.version++;
             }
           }

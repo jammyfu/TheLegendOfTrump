@@ -357,3 +357,33 @@ test("finisher has stronger stagger, collision-limited knockback and visible def
   );
   assert.ok(blocked.z >= 0.72);
 });
+
+test("combat feedback fires on contact, ends quickly, and buffered swings link sooner", () => {
+  const g = fresh();
+  g.x = 0;
+  g.z = 12;
+  g.yaw = Math.PI;
+  Object.assign(g.guards[0], { x: 0.25, z: 10, hp: 10, cooldown: 5 });
+  g.guards[1].hp = 0;
+  g.attack();
+  tick(g, 0.07);
+  g.attack();
+  assert.ok(g.z < 12, "sword anticipation steps forward");
+  tick(g, 0.14);
+  assert.ok(g.effects.length > 0);
+  assert.ok(g.impactTime > 0);
+  assert.ok(g.events.includes("hit"));
+  tick(g, 0.3);
+  assert.equal(g.combo, 1);
+  tick(g, 1.2);
+  assert.equal(g.effects.length, 0);
+  assert.equal(g.impactTime, 0);
+  const empty = quiet();
+  empty.attack();
+  tick(empty, 0.3);
+  assert.equal(
+    empty.effects.length,
+    0,
+    "empty swings do not trigger impact effects",
+  );
+});

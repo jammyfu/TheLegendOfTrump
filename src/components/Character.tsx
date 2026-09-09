@@ -1,3 +1,4 @@
+import { introPose } from "../game/intro";
 import { useMemo, useRef } from "react";
 import { useFrame, useLoader } from "@react-three/fiber";
 import { Group, Mesh } from "three";
@@ -58,7 +59,14 @@ export function Character() {
     const seated =
       game.zone === "office" &&
       (game.phase === "dialogue" || game.phase === "won");
-    const walk = game.moving ? Math.sin(game.elapsed * 12) * 0.48 : 0;
+    const arrival = game.phase === "intro" ? introPose(game.introTime) : null;
+    const walk = arrival
+      ? arrival.walking
+        ? Math.sin(arrival.t * 10) * 0.48
+        : 0
+      : game.moving
+        ? Math.sin(game.elapsed * 12) * 0.48
+        : 0;
     root.current.position.set(
       game.x,
       seated
@@ -70,6 +78,11 @@ export function Character() {
     root.current.rotation.y = game.yaw;
     root.current.visible =
       game.invincible <= 0 || Math.floor(game.invincible * 12) % 2 === 0;
+    if (arrival) {
+      root.current.position.set(...arrival.hero);
+      root.current.visible = arrival.visible;
+      root.current.rotation.y = arrival.walking ? Math.PI / 2 : Math.PI;
+    }
     for (const part of Object.values(parts)) part.rotation.set(0, 0, 0);
     parts.leftKnee.rotation.x = Math.max(0, -walk) * 0.9;
     parts.rightKnee.rotation.x = Math.max(0, walk) * 0.9;
@@ -106,7 +119,8 @@ export function Character() {
     parts.rightArm.rotation.x = walk;
     parts.sword.visible = false;
     const attacking = game.attackTime > 0 && !seated;
-    const drawn = (attacking || game.comboWindow > 0) && !seated;
+    const drawn =
+      (attacking || game.guarding || game.comboWindow > 0) && !seated;
     const blocking = game.guarding && !seated;
     if (drawn) {
       const pose = attackPose(

@@ -5,6 +5,7 @@ export const DEFAULT_CAMERA = {
   fov: 60,
   sensitivity: 1,
   invertY: false,
+  shake: true,
 };
 export type CameraSettings = typeof DEFAULT_CAMERA;
 const key = "trump-camera-v1";
@@ -18,6 +19,7 @@ export function sanitizeCamera(value: Partial<CameraSettings>): CameraSettings {
     fov: number(value.fov, 60, 55, 80),
     sensitivity: number(value.sensitivity, 1, 0.4, 2),
     invertY: typeof value.invertY === "boolean" ? value.invertY : false,
+    shake: typeof value.shake === "boolean" ? value.shake : true,
   };
 }
 export function loadCamera(): CameraSettings {
