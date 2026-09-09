@@ -90,3 +90,27 @@ export function recoverBoom(current: number, safe: number, dt: number) {
     ? safe
     : current + (safe - current) * (1 - Math.exp(-Math.max(0, dt) * 4.5));
 }
+
+/** Lead the indoor view into the arena, keeping the hero below its center. */
+export function indoorFrame(
+  player: { x: number; y: number; z: number },
+  yaw: number,
+  pitch: number,
+  distance: number,
+  boss?: { x: number; z: number },
+) {
+  let dx = -Math.sin(yaw) * 1.8,
+    dz = -Math.cos(yaw) * 1.8;
+  if (boss) {
+    dx = boss.x - player.x;
+    dz = boss.z - player.z;
+    const lead = Math.min(0.4, 2.8 / Math.max(0.001, Math.hypot(dx, dz)));
+    dx *= lead;
+    dz *= lead;
+  }
+  return {
+    target: { x: player.x + dx, y: player.y + 2.3, z: player.z + dz },
+    pitch: Math.max(0.18, Math.min(0.85, pitch)),
+    distance: distance + 1.5,
+  };
+}

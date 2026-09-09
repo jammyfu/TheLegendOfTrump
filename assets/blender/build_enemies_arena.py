@@ -82,8 +82,13 @@ for i in range(16):
  vs=[(x+math.sin(j*math.pi/5)*(.17 if j%2==0 else .075),-z+math.cos(j*math.pi/5)*(.17 if j%2==0 else .075),.065) for j in range(10)]
  mesh('Rug star',vs,[tuple(range(10))],'gold',room)
 bx('Rear ivory wall',0,4,-8,18,8,.5,'ivory')
+bx('Entrance ivory wall',0,4,8.8,18,8,.4,'ivory')
+bx('Entrance gold frame',0,2.3,8.55,2.9,4.6,.12,'gold')
+bx('Entrance double doors',0,2.15,8.45,2.6,4.3,.12,'navy')
+bx('Entrance central seam',0,2.15,8.36,.045,4.3,.03,'gold')
+for side in [-1,1]:bx('Entrance handle',side*.16,2.0,8.32,.07,.35,.08,'gold')
 for side in [-1,1]:
- bx('Paneled side wall',side*9,4,0,.5,8,16,'ivory')
+ bx('Paneled side wall',side*9,4,.4,.5,8,17.6,'ivory')
  for z in [-6,-3,0,3,6]:
   bx('Wall inset panel',side*8.72,2,z,.04,2.8,2.5,'wood')
   bx('Panel inner',side*8.68,2,z,.03,2.45,2.2,'ivory')
@@ -124,7 +129,20 @@ cylinder('Lamp stem',(2,5,2.7),.07,.8,'gold',room)
 sphere('Desk lamp shade',(2,5,3.1),(.45,.3,.2),'lamp',room)
 bpy.ops.object.select_all(action='DESELECT')
 room_meshes=[o for o in room.children_recursive if o.type=='MESH']
-for o in room_meshes:o.select_set(True)
+# Expand architecture and circulation space without enlarging furniture/people.
+for o in room_meshes:
+ if o.name.startswith(('Presidential desk','Carved desk','Desk','Chair','Declaration','Pen','Lamp stem')):
+  o.location.y += 3.25
+ elif o.name.startswith(('Bookcase','Leather book')):
+  o.location.x += math.copysign(7.85*.65,o.location.x)
+  o.location.y += math.copysign(5*.65,o.location.y)
+ elif o.name.startswith('Sofa'):
+  o.location.x += math.copysign(6*.65,o.location.x)
+  o.location.y -= .65
+ else:
+  o.location.x *= 1.65;o.location.y *= 1.65
+  o.scale.x *= 1.65;o.scale.y *= 1.65
+ o.select_set(True)
 bpy.context.view_layer.objects.active=room_meshes[0];bpy.ops.object.join();room_meshes[0].name='OvalArenaGeometry'
 export(room,'oval-arena.glb')
 bpy.data.libraries.write(BASE+'/assets/blender/enemies-arena.blend',{scene},fake_user=True)

@@ -29,7 +29,7 @@ export function Minimap() {
         />
         {office ? (
           <>
-            <rect x="59" y="29" width="42" height="14" fill="#b09463" />
+            <rect x="67" y="45" width="26" height="14" fill="#b09463" />
             <circle cx="80" cy="86" r="32" fill="#344e5e" />
           </>
         ) : (
@@ -60,7 +60,7 @@ export function Minimap() {
           </>
         )}
         <g
-          transform={`translate(${80 + game.x * (office ? 7 : 2.6)} ${office ? 85 + game.z * 7 : 88 + game.z * 2.8}) rotate(${(-game.yaw * 180) / Math.PI + 180})`}
+          transform={`translate(${80 + game.x * (office ? 4.24 : 2.6)} ${office ? 85 + game.z * 4.24 : 88 + game.z * 2.8}) rotate(${(-game.yaw * 180) / Math.PI + 180})`}
         >
           <circle r="6" fill="#e9d298" opacity=".2" />
           <path

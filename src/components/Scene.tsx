@@ -19,6 +19,7 @@ import { Character } from "./Character";
 import { Box, Cylinder } from "./Primitives";
 import {
   cameraBoom,
+  indoorFrame,
   cameraObstacles,
   recoverBoom,
   responsiveFov,
@@ -32,6 +33,7 @@ function Runtime() {
   const [zone, setZone] = useState(game.zone);
   const first = useRef(true);
   const boom = useRef(game.cameraDistance);
+  const focus = useRef(new Vector3());
   useFrame(({ camera }, delta) => {
     for (let remaining = Math.min(delta, 0.2); remaining > 0; remaining -= 0.05)
       game.update(Math.min(remaining, 0.05), getInput());
@@ -67,17 +69,35 @@ function Runtime() {
       game.zone === "office" &&
       (game.phase === "dialogue" || game.phase === "won")
     ) {
-      desired.set(0, 3.2, 1.8);
-      target.set(0, 2.05, -5.6);
+      desired.set(0, 3.2, -1.45);
+      target.set(0, 2.05, -8.85);
     } else {
-      target.set(game.x, game.y + 1.9, game.z);
+      const indoors = game.zone === "office";
+      const frame = indoorFrame(
+        game,
+        game.cameraYaw,
+        game.cameraPitch,
+        game.cameraDistance,
+        game.lockedTarget === 100 && game.boss.hp > 0 ? game.boss : undefined,
+      );
+      target.set(game.x, game.y + (indoors ? 2.3 : 1.9), game.z);
       const obstacles = cameraObstacles(game.colliders);
+      if (indoors) {
+        desired.set(frame.target.x, frame.target.y, frame.target.z);
+        // Focus must stay on the player's side of furniture and walls, too.
+        target.lerp(desired, cameraFraction(obstacles, target, desired));
+        focus.current.lerp(
+          target,
+          first.current ? 1 : 1 - Math.exp(-delta * 10),
+        );
+        target.copy(focus.current);
+      }
       const safe = cameraBoom(
         obstacles,
         target,
         game.cameraYaw,
-        game.cameraPitch,
-        game.cameraDistance,
+        indoors ? frame.pitch : game.cameraPitch,
+        indoors ? frame.distance : game.cameraDistance,
       );
       boom.current = first.current
         ? safe.distance
@@ -110,7 +130,10 @@ function Runtime() {
     if (camera instanceof PerspectiveCamera) {
       const fov = cinematic
         ? 48
-        : responsiveFov(game.cameraSettings.fov, camera.aspect);
+        : responsiveFov(
+            game.cameraSettings.fov + (game.zone === "office" ? 5 : 0),
+            camera.aspect,
+          );
       if (camera.fov !== fov) {
         camera.fov = fov;
         camera.updateProjectionMatrix();
@@ -269,7 +292,7 @@ function DoorMarker() {
       ref.current.position.set(
         0,
         3.8 + Math.sin(clock.elapsedTime * 2) * 0.15,
-        game.zone === "office" ? -4.7 : -13.7,
+        game.zone === "office" ? -7.95 : -13.7,
       );
       ref.current.rotation.y = clock.elapsedTime;
     }

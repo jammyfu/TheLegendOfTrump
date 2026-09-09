@@ -18,7 +18,7 @@ test("boss gates declaration, can be defeated by sword, and unlocks chapter end"
   const g = enter();
   assert.equal(g.boss.active, true);
   g.x = 0;
-  g.z = -2;
+  g.z = -5.25;
   g.interact();
   assert.equal(g.phase, "playing");
   // Exercise real damage, reach, recovery and final unlock independently of AI tactics.
@@ -36,7 +36,7 @@ test("boss gates declaration, can be defeated by sword, and unlocks chapter end"
   }
   assert.equal(g.boss.hp, 0);
   g.x = 0;
-  g.z = -2;
+  g.z = -5.25;
   g.interact();
   assert.equal(g.phase, "dialogue");
   g.interact();

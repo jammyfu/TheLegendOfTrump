@@ -21,15 +21,15 @@ export function OfficeScene() {
     <>
       <primitive object={model} />
       <pointLight
-        position={[0, 6, -3]}
-        intensity={65}
-        distance={22}
+        position={[0, 7, -5]}
+        intensity={110}
+        distance={35}
         color="#ffe5b2"
       />
       <pointLight
-        position={[0, 5, 5]}
-        intensity={32}
-        distance={18}
+        position={[0, 6, 7]}
+        intensity={65}
+        distance={30}
         color="#d4e6ff"
       />
     </>

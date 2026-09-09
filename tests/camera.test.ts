@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   cameraBoom,
+  indoorFrame,
   cameraObstacles,
   recoverBoom,
   responsiveFov,
@@ -61,4 +62,30 @@ test("distance preference survives zone restart; sensitivity and invert affect m
   assert.equal(game.cameraDistance, 5);
   game.look(0, 100000);
   assert.ok(game.cameraPitch >= 0.06);
+});
+
+test("expanded indoor arena keeps a full camera boom around the central fight", () => {
+  const game = new Simulation();
+  game.start();
+  game.zone = "office";
+  game.x = 0;
+  game.z = 0;
+  const obstacles = cameraObstacles(game.colliders);
+  for (let yaw = 0; yaw < Math.PI * 2; yaw += Math.PI / 8) {
+    const frame = indoorFrame(game, yaw, 0.42, 9.5);
+    const safe = cameraBoom(
+      obstacles,
+      frame.target,
+      yaw,
+      frame.pitch,
+      frame.distance,
+    );
+    assert.ok(safe.distance > 10, `view compressed at yaw ${yaw}`);
+  }
+  assert.equal(game.blocked(7, 0), false);
+  assert.equal(game.blocked(14.8, 0), true);
+  assert.equal(game.blocked(14.8, 13.8), true);
+  const frame = indoorFrame(game, 0, -2, 9.5, { x: 0, z: -8 });
+  assert.equal(frame.target.z, -2.8);
+  assert.equal(frame.pitch, 0.18);
 });

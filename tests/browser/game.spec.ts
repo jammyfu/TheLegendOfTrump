@@ -84,13 +84,13 @@ test("desktop controls, back equipment, jump, block, attack and mouse camera", a
   await page.getByRole("button", { name: "继续冒险" }).click();
   await page.evaluate(() => {
     window.__game!.zone = "office";
-    window.__game!.x = 7.9;
+    window.__game!.x = 13.7;
     window.__game!.z = 0;
     window.__game!.cameraYaw = Math.PI / 2;
   });
   await page.waitForTimeout(800);
   expect(await page.evaluate(() => window.__camera!.position.x)).toBeLessThan(
-    8.6,
+    14.35,
   );
   expect(errors).toEqual([]);
 });
@@ -147,7 +147,7 @@ test("interactive props, occlusion, secret chest and complete adventure", async 
   await page.keyboard.down("KeyW");
   await expect
     .poll(() => page.evaluate(() => window.__game!.z), { timeout: 12000 })
-    .toBeLessThan(-1.5);
+    .toBeLessThan(-4.8);
   await page.keyboard.up("KeyW");
   await page.keyboard.press("KeyE");
   await expect(
@@ -543,6 +543,17 @@ test("oval arena boss telegraphs, blocks, enrages and unlocks the desk after def
       }),
     )
     .toBeTruthy();
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const c = window.__camera!,
+          g = window.__game!;
+        const feet = c.position.clone().set(g.x, 0, g.z).project(c);
+        const head = c.position.clone().set(g.x, 2.85, g.z).project(c);
+        return head.y - feet.y;
+      }),
+    )
+    .toBeLessThan(0.8);
   await page.screenshot({ path: "artifacts/oval-boss-arena.png" });
   await page.evaluate(() => {
     window.__game!.hitStop = 0;
@@ -584,7 +595,7 @@ test("oval arena boss telegraphs, blocks, enrages and unlocks the desk after def
   await page.evaluate(() => {
     const g = window.__game!;
     g.x = 0;
-    g.z = -2;
+    g.z = -5.25;
   });
   await page.keyboard.press("KeyE");
   await expect(

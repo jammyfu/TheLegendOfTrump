@@ -270,7 +270,7 @@ export class Simulation {
       this.cooldown = 0;
       this.lockedTarget = null;
       this.cameraYaw = 0;
-      this.cameraPitch = 0.35;
+      this.cameraPitch = 0.42;
       this.notify("再次挑战铁甲统领");
       return;
     }
@@ -524,12 +524,13 @@ export class Simulation {
           return;
         }
         this.zone = "office";
+        this.yaw = Math.PI;
         this.x = 0;
         this.z = 6;
         this.y = 0;
         this.vy = 0;
         this.cameraYaw = 0;
-        this.cameraPitch = 0.35;
+        this.cameraPitch = 0.42;
         this.cameraDistance = this.cameraSettings.distance;
         this.lockedTarget = null;
         this.events.push("door");
@@ -564,7 +565,7 @@ export class Simulation {
         }
         this.phase = "dialogue";
         this.x = 0;
-        this.z = -6;
+        this.z = -9.25;
         this.y = 0;
         this.yaw = 0;
         this.moving = false;
@@ -872,7 +873,16 @@ export class Simulation {
     );
     if (locked && Math.hypot(locked.x - this.x, locked.z - this.z) < 15) {
       this.yaw = Math.atan2(locked.x - this.x, locked.z - this.z);
-      this.cameraYaw = Math.atan2(this.x - locked.x, this.z - locked.z);
+      const yaw = Math.atan2(this.x - locked.x, this.z - locked.z);
+      this.cameraYaw =
+        this.zone === "office"
+          ? this.cameraYaw +
+            Math.atan2(
+              Math.sin(yaw - this.cameraYaw),
+              Math.cos(yaw - this.cameraYaw),
+            ) *
+              (1 - Math.exp(-dt * 8))
+          : yaw;
     } else this.lockedTarget = null;
     this.guarding =
       !!input.guard &&
