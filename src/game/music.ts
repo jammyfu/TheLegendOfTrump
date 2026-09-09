@@ -1,40 +1,73 @@
+import { getAudioSettings } from "./audioSettings";
 import { musicTrack } from "./combatMusic";
 import { INTRO_DURATION } from "./intro";
 import type { Phase } from "./simulation";
 export type MusicSource = "suno" | "ocarina";
-export const soundtrackAlbum = "https://downloads.khinsider.com/game-soundtracks/album/legend-of-zelda-the-ocarina-of-time-original-sound-track-1998";
-const originalTracks = ["title.mp3", "exploration.mp3", "boss.mp3", "arrival.mp3"];
+export const soundtrackAlbum =
+  "https://downloads.khinsider.com/game-soundtracks/album/legend-of-zelda-the-ocarina-of-time-original-sound-track-1998";
+const originalTracks = [
+  "title.mp3",
+  "exploration.mp3",
+  "boss.mp3",
+  "arrival.mp3",
+];
 const localTracks = ["title.mp3", "exploration.mp3", "boss.mp3", "arrival.wav"];
 let source: MusicSource = "suno";
-try { if (localStorage.getItem("legend-music-source") === "ocarina") source = "ocarina"; } catch { /* Storage may be unavailable. */ }
+try {
+  if (localStorage.getItem("legend-music-source") === "ocarina")
+    source = "ocarina";
+} catch {
+  /* Storage may be unavailable. */
+}
 let notice = "";
-export function getMusicSettings() { return { source, notice }; }
+export function getMusicSettings() {
+  return { source, notice };
+}
 let tracks: HTMLAudioElement[] = [];
 function releaseTracks() {
-  tracks.forEach(t => { t.onerror = null; t.pause(); t.removeAttribute("src"); t.load(); });
+  tracks.forEach((t) => {
+    t.onerror = null;
+    t.pause();
+    t.removeAttribute("src");
+    t.load();
+  });
   tracks = [];
 }
 function createTracks() {
   tracks = localTracks.map((name, i) => {
-    const a = new Audio(source === "ocarina" ? import.meta.env.BASE_URL + `audio/ocarina/${originalTracks[i]}` : import.meta.env.BASE_URL + `audio/${name}`);
-    a.loop = i !== 3; a.preload = "none"; a.volume = 0;
-    if (source === "ocarina") a.onerror = () => {
-      a.onerror = null;
-      notice = "原版曲目暂时无法加载，当前曲目已改用 Suno 配乐。";
-      a.src = import.meta.env.BASE_URL + `audio/${name}`;
-      if (enabled && unlocked && musicTrack(phase, battle) === i) void a.play().catch(() => {});
-    };
+    const a = new Audio(
+      source === "ocarina"
+        ? import.meta.env.BASE_URL + `audio/ocarina/${originalTracks[i]}`
+        : import.meta.env.BASE_URL + `audio/${name}`,
+    );
+    a.loop = i !== 3;
+    a.preload = "none";
+    a.volume = 0;
+    if (source === "ocarina")
+      a.onerror = () => {
+        a.onerror = null;
+        notice = "原版曲目暂时无法加载，当前曲目已改用 Suno 配乐。";
+        a.src = import.meta.env.BASE_URL + `audio/${name}`;
+        if (enabled && unlocked && musicTrack(phase, battle) === i)
+          void a.play().catch(() => {});
+      };
     return a;
   });
 }
 export function setMusicSource(value: MusicSource) {
   if (source === value) return;
-  source = value; notice = "";
-  try { localStorage.setItem("legend-music-source", value); } catch { /* Session selection still works. */ }
-  releaseTracks(); createTracks();
+  source = value;
+  notice = "";
+  try {
+    localStorage.setItem("legend-music-source", value);
+  } catch {
+    /* Session selection still works. */
+  }
+  releaseTracks();
+  createTracks();
   if (enabled && unlocked) startTracks();
 }
-let enabled = true,
+let enabled = getAudioSettings().enabled,
   unlocked = false,
   phase: Phase = "title";
 let battle = false;
@@ -77,7 +110,7 @@ export function unlockMusic() {
         : 1;
       const target =
         enabled && i === chosen && !document.hidden
-          ? level * Math.max(0, edge)
+          ? level * getAudioSettings().music * Math.max(0, edge)
           : 0;
       a.volume = Math.max(
         0,

@@ -1,17 +1,37 @@
+import {
+  getAudioSettings,
+  saveAudioSettings,
+  type AudioSettings,
+} from "./audioSettings";
 import { musicEnabled, unlockMusic } from "./music";
 import type { SoundEvent } from "./simulation";
 let context: AudioContext | undefined;
-let enabled = true;
+let enabled = getAudioSettings().enabled;
+let output: GainNode | undefined;
+export function updateAudioSettings(patch: Partial<AudioSettings>) {
+  saveAudioSettings(patch);
+  const settings = getAudioSettings();
+  enabled = settings.enabled;
+  musicEnabled(enabled);
+  if (output && context)
+    output.gain.setTargetAtTime(
+      enabled ? settings.effects : 0,
+      context.currentTime,
+      0.03,
+    );
+}
 export function setAudio(value: boolean) {
-  enabled = value;
-  if (!value && context && rotor)
-    rotor.gain.gain.setTargetAtTime(0, context.currentTime, 0.03);
-  musicEnabled(value);
+  updateAudioSettings({ enabled: value });
 }
 export function unlockAudio() {
   unlockMusic();
   try {
     context ??= new AudioContext();
+    if (!output) {
+      output = context.createGain();
+      output.gain.value = enabled ? getAudioSettings().effects : 0;
+      output.connect(context.destination);
+    }
     void context.resume();
   } catch {
     /* Audio is optional. */
@@ -50,7 +70,7 @@ function impactSound(event: SoundEvent) {
   gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
   source.connect(filter);
   filter.connect(gain);
-  gain.connect(ctx.destination);
+  gain.connect(output!);
   source.start(now);
   source.stop(now + duration);
   source.onended = () => {
@@ -70,7 +90,7 @@ function impactSound(event: SoundEvent) {
     bass.gain.setValueAtTime(heavy ? 0.24 : 0.13, now);
     bass.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
     oscillator.connect(bass);
-    bass.connect(ctx.destination);
+    bass.connect(output!);
     oscillator.start(now);
     oscillator.stop(now + 0.23);
     oscillator.onended = () => {
@@ -103,7 +123,7 @@ export function playSound(event: SoundEvent) {
     gain.gain.linearRampToValueAtTime(0.06, t + 0.01);
     gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
     oscillator.connect(gain);
-    gain.connect(context!.destination);
+    gain.connect(output!);
     oscillator.start(t);
     oscillator.stop(t + 0.22);
     oscillator.onended = () => {
@@ -163,7 +183,7 @@ export function rotorSound(remaining: number | null) {
     blade.connect(pulse);
     pulse.connect(amplitude.gain);
     amplitude.connect(master);
-    master.connect(ctx.destination);
+    master.connect(output!);
     const sources = [rumble, engine, blade, air];
     sources.forEach((s) => s.start());
     rotor = {

@@ -1,0 +1,512 @@
+{
+  "设置": ["Settings", "設定", "설정"],
+  "语言": ["Language", "言語", "언어"],
+  "游戏音乐": ["Music", "ゲーム音楽", "게임 음악"],
+  "音效音量": ["Sound effects", "効果音", "효과음"],
+  "总声音": ["Master audio", "マスター音声", "전체 소리"],
+  "音乐音量": ["Music volume", "音楽音量", "음악 음량"],
+  "所有设置自动保存到本机。": [
+    "Settings are saved on this device.",
+    "設定はこの端末に保存されます。",
+    "설정은 이 기기에 저장됩니다."
+  ],
+  "无法启动 3D 场景": [
+    "Unable to start 3D scene",
+    "3Dシーンを起動できません",
+    "3D 장면을 시작할 수 없습니다"
+  ],
+  "请启用浏览器硬件加速，然后重新加载。": [
+    "Enable browser hardware acceleration and reload.",
+    "ブラウザーのハードウェアアクセラレーションを有効にして再読み込みしてください。",
+    "브라우저 하드웨어 가속을 켜고 새로고침하세요."
+  ],
+  "重新加载": ["Reload", "再読み込み", "새로고침"],
+  "华盛顿，哥伦比亚特区": ["Washington, D.C.", "ワシントンD.C.", "워싱턴 D.C."],
+  "跳过片头 · E": [
+    "Skip intro · E",
+    "オープニングをスキップ · E",
+    "오프닝 건너뛰기 · E"
+  ],
+  "冒险暂停": ["Adventure paused", "冒険を一時停止", "모험 일시 정지"],
+  "南草坪的风，依然为你而吹。": [
+    "The breeze still drifts across the South Lawn.",
+    "南庭には今も風が吹いている。",
+    "남쪽 잔디밭에는 여전히 바람이 붑니다."
+  ],
+  "配乐设置": ["Music settings", "音楽設定", "음악 설정"],
+  "继续冒险": ["Resume adventure", "冒険を続ける", "모험 계속"],
+  "操作指南": ["Controls", "操作ガイド", "조작 안내"],
+  "音效：": ["Audio:", "音声：", "소리:"],
+  "开启": ["On", "オン", "켜짐"],
+  "关闭": ["Off", "オフ", "꺼짐"],
+  "返回标题": ["Return to title", "タイトルへ戻る", "타이틀로"],
+  "新的篇章，由你书写。": [
+    "Write your next chapter.",
+    "新たな物語を記そう。",
+    "새로운 이야기를 써 내려가세요."
+  ],
+  "南草坪的翡翠已经集齐。放下旅途的风尘，签署你的第一份冒险宣言。": [
+    "The lawn's gems are collected. Sign your first declaration of adventure.",
+    "宝石が集まった。最初の冒険宣言に署名しよう。",
+    "보석을 모두 모았습니다. 첫 모험 선언문에 서명하세요."
+  ],
+  "签署宣言": ["Sign declaration", "宣言に署名", "선언문 서명"],
+  "传奇，才刚刚开始。": [
+    "The legend begins.",
+    "伝説はここから始まる。",
+    "전설은 이제 시작입니다."
+  ],
+  "胜负未定，再来一次。": [
+    "Rise and try again.",
+    "もう一度挑もう。",
+    "다시 도전하세요."
+  ],
+  "你已完成南草坪的试炼，开启白宫的新篇章。": [
+    "You cleared the South Lawn trial. A new chapter awaits.",
+    "南庭の試練を突破した。新たな物語が待っている。",
+    "남쪽 잔디밭의 시련을 통과했습니다. 새로운 이야기가 기다립니다."
+  ],
+  "避开巡逻守卫，或挥剑将它们解除。": [
+    "Evade the guards or defeat them with your sword.",
+    "巡回兵を避けるか、剣で倒そう。",
+    "경비병을 피하거나 검으로 물리치세요."
+  ],
+  "收集翡翠": ["Gems collected", "集めた宝石", "수집한 보석"],
+  "冒险用时": ["Adventure time", "冒険時間", "모험 시간"],
+  "再冒险一次": ["Try again", "もう一度挑戦", "다시 도전"],
+  "完成": ["Done", "完了", "완료"],
+  "关闭指南": ["Close controls", "ガイドを閉じる", "안내 닫기"],
+  "准备好出发了吗？": [
+    "Ready for adventure?",
+    "冒険の準備はいい？",
+    "모험할 준비가 됐나요?"
+  ],
+  "收集 8 枚翡翠，进入白宫，在办公室书桌前签署宣言。陶罐里也藏着翡翠。": [
+    "Collect 8 gems, enter the White House and sign the declaration at the desk. Pots also hide gems.",
+    "宝石を8個集め、ホワイトハウスの机で宣言に署名しよう。壺にも宝石が隠れている。",
+    "보석 8개를 모아 백악관에 들어가 책상에서 선언문에 서명하세요. 항아리에도 보석이 있습니다."
+  ],
+  "WASD / 方向键": ["WASD / Arrows", "WASD / 矢印キー", "WASD / 방향키"],
+  "按镜头方向移动": [
+    "Move relative to camera",
+    "カメラ方向に移動",
+    "카메라 기준 이동"
+  ],
+  "鼠标 / 滚轮": ["Mouse / Wheel", "マウス / ホイール", "마우스 / 휠"],
+  "转动视角 / 调整距离": [
+    "Look / Zoom",
+    "視点操作 / 距離調整",
+    "시점 회전 / 거리 조절"
+  ],
+  "左键 / J": ["LMB / J", "左クリック / J", "왼쪽 클릭 / J"],
+  "拔剑攻击": ["Sword attack", "剣で攻撃", "검 공격"],
+  "右键 / F": ["RMB / F", "右クリック / F", "오른쪽 클릭 / F"],
+  "举盾防御（按住）": ["Hold to guard", "長押しで防御", "길게 눌러 방어"],
+  "跳跃 / 冲刺（按住）": [
+    "Jump / Sprint (hold)",
+    "ジャンプ / ダッシュ（長押し）",
+    "점프 / 달리기(길게)"
+  ],
+  "翻滚（带短暂无敌）": [
+    "Roll (brief invulnerability)",
+    "回避ロール（短時間無敵）",
+    "구르기(잠시 무적)"
+  ],
+  "互动 / 锁定目标": [
+    "Interact / Lock on",
+    "調べる / ロックオン",
+    "상호작용 / 타깃 고정"
+  ],
+  "暂停、释放鼠标 / 镜头复位": [
+    "Pause, release mouse / Reset camera",
+    "一時停止・マウス解除 / カメラリセット",
+    "일시 정지·마우스 해제 / 카메라 초기화"
+  ],
+  "明白了": ["Got it", "了解", "알겠습니다"],
+  "小地图": ["Minimap", "ミニマップ", "미니맵"],
+  "椭圆形办公室": ["Oval Office", "大統領執務室", "대통령 집무실"],
+  "白宫 · 南草坪": [
+    "White House · South Lawn",
+    "ホワイトハウス · 南庭",
+    "백악관 · 남쪽 잔디밭"
+  ],
+  "体力": ["Stamina", "スタミナ", "스태미나"],
+  "防御中": ["Guarding", "防御中", "방어 중"],
+  "冲刺": ["Sprint", "ダッシュ", "달리기"],
+  "翻滚": ["Roll", "回避", "구르기"],
+  "蓄力旋转斩": ["Charged spin attack", "溜め回転斬り", "차지 회전 베기"],
+  "旋风斩！": ["Spin attack!", "回転斬り！", "회전 베기!"],
+  "松开攻击 · 释放旋转斩": [
+    "Release to spin attack",
+    "離して回転斬り",
+    "놓으면 회전 베기"
+  ],
+  "蓄力中…": ["Charging…", "溜め中…", "차지 중…"],
+  "蓄力进度": ["Charge progress", "溜めゲージ", "차지 게이지"],
+  "长按左键 / J / 攻击 · 消耗 26 体力": [
+    "Hold LMB / J / Attack · 26 stamina",
+    "左クリック / J / 攻撃を長押し · スタミナ26",
+    "왼쪽 클릭 / J / 공격 길게 · 스태미나 26"
+  ],
+  "连招状态": ["Combo", "コンボ", "연속 공격"],
+  "终结技": ["Finisher", "フィニッシュ", "마무리 공격"],
+  "已衔接下一式": ["Next attack queued", "次の攻撃を予約", "다음 공격 예약됨"],
+  "再按攻击衔接": [
+    "Press attack to chain",
+    "攻撃でコンボ継続",
+    "공격을 눌러 연계"
+  ],
+  "Boss 战": ["Boss battle", "ボス戦", "보스전"],
+  "铁甲统领": ["Iron Commander", "鉄甲の統領", "철갑 사령관"],
+  "· 过载阶段": ["· Overload", "· 暴走段階", "· 과부하 단계"],
+  "· 椭圆厅守护者": [
+    "· Guardian of the Oval Office",
+    "· 執務室の守護者",
+    "· 집무실 수호자"
+  ],
+  "Boss 生命值": ["Boss health", "ボスの体力", "보스 체력"],
+  "金色横扫 · 举盾格挡": [
+    "Golden sweep · Guard",
+    "金色の薙ぎ払い · 防御",
+    "황금 휩쓸기 · 방어"
+  ],
+  "重锤下砸 · 闪避离开红圈": [
+    "Hammer slam · Roll out of red circle",
+    "ハンマー叩きつけ · 赤い円から回避",
+    "망치 강타 · 붉은 원 밖으로 회피"
+  ],
+  "冲击波 · 跳跃躲避": [
+    "Shockwave · Jump",
+    "衝撃波 · ジャンプ",
+    "충격파 · 점프"
+  ],
+  "收招破绽 · 进攻！": ["Opening · Attack!", "隙あり · 攻撃！", "빈틈 · 공격!"],
+  "Q 锁定 · 留意地面预警": [
+    "Q Lock on · Watch ground warnings",
+    "Q ロックオン · 地面の予兆に注意",
+    "Q 고정 · 바닥 경고 주의"
+  ],
+  "锁定目标": ["Lock on", "ロックオン", "타깃 고정"],
+  "◎ 锁定": ["◎ Lock on", "◎ ロック", "◎ 고정"],
+  "鼠标已锁定": ["Mouse captured", "マウス固定中", "마우스 고정됨"],
+  "启用鼠标视角": [
+    "Enable mouse look",
+    "マウス視点を有効化",
+    "마우스 시점 켜기"
+  ],
+  "切换地图": ["Toggle map", "マップ切替", "지도 전환"],
+  "地图": ["Map", "マップ", "지도"],
+  "暂停游戏": ["Pause game", "一時停止", "일시 정지"],
+  "击败铁甲统领，解锁书桌": [
+    "Defeat the Iron Commander to reach the desk",
+    "鉄甲の統領を倒し、机へ向かおう",
+    "철갑 사령관을 물리치고 책상으로 이동"
+  ],
+  "走近书桌，签署冒险宣言": [
+    "Approach the desk and sign the declaration",
+    "机に近づき、冒険宣言に署名",
+    "책상에 다가가 모험 선언문에 서명"
+  ],
+  "大门已开启 · 进入白宫": [
+    "Gate open · Enter the White House",
+    "扉が開いた · ホワイトハウスへ",
+    "문이 열림 · 백악관 입장"
+  ],
+  "探索南草坪，收集 8 枚翡翠": [
+    "Explore the South Lawn · Collect 8 gems",
+    "南庭を探索し、宝石を8個集めよう",
+    "남쪽 잔디밭 탐험 · 보석 8개 수집"
+  ],
+  "◆ 目标锁定 · Q 解除": [
+    "◆ Locked on · Q Release",
+    "◆ ロック中 · Q 解除",
+    "◆ 타깃 고정 · Q 해제"
+  ],
+  "WASD 移动": ["WASD Move", "WASD 移動", "WASD 이동"],
+  "鼠标 视角": ["Mouse Look", "マウス 視点", "마우스 시점"],
+  "左键 / J 攻击 · 长按蓄力": [
+    "LMB / J Attack · Hold to charge",
+    "左クリック / J 攻撃 · 長押しで溜め",
+    "왼쪽 클릭 / J 공격 · 길게 차지"
+  ],
+  "右键 / F 防御": [
+    "RMB / F Guard",
+    "右クリック / F 防御",
+    "오른쪽 클릭 / F 방어"
+  ],
+  "Space 跳跃": ["Space Jump", "Space ジャンプ", "Space 점프"],
+  "Shift 冲刺": ["Shift Sprint", "Shift ダッシュ", "Shift 달리기"],
+  "Ctrl / K 翻滚": ["Ctrl / K Roll", "Ctrl / K 回避", "Ctrl / K 구르기"],
+  "E 互动 · Q 锁定": [
+    "E Interact · Q Lock on",
+    "E 調べる · Q ロック",
+    "E 상호작용 · Q 고정"
+  ],
+  "滑动转动视角": ["Swipe to look", "スワイプで視点操作", "밀어서 시점 회전"],
+  "滑动视角": ["Swipe to look", "スワイプで視点", "밀어서 시점 조절"],
+  "移动摇杆": ["Movement stick", "移動スティック", "이동 스틱"],
+  "挥剑": ["Sword attack", "剣で攻撃", "검 공격"],
+  "攻击·蓄力": ["Attack·Charge", "攻撃・溜め", "공격·차지"],
+  "防御": ["Guard", "防御", "방어"],
+  "跳跃": ["Jump", "ジャンプ", "점프"],
+  "视角与鼠标设置": ["Camera & mouse", "カメラとマウス", "카메라 및 마우스"],
+  "镜头距离": ["Camera distance", "カメラ距離", "카메라 거리"],
+  "视野角度": ["Field of view", "視野角", "시야각"],
+  "视角灵敏度": ["Look sensitivity", "視点感度", "시점 감도"],
+  "反转垂直视角": ["Invert vertical look", "上下反転", "상하 시점 반전"],
+  "命中镜头反馈": [
+    "Impact camera shake",
+    "命中時のカメラ振動",
+    "명중 카메라 흔들림"
+  ],
+  "滚轮可调整距离。手机竖屏自动扩大视野，设置保存在本机。": [
+    "Use the wheel to zoom. Portrait view widens automatically. Settings are saved.",
+    "ホイールで距離調整。縦画面では視野が広がります。設定は保存されます。",
+    "휠로 거리를 조절합니다. 세로 화면은 시야가 넓어지며 설정은 저장됩니다."
+  ],
+  "恢复默认视角": ["Reset camera", "カメラを初期化", "카메라 초기화"],
+  "配乐来源": ["Soundtrack", "サウンドトラック", "배경 음악"],
+  "Suno 原创": ["Suno original", "Suno オリジナル", "Suno 오리지널"],
+  "时之笛原版": ["Ocarina of Time", "時のオカリナ", "시간의 오카리나"],
+  "标题": ["Title", "タイトル", "타이틀"],
+  "探索": ["Exploration", "探索", "탐험"],
+  "交战": ["Combat", "戦闘", "전투"],
+  "直升机开场": ["Helicopter intro", "ヘリの登場", "헬기 오프닝"],
+  "Battle · 15 秒": ["Battle · 15 sec", "Battle · 15秒", "Battle · 15초"],
+  "Iron Tempest · 15 秒": [
+    "Iron Tempest · 15 sec",
+    "Iron Tempest · 15秒",
+    "Iron Tempest · 15초"
+  ],
+  "选择自动保存。交战时切换战斗配乐，脱战后恢复探索；跳过片头会结束开场音乐。": [
+    "Selection is saved. Combat and exploration music switch automatically. Skipping the intro stops its music.",
+    "選択は保存されます。戦闘・探索曲は自動切替。オープニングをスキップすると曲も終了します。",
+    "선택은 저장됩니다. 전투와 탐험 음악이 자동 전환되며 오프닝을 건너뛰면 음악도 끝납니다."
+  ],
+  "原版配乐已保存在本地。": [
+    "Original tracks are stored locally.",
+    "原曲はローカルに保存済みです。",
+    "원본 음악이 로컬에 저장되어 있습니다."
+  ],
+  "查看原声专辑 ↗": [
+    "View soundtrack album ↗",
+    "原曲アルバムを見る ↗",
+    "원본 앨범 보기 ↗"
+  ],
+  "游戏标题画面": ["Game title screen", "タイトル画面", "타이틀 화면"],
+  "主菜单": ["Main menu", "メインメニュー", "메인 메뉴"],
+  "开始冒险": ["Start adventure", "冒険を始める", "모험 시작"],
+  "♫ 配乐设置": ["♫ Music settings", "♫ 音楽設定", "♫ 음악 설정"],
+  "关闭音效": ["Mute audio", "音声オフ", "소리 끄기"],
+  "打开音效": ["Unmute audio", "音声オン", "소리 켜기"],
+  "下劈": ["Downward slash", "縦斬り", "내려 베기"],
+  "左 → 右横斩": ["Left → right slash", "左 → 右斬り", "왼쪽 → 오른쪽 베기"],
+  "右 → 左横斩": ["Right → left slash", "右 → 左斬り", "오른쪽 → 왼쪽 베기"],
+  "攻击": ["Attack", "攻撃", "공격"],
+  "原版曲目暂时无法加载，当前曲目已改用 Suno 配乐。": [
+    "Track unavailable; using Suno music.",
+    "曲を読み込めないためSunoに切り替えました。",
+    "음악을 불러올 수 없어 Suno 음악을 재생합니다."
+  ],
+  "⚙ 设置": ["⚙ Settings", "⚙ 設定", "⚙ 설정"],
+  "进入白宫": ["Enter White House", "ホワイトハウスに入る", "백악관 입장"],
+  "签署冒险宣言": [
+    "Sign adventure declaration",
+    "冒険宣言に署名",
+    "모험 선언문 서명"
+  ],
+  "返回南草坪": ["Return to South Lawn", "南庭へ戻る", "남쪽 잔디밭으로"],
+  "阅读探险告示": ["Read explorer notes", "探検の告示を読む", "탐험 안내 읽기"],
+  "打开旅行宝箱": ["Open supply chest", "補給の宝箱を開ける", "보급 상자 열기"],
+  "打开花园宝箱": ["Open garden chest", "庭園の宝箱を開ける", "정원 상자 열기"],
+  "拉动花园机关": [
+    "Pull garden lever",
+    "庭園のレバーを引く",
+    "정원 레버 당기기"
+  ],
+  "采集回复草": ["Gather healing herb", "回復草を採取", "회복 풀 채집"],
+  "坐下休息": ["Sit and rest", "座って休む", "앉아서 휴식"],
+  "在喷泉边恢复体力": ["Rest by fountain", "噴水で回復", "분수에서 회복"],
+  "寻找翡翠与宝箱 · E 互动 · Space 跳跃": [
+    "Find gems and chests · E Interact · Space Jump",
+    "宝石と宝箱を探そう · E 調べる · Space ジャンプ",
+    "보석과 상자 찾기 · E 상호작용 · Space 점프"
+  ],
+  "再次挑战铁甲统领": [
+    "Challenge the Iron Commander again",
+    "鉄甲の統領に再挑戦",
+    "철갑 사령관에게 재도전"
+  ],
+  "已锁定目标 · Q 解除": [
+    "Target locked · Q Release",
+    "ロックオン · Q 解除",
+    "타깃 고정 · Q 해제"
+  ],
+  "附近没有可锁定的目标": [
+    "No target nearby",
+    "近くに対象がいません",
+    "주변에 타깃이 없습니다"
+  ],
+  "大门需要 8 枚翡翠": [
+    "Gate requires 8 gems",
+    "扉には宝石8個が必要",
+    "문을 열려면 보석 8개 필요"
+  ],
+  "宝箱被机关封印": [
+    "Chest sealed by mechanism",
+    "仕掛けで封じられている",
+    "장치로 봉인된 상자"
+  ],
+  "花园机关已开启": [
+    "Garden mechanism activated",
+    "庭園の仕掛けが作動した",
+    "정원 장치 작동됨"
+  ],
+  "铁甲统领 · 红色预警闪避，金色横扫可格挡，冲击波跳跃躲避": [
+    "Iron Commander · Dodge red, guard gold, jump shockwaves",
+    "鉄甲の統領 · 赤は回避、金は防御、衝撃波はジャンプ",
+    "철갑 사령관 · 빨강은 회피, 금색은 방어, 충격파는 점프"
+  ],
+  "击败统领后大门才会打开": [
+    "Defeat the commander to open the door",
+    "統領を倒すと扉が開く",
+    "사령관을 쓰러뜨리면 문이 열립니다"
+  ],
+  "先击败铁甲统领": [
+    "Defeat the Iron Commander first",
+    "まず鉄甲の統領を倒そう",
+    "먼저 철갑 사령관을 물리치세요"
+  ],
+  "南草坪探险告示": [
+    "South Lawn explorer notes",
+    "南庭の探検告示",
+    "남쪽 잔디밭 탐험 안내"
+  ],
+  "先找到喷泉西侧的机关": [
+    "Find the lever west of the fountain",
+    "噴水の西にあるレバーを探そう",
+    "분수 서쪽 레버를 찾으세요"
+  ],
+  "花园秘藏 · +5 翡翠": [
+    "Garden treasure · +5 gems",
+    "庭園の秘宝 · 宝石+5",
+    "정원 보물 · 보석 +5"
+  ],
+  "旅行补给 · +3 翡翠": [
+    "Travel supplies · +3 gems",
+    "旅の補給 · 宝石+3",
+    "여행 보급품 · 보석 +3"
+  ],
+  "机关启动 · 花园门与秘藏宝箱已解锁": [
+    "Lever activated · Garden gate and chest unlocked",
+    "仕掛け作動 · 庭園の門と宝箱が開いた",
+    "장치 작동 · 정원 문과 상자 해제"
+  ],
+  "回复草 · 恢复 1 颗爱心与体力": [
+    "Herb · Restored 1 heart and stamina",
+    "回復草 · ハート1個とスタミナ回復",
+    "회복 풀 · 하트 1개와 스태미나 회복"
+  ],
+  "刚刚休息过，继续探索吧": [
+    "Already rested. Keep exploring.",
+    "休んだばかりだ。探索を続けよう。",
+    "방금 쉬었습니다. 탐험을 계속하세요."
+  ],
+  "草坪上的片刻休息": [
+    "A rest on the lawn",
+    "庭でひと休み",
+    "잔디밭에서 잠시 휴식"
+  ],
+  "清凉的水雾 · 体力已恢复": [
+    "Refreshing mist · Stamina restored",
+    "涼しい水しぶき · スタミナ回復",
+    "시원한 물안개 · 스태미나 회복"
+  ],
+  "铁甲统领已击败 · 前往书桌签署宣言": [
+    "Commander defeated · Sign at the desk",
+    "統領を撃破 · 机で宣言に署名",
+    "사령관 격파 · 책상에서 선언문 서명"
+  ],
+  "守卫已解除 · +1 翡翠": [
+    "Guard defeated · +1 gem",
+    "守衛を撃破 · 宝石+1",
+    "경비병 격파 · 보석 +1"
+  ],
+  "格挡成功 · 统领露出破绽": [
+    "Blocked · Commander exposed",
+    "防御成功 · 統領に隙ができた",
+    "방어 성공 · 사령관의 빈틈"
+  ],
+  "跳跃越过冲击波！": [
+    "Jump over the shockwave!",
+    "衝撃波を跳び越えよう！",
+    "충격파를 점프로 넘으세요!"
+  ],
+  "留意预警，闪避重锤！": [
+    "Watch the warning. Dodge the hammer!",
+    "予兆を見てハンマーを回避！",
+    "경고를 보고 망치를 피하세요!"
+  ],
+  "翡翠已集齐 · 前往白宫大门": [
+    "All gems collected · Head to the gate",
+    "宝石が集まった · 正門へ向かおう",
+    "보석 수집 완료 · 정문으로 이동"
+  ],
+  "成功格挡 · -20 体力": [
+    "Blocked · -20 stamina",
+    "防御成功 · スタミナ-20",
+    "방어 성공 · 스태미나 -20"
+  ],
+  "受到攻击！右键防御或 Ctrl 闪避": [
+    "Hit! RMB to guard or Ctrl to roll",
+    "被弾！右クリックで防御、Ctrlで回避",
+    "피격! 오른쪽 클릭 방어 또는 Ctrl 구르기"
+  ],
+  "还需要 {n} 枚翡翠": [
+    "Need {n} more gems",
+    "あと宝石{n}個必要",
+    "보석 {n}개 더 필요"
+  ],
+  "击碎陶罐 · +{n} 翡翠": [
+    "Pot broken · +{n} gems",
+    "壺を破壊 · 宝石+{n}",
+    "항아리 파괴 · 보석 +{n}"
+  ],
+  "击碎木箱 · +{n} 翡翠": [
+    "Crate broken · +{n} gems",
+    "木箱を破壊 · 宝石+{n}",
+    "나무 상자 파괴 · 보석 +{n}"
+  ],
+  "生命值 {n} / 3": ["Health {n} / 3", "体力 {n} / 3", "체력 {n} / 3"],
+  "翡翠 {n} 枚": ["{n} gems", "宝石 {n}個", "보석 {n}개"],
+  "桌面左键直接攻击并启用鼠标视角，滚轮调整距离。暂停菜单可设置视野、距离与灵敏度。无法锁定时按住中键拖动。手机左摇杆移动，推满自动冲刺；右半屏滑动视角，右侧四键为攻击、防御、跳跃、翻滚；顶部切换锁定，防御需按住。剑盾不用时背在身后；冲刺、翻滚、攻击和格挡消耗体力；普通跳跃不消耗体力。": [
+    "Left click attacks; hold to charge. Hold right click to guard. Wheel zooms. On mobile, push the stick fully to sprint, swipe to look and use the four action buttons. Lock on at the top. Jumping is free; combat and sprinting cost stamina.",
+    "左クリックで攻撃、長押しで溜め。右クリック長押しで防御。ホイールで距離調整。スマホはスティックを大きく倒すとダッシュ、スワイプで視点操作。4つのアクションボタンと上部のロックを使用。ジャンプ以外はスタミナを消費。",
+    "왼쪽 클릭으로 공격, 길게 눌러 차지합니다. 오른쪽 클릭을 누르고 있으면 방어합니다. 휠로 거리를 조절합니다. 모바일은 스틱을 끝까지 밀어 달리고 화면을 밀어 시점을 조절합니다. 액션 키 4개와 상단 고정을 사용합니다. 점프는 무료이며 전투와 달리기는 스태미나를 소모합니다."
+  ],
+  "白宫入口需要 8 枚翡翠。东侧旅行宝箱藏着补给；喷泉西侧的机关可以开启花园门与秘藏宝箱。木箱可以跳上或击碎；陶罐也藏有翡翠。先锁定守卫，再用防御和闪避寻找出手机会。": [
+    "The entrance needs 8 gems. Find supplies in the eastern chest. The lever west of the fountain opens the garden gate and treasure. Climb or break crates; pots hide gems. Lock on, guard and roll to find an opening.",
+    "入口には宝石8個が必要。東の宝箱で補給し、噴水の西のレバーで庭園と秘宝を開こう。木箱は登るか壊せる。壺にも宝石がある。ロック、防御、回避で隙を探そう。",
+    "입장에는 보석 8개가 필요합니다. 동쪽 상자에서 보급품을 찾고 분수 서쪽 레버로 정원과 보물을 여세요. 나무 상자는 오르거나 부술 수 있으며 항아리에도 보석이 있습니다. 고정, 방어, 구르기로 빈틈을 찾으세요."
+  ],
+  "你在长椅上休息了一会儿，恢复了 1 颗爱心和全部体力。远处传来了发条守卫的脚步声。": [
+    "You rest on the bench, restoring one heart and all stamina. Clockwork footsteps echo in the distance.",
+    "ベンチで休み、ハート1個と全スタミナが回復した。遠くで守衛の足音が響く。",
+    "벤치에서 쉬며 하트 1개와 스태미나를 모두 회복했습니다. 멀리서 경비병의 발소리가 들립니다."
+  ],
+  "◆ 目标锁定 · Tab 切换 · Q 解除": [
+    "◆ Locked on · Tab Next · Q Release",
+    "◆ ロック中 · Tab 切替 · Q 解除",
+    "◆ 고정 · Tab 전환 · Q 해제"
+  ],
+  "左键 / J 攻击 · 长按蓄力 · X 切换武器": [
+    "LMB / J Attack · Hold to charge · X Weapon",
+    "左クリック / J 攻撃 · 長押しで溜め · X 武器切替",
+    "왼쪽 클릭 / J 공격 · 길게 차지 · X 무기 전환"
+  ],
+  "右键 / F 防御 / 精瞄": [
+    "RMB / F Guard / Aim",
+    "右クリック / F 防御 / 狙う",
+    "오른쪽 클릭 / F 방어 / 조준"
+  ]
+}

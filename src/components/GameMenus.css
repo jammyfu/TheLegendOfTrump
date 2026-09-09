@@ -270,11 +270,122 @@
   }
 }
 
-.game .music-settings { text-align: left; }
-.game .music-options { display: flex; gap: 10px; }
-.game .music-options button { flex: 1; }
-.game .music-options [aria-pressed="true"] { background: #68502c; border-color: #e6c778; box-shadow: inset 0 0 14px #d1ad4f33; }
-.game .music-settings dl > div { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid #b99a4f33; font-size: 13px; }
-.game .music-settings dd { margin: 0; text-align: right; color: #e6c778; }
-.game .music-settings p { font-size: 12px; line-height: 1.7; }
-.game .music-settings a { color: #e6c778; }
+.game .music-settings {
+  text-align: left;
+}
+.game .music-options {
+  display: flex;
+  gap: 10px;
+}
+.game .music-options button {
+  flex: 1;
+}
+.game .music-options [aria-pressed="true"] {
+  background: #68502c;
+  border-color: #e6c778;
+  box-shadow: inset 0 0 14px #d1ad4f33;
+}
+.game .music-settings dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #b99a4f33;
+  font-size: 13px;
+}
+.game .music-settings dd {
+  margin: 0;
+  text-align: right;
+  color: #e6c778;
+}
+.game .music-settings p {
+  font-size: 12px;
+  line-height: 1.7;
+}
+.game .music-settings a {
+  color: #e6c778;
+}
+
+/* One serif family across controls, with native CJK glyph coverage. */
+.game {
+  --game-font:
+    "Noto Serif SC", "Songti SC", "Noto Serif JP", "Yu Mincho", "Noto Serif KR",
+    "Batang", Georgia, serif;
+}
+.game
+  :is(
+    button,
+    input,
+    select,
+    option,
+    label,
+    output,
+    kbd,
+    p,
+    span,
+    small,
+    strong,
+    h1,
+    h2,
+    dt,
+    dd,
+    summary
+  ) {
+  font-family: var(--game-font);
+}
+.game .lt-menu-label {
+  font-family: var(--game-font);
+  font-size: clamp(20px, 3vw, 32px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-shadow:
+    0 2px 8px #000,
+    0 0 18px #d5ad5355;
+}
+.game .lt-controls .lt-menu-label {
+  font-size: 16px;
+}
+.game .settings-panel {
+  text-align: left;
+}
+.game .setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 16px 0;
+}
+.game .setting-row select {
+  max-width: 65%;
+  color: #f1d9a1;
+  background: #23190f;
+  border: 1px solid #b59459;
+  padding: 9px 12px;
+  border-radius: 2px;
+}
+.game .setting-volume {
+  display: block;
+  margin: 18px 0;
+}
+.game .setting-volume span {
+  display: flex;
+  justify-content: space-between;
+}
+.game .setting-volume input {
+  width: 100%;
+  margin-top: 10px;
+  accent-color: #d7b46e;
+}
+.game .setting-row input {
+  accent-color: #d7b46e;
+  width: 20px;
+  height: 20px;
+}
+.game :is(select, input):focus-visible {
+  outline: 2px solid #f6d684;
+  outline-offset: 3px;
+}
+.game .music-options button {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}

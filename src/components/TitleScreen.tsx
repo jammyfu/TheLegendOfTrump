@@ -1,3 +1,4 @@
+import { t } from "../game/i18n";
 import { useRef, type CSSProperties, type PointerEvent } from "react";
 import "./TitleScreen.css";
 
@@ -10,7 +11,13 @@ type Props = {
 };
 
 /** Independent title layers keep the artwork responsive without rerendering the game. */
-export function TitleScreen({ onStart, onHelp, onSettings, sound, onToggleSound }: Props) {
+export function TitleScreen({
+  onStart,
+  onHelp,
+  onSettings,
+  sound,
+  onToggleSound,
+}: Props) {
   const surface = useRef<HTMLElement>(null);
   const base = import.meta.env.BASE_URL + "title/";
   const move = (event: PointerEvent<HTMLElement>) => {
@@ -32,7 +39,7 @@ export function TitleScreen({ onStart, onHelp, onSettings, sound, onToggleSound 
     <section
       ref={surface}
       className="living-title"
-      aria-label="游戏标题画面"
+      aria-label={t("游戏标题画面")}
       onPointerMove={move}
       onPointerLeave={reset}
       onPointerUp={reset}
@@ -76,33 +83,23 @@ export function TitleScreen({ onStart, onHelp, onSettings, sound, onToggleSound 
           />
         ))}
       </div>
-      <nav className="lt-menu" aria-label="主菜单">
+      <nav className="lt-menu" aria-label={t("主菜单")}>
         <button className="lt-start" onClick={onStart}>
           <span className="lt-diamond">◆</span>
           <span>
-            <img
-              className="lt-start-art"
-              src={base + "press-start.png"}
-              alt="PRESS START"
-            />
-            <small>开始冒险</small>
+            <span className="lt-menu-label">{t("开始冒险")}</span>
           </span>
           <span className="lt-diamond">◆</span>
         </button>
         <button className="lt-controls" onClick={onHelp}>
-          <img
-            className="lt-controls-art"
-            src={base + "controls.png"}
-            alt="CONTROLS"
-          />
-          <small>操作指南</small>
+          <span className="lt-menu-label">{t("操作指南")}</span>
         </button>
       </nav>
       <footer className="lt-footer">
-        <button onClick={onSettings}>♫ 配乐设置</button>
+        <button onClick={onSettings}>{t("⚙ 设置")}</button>
         <button
           onClick={onToggleSound}
-          aria-label={sound ? "关闭音效" : "打开音效"}
+          aria-label={sound ? t("关闭音效") : t("打开音效")}
           aria-pressed={sound}
         >
           {sound ? "♪" : "♩"}

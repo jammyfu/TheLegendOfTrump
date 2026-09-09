@@ -1,3 +1,4 @@
+import { t } from "../game/i18n";
 import { ATTACKS, SPIN } from "../game/combat";
 import { useRef, useState } from "react";
 import { game } from "../game/simulation";
@@ -17,7 +18,7 @@ export function Minimap() {
         <span>{office ? "OVAL OFFICE" : "SOUTH LAWN"}</span>
         <span>N ↑</span>
       </div>
-      <svg viewBox="0 0 160 170" aria-label="小地图">
+      <svg viewBox="0 0 160 170" aria-label={t("小地图")}>
         <rect
           x="10"
           y="12"
@@ -72,7 +73,7 @@ export function Minimap() {
         </g>
       </svg>
       <span className="map-caption">
-        {office ? "椭圆形办公室" : "白宫 · 南草坪"}
+        {office ? t("椭圆形办公室") : t("白宫 · 南草坪")}
       </span>
     </div>
   );
@@ -84,21 +85,21 @@ export function Hud() {
   return (
     <>
       <div className="vital-hud">
-        <div className="hearts" aria-label={`生命值 ${game.hp} / 3`}>
+        <div className="hearts" aria-label={t(`生命值 ${game.hp} / 3`)}>
           {[1, 2, 3].map((n) => (
             <Heart key={n} empty={n > game.hp} />
           ))}
         </div>
         <div className="stamina">
-          <meter min="0" max="100" value={game.stamina} aria-label="体力" />
+          <meter min="0" max="100" value={game.stamina} aria-label={t("体力")} />
           <span>
             {game.guarding
-              ? "防御中"
+              ? t("防御中")
               : game.sprinting
-                ? "冲刺"
+                ? t("冲刺")
                 : game.dodgeTime > 0
-                  ? "翻滚"
-                  : "体力"}{" "}
+                  ? t("翻滚")
+                  : t("体力")}{" "}
             {Math.ceil(game.stamina)}
           </span>
         </div>
@@ -106,23 +107,23 @@ export function Hud() {
       {(game.chargeTime > 0 || game.spinTime > 0) && (
         <div
           className={`combo-status ${game.zone === "office" ? "boss-combo" : ""}`}
-          aria-label="蓄力旋转斩"
+          aria-label={t("蓄力旋转斩")}
         >
           <strong>
             {game.spinTime > 0
-              ? "旋风斩！"
+              ? t("旋风斩！")
               : game.chargeTime >= SPIN.minCharge
-                ? "松开攻击 · 释放旋转斩"
-                : "蓄力中…"}
+                ? t("松开攻击 · 释放旋转斩")
+                : t("蓄力中…")}
           </strong>
           <meter
-            aria-label="蓄力进度"
+            aria-label={t("蓄力进度")}
             min={0}
             max={SPIN.maxCharge}
             value={game.chargeTime}
             style={{ width: 180, height: 12, justifySelf: "center" }}
           />
-          <span>长按左键 / J / 攻击 · 消耗 26 体力</span>
+          <span>{t("长按左键 / J / 攻击 · 消耗 26 体力")}</span>
         </div>
       )}
       {(game.attackTime > 0 || game.comboWindow > 0) &&
@@ -130,27 +131,27 @@ export function Hud() {
         game.spinTime <= 0 && (
           <div
             className={`combo-status ${game.zone === "office" ? "boss-combo" : ""}`}
-            aria-label="连招状态"
+            aria-label={t("连招状态")}
           >
             <strong>
-              {game.combo + 1} / 3 · {ATTACKS[game.combo].name}
+              {game.combo + 1} / 3 · {t(ATTACKS[game.combo].name)}
             </strong>
             <span>
               {game.combo === 2
-                ? "终结技"
+                ? t("终结技")
                 : game.comboQueued
-                  ? "已衔接下一式"
-                  : "再按攻击衔接"}
+                  ? t("已衔接下一式")
+                  : t("再按攻击衔接")}
             </span>
           </div>
         )}
       {game.zone === "office" && game.boss.active && game.boss.hp > 0 && (
-        <div className="boss-hud" aria-label="Boss 战">
+        <div className="boss-hud" aria-label={t("Boss 战")}>
           <span>
-            铁甲统领 {game.boss.enraged ? "· 过载阶段" : "· 椭圆厅守护者"}
+            {t("铁甲统领")}{game.boss.enraged ? t("· 过载阶段") : t("· 椭圆厅守护者")}
           </span>
           <meter
-            aria-label="Boss 生命值"
+            aria-label={t("Boss 生命值")}
             min={0}
             max={game.boss.maxHp}
             value={game.boss.hp}
@@ -158,30 +159,29 @@ export function Hud() {
           <small>
             {game.boss.state === "windup"
               ? game.boss.move === "sweep"
-                ? "金色横扫 · 举盾格挡"
+                ? t("金色横扫 · 举盾格挡")
                 : game.boss.move === "slam"
-                  ? "重锤下砸 · 闪避离开红圈"
-                  : "冲击波 · 跳跃躲避"
+                  ? t("重锤下砸 · 闪避离开红圈")
+                  : t("冲击波 · 跳跃躲避")
               : game.boss.state === "recover"
-                ? "收招破绽 · 进攻！"
-                : "Q 锁定 · 留意地面预警"}
+                ? t("收招破绽 · 进攻！")
+                : t("Q 锁定 · 留意地面预警")}
           </small>
         </div>
       )}
-      <div className="gem-count" aria-label={`翡翠 ${game.gems} 枚`}>
+      <div className="gem-count" aria-label={t(`翡翠 ${game.gems} 枚`)}>
         <GemIcon />
         <strong>{String(game.gems).padStart(2, "0")}</strong>
       </div>
       <div className="adventure-menu">
-        <button aria-label="锁定目标" aria-pressed={game.lockedTarget !== null} onClick={() => game.toggleLock()}>◎ 锁定</button>
+        <button aria-label={t("锁定目标")} aria-pressed={game.lockedTarget !== null} onClick={() => game.toggleLock()}>{t("◎ 锁定")}</button>
         <button className="mouse-look" onClick={requestMouseLook}>
-          ⌖ {document.pointerLockElement ? "鼠标已锁定" : "启用鼠标视角"}
+          ⌖ {document.pointerLockElement ? t("鼠标已锁定") : t("启用鼠标视角")}
         </button>
-        <button aria-label="切换地图" onClick={() => setMapOpen(!mapOpen)}>
-          地图
-        </button>
+        <button aria-label={t("切换地图")} onClick={() => setMapOpen(!mapOpen)}>
+          {t("地图")}</button>
         <button
-          aria-label="暂停游戏"
+          aria-label={t("暂停游戏")}
           onClick={() => {
             game.pause();
             clearInput();
@@ -194,38 +194,38 @@ export function Hud() {
         <p>
           {game.zone === "office"
             ? game.boss.hp > 0
-              ? "击败铁甲统领，解锁书桌"
-              : "走近书桌，签署冒险宣言"
+              ? t("击败铁甲统领，解锁书桌")
+              : t("走近书桌，签署冒险宣言")
             : game.gems >= 8
-              ? "大门已开启 · 进入白宫"
-              : "探索南草坪，收集 8 枚翡翠"}
+              ? t("大门已开启 · 进入白宫")
+              : t("探索南草坪，收集 8 枚翡翠")}
         </p>
       </div>
       {mapOpen && <Minimap />}
       {game.toast && (
         <div className="toast" role="status">
-          {game.toast}
+          {t(game.toast)}
         </div>
       )}
       {game.prompt && (
         <button className="interact-prompt" onClick={() => game.interact()}>
           <kbd>E</kbd>
-          {game.prompt}
+          {t(game.prompt)}
           <span>↵</span>
         </button>
       )}
       {game.lockedTarget !== null && (
-        <div className="lock-label">◆ 目标锁定 · Q 解除</div>
+        <div className="lock-label">{t("◆ 目标锁定 · Q 解除")}</div>
       )}
       <div className="adventure-controls">
-        <span>WASD 移动</span>
-        <span>鼠标 视角</span>
-        <span>左键 / J 攻击 · 长按蓄力</span>
-        <span>右键 / F 防御</span>
-        <span>Space 跳跃</span>
-        <span>Shift 冲刺</span>
-        <span>Ctrl / K 翻滚</span>
-        <span>E 互动 · Q 锁定</span>
+        <span>{t("WASD 移动")}</span>
+        <span>{t("鼠标 视角")}</span>
+        <span>{t("左键 / J 攻击 · 长按蓄力")}</span>
+        <span>{t("右键 / F 防御")}</span>
+        <span>{t("Space 跳跃")}</span>
+        <span>{t("Shift 冲刺")}</span>
+        <span>{t("Ctrl / K 翻滚")}</span>
+        <span>{t("E 互动 · Q 锁定")}</span>
       </div>
       <TouchControls />
     </>
@@ -259,7 +259,7 @@ function TouchControls() {
     <>
       <div
         className="look-pad"
-        aria-label="滑动转动视角"
+        aria-label={t("滑动转动视角")}
         onPointerDown={(e) => {
           if (e.pointerType === "mouse") return;
           e.currentTarget.setPointerCapture(e.pointerId);
@@ -272,13 +272,13 @@ function TouchControls() {
           }
         }}
       >
-        <span>滑动视角</span>
+        <span>{t("滑动视角")}</span>
       </div>
       <div className="adventure-touch">
         <div
           className="joystick"
           ref={pad}
-          aria-label="移动摇杆"
+          aria-label={t("移动摇杆")}
           onPointerDown={(e) => {
             e.currentTarget.setPointerCapture(e.pointerId);
             update(e);
@@ -297,7 +297,7 @@ function TouchControls() {
         <div className="adventure-buttons">
           <button
             className="attack-button"
-            aria-label="挥剑"
+            aria-label={t("挥剑")}
             onPointerDown={(e) => {
               e.currentTarget.setPointerCapture(e.pointerId);
               game.pressAttack();
@@ -306,22 +306,22 @@ function TouchControls() {
             onPointerCancel={() => game.cancelCharge()}
             onLostPointerCapture={() => game.cancelCharge()}
           >
-            ⚔<small>攻击·蓄力</small>
+            ⚔<small>{t("攻击·蓄力")}</small>
           </button>
-          <HoldButton action="guard" label="防御" />
+          <HoldButton action="guard" label={t("防御")} />
           <button
             className="jump-button"
-            aria-label="跳跃"
+            aria-label={t("跳跃")}
             onPointerDown={() => game.jump()}
           >
-            ↑<small>跳跃</small>
+            ↑<small>{t("跳跃")}</small>
           </button>
           <button
             className="dodge-button"
-            aria-label="翻滚"
+            aria-label={t("翻滚")}
             onPointerDown={() => game.dodge(getInput())}
           >
-            ↝<small>翻滚</small>
+            ↝<small>{t("翻滚")}</small>
           </button>
 
 
