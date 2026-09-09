@@ -1,4 +1,7 @@
 import type { ThreeElements } from "@react-three/fiber";
+import { useLayoutEffect, useRef } from "react";
+import { Mesh } from "three";
+import { ensureSurfaceUVs } from "../game/surfaceUV";
 import { generatedColorMaps, texturedTint } from "../game/colorTextures";
 import { generatedNormalMap, type Surface } from "../game/materials";
 function surfaceFromColor(color: string): Surface {
@@ -7,10 +10,17 @@ function surfaceFromColor(color: string): Surface {
     g = parseInt(hex.slice(2, 4), 16),
     b = parseInt(hex.slice(4, 6), 16);
   if (g > r * 1.08 && g > b * 1.1) return "leaf";
-  if (b > r * 1.1 && g > r) return "water";
+  if (b > r * 1.1 && g > r) return "paint";
   if (r > g * 1.2 && g > b * 1.15 && r < 170) return "wood";
   if (r < 85 && g < 90 && b < 90) return "metal";
   return "stone";
+}
+function useSurfaceUV(surface: Surface, shape: string) {
+  const ref = useRef<Mesh>(null);
+  useLayoutEffect(() => {
+    if (ref.current) ensureSurfaceUVs(ref.current, surface);
+  }, [surface, shape]);
+  return ref;
 }
 type Props = {
   position?: [number, number, number];
@@ -26,15 +36,16 @@ export function Box({
   color = "#e4dfce",
   surface = surfaceFromColor(color),
 }: Props) {
+  const ref = useSurfaceUV(surface, scale.join(","));
   return (
-    <mesh position={position} rotation={rotation} castShadow receiveShadow>
+    <mesh ref={ref} position={position} rotation={rotation} castShadow receiveShadow>
       <boxGeometry args={scale} />
       <meshStandardMaterial
         color={texturedTint(color, surface)}
         roughness={0.92}
         normalMap={generatedNormalMap(surface)}
         {...generatedColorMaps(surface)}
-        normalScale={[0.3, 0.3]}
+        normalScale={[0.12, 0.12]}
       />
     </mesh>
   );
@@ -54,8 +65,9 @@ export function Cylinder({
   rise?: number;
   segments?: number;
 } & Pick<ThreeElements["mesh"], "rotation">) {
+  const ref = useSurfaceUV(surface, `${radius}:${top}:${rise}:${segments}`);
   return (
-    <mesh position={position} {...props} castShadow receiveShadow>
+    <mesh ref={ref} position={position} {...props} castShadow receiveShadow>
       <cylinderGeometry args={[top ?? radius, radius, rise, segments]} />
       <meshStandardMaterial
         color={texturedTint(color, surface)}
@@ -63,7 +75,7 @@ export function Cylinder({
         roughness={0.86}
         normalMap={generatedNormalMap(surface)}
         {...generatedColorMaps(surface)}
-        normalScale={[0.3, 0.3]}
+        normalScale={[0.12, 0.12]}
       />
     </mesh>
   );
@@ -84,6 +96,7 @@ export function Tree({
         radius={0.25}
         rise={2.6}
         color="#6f5840"
+        surface="bark"
         segments={6}
       />
       {[

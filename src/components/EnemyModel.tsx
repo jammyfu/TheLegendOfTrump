@@ -6,6 +6,8 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Group, Mesh, MeshStandardMaterial, type Material } from "three";
 import { game } from "../game/simulation";
 import { legendMaterial, ensureNormalUVs } from "../game/materials";
+import { ensureSurfaceUVs } from "../game/surfaceUV";
+import { surfaceFor } from "../game/surfaceCatalog";
 export function EnemyModel({
   id,
   boss = false,
@@ -33,11 +35,13 @@ export function EnemyModel({
     const m = source.scene.clone(true);
     m.traverse((n) => {
       if (n instanceof Mesh) {
-        ensureNormalUVs(n);
+        const original = Array.isArray(n.material) ? n.material[0] : n.material;
+        if (original instanceof MeshStandardMaterial && !original.map) ensureSurfaceUVs(n, surfaceFor(original.name, n.name));
+        else ensureNormalUVs(n);
         n.castShadow = true;
         n.receiveShadow = true;
         const cloneMaterial = (v: Material) => {
-          const a = legendMaterial(v);
+          const a = legendMaterial(v, n.name);
           if (a instanceof MeshStandardMaterial)
             a.userData.baseEmission = a.emissive.getHex();
           return a;

@@ -141,10 +141,10 @@ function Ground() {
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[280, 470]} />
         <meshStandardMaterial
-          color="#cad5aa"
+          color="#c3cbb7"
           normalMap={generatedNormalMap("grass", 70, 117.5)}
           {...generatedColorMaps("grass", 70, 117.5)}
-          normalScale={[0.4, 0.4]}
+          normalScale={[0.15, 0.15]}
         />
       </mesh>
       <mesh

@@ -57,7 +57,7 @@ test("named asset materials select their physical surface", () => {
     "Ivory upper fuselage": "paint",
     "Titanium rotor hub": "metal",
     "Rubber and rotor": "rubber",
-    rug: "fabric",
+    rug: "carpet",
   })) {
     assert.equal(surfaceFor(name), surface);
   }

@@ -1,0 +1,2820 @@
+{
+  "adventure-bow.glb": [
+    {
+      "object": "Gold limb binding",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Gold limb binding.001",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Gold limb binding.002",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Gold limb binding.003",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Gold limb binding.004",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Gold limb binding.005",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Leather bow grip",
+      "material": "navy",
+      "surface": "leather",
+      "authoredMap": false
+    },
+    {
+      "object": "Recurve limb",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Recurve limb.001",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Recurve limb.002",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Recurve limb.003",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Recurve limb.004",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Recurve limb.005",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Recurve limb.006",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Recurve limb.007",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    }
+  ],
+  "adventure-chest.glb": [
+    {
+      "object": "Chest_band",
+      "material": "Adventure_iron",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Chest_band.001",
+      "material": "Adventure_iron",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Chest_body",
+      "material": "Adventure_wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Chest_lock",
+      "material": "Adventure_gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Chest_lid",
+      "material": "Adventure_woodlight",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Lid_band",
+      "material": "Adventure_gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Lid_band.001",
+      "material": "Adventure_gold",
+      "surface": "gold",
+      "authoredMap": false
+    }
+  ],
+  "adventure-crate.glb": [
+    {
+      "object": "Crate_body",
+      "material": "Adventure_wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Crate_cross_band",
+      "material": "Adventure_woodlight",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Crate_cross_band.001",
+      "material": "Adventure_woodlight",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Crate_front_band",
+      "material": "Adventure_woodlight",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Crate_front_band.001",
+      "material": "Adventure_woodlight",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Crate_side_band",
+      "material": "Adventure_woodlight",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Crate_side_band.001",
+      "material": "Adventure_woodlight",
+      "surface": "wood",
+      "authoredMap": false
+    }
+  ],
+  "adventure-herb.glb": [
+    {
+      "object": "Herb_leaf",
+      "material": "Adventure_pale",
+      "surface": "flower",
+      "authoredMap": false
+    },
+    {
+      "object": "Herb_leaf.001",
+      "material": "Adventure_green",
+      "surface": "leaf",
+      "authoredMap": false
+    },
+    {
+      "object": "Herb_leaf.002",
+      "material": "Adventure_pale",
+      "surface": "flower",
+      "authoredMap": false
+    },
+    {
+      "object": "Herb_leaf.003",
+      "material": "Adventure_green",
+      "surface": "leaf",
+      "authoredMap": false
+    },
+    {
+      "object": "Herb_leaf.004",
+      "material": "Adventure_pale",
+      "surface": "flower",
+      "authoredMap": false
+    },
+    {
+      "object": "Herb_leaf.005",
+      "material": "Adventure_green",
+      "surface": "leaf",
+      "authoredMap": false
+    },
+    {
+      "object": "Herb_leaf.006",
+      "material": "Adventure_pale",
+      "surface": "flower",
+      "authoredMap": false
+    }
+  ],
+  "adventure-lever.glb": [
+    {
+      "object": "Lever_grip",
+      "material": "Adventure_red",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Lever_handle",
+      "material": "Adventure_wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Lever_support",
+      "material": "Adventure_steel",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Stone_base",
+      "material": "Adventure_iron",
+      "surface": "metal",
+      "authoredMap": false
+    }
+  ],
+  "adventure-quiver.glb": [
+    {
+      "object": "Arrow fletching",
+      "material": "ivory",
+      "surface": "feather",
+      "authoredMap": false
+    },
+    {
+      "object": "Arrow fletching.001",
+      "material": "ivory",
+      "surface": "feather",
+      "authoredMap": false
+    },
+    {
+      "object": "Arrow fletching.002",
+      "material": "ivory",
+      "surface": "feather",
+      "authoredMap": false
+    },
+    {
+      "object": "Arrow fletching.003",
+      "material": "ivory",
+      "surface": "feather",
+      "authoredMap": false
+    },
+    {
+      "object": "Arrow fletching.004",
+      "material": "ivory",
+      "surface": "feather",
+      "authoredMap": false
+    },
+    {
+      "object": "Arrow shaft",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Arrow shaft.001",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Arrow shaft.002",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Arrow shaft.003",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Arrow shaft.004",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Leather quiver",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "Quiver gold rim",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Quiver gold rim.001",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    }
+  ],
+  "arrival-helicopter.glb": [
+    {
+      "object": "Door glazing",
+      "material": "Smoked cockpit glass",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Door handle",
+      "material": "Titanium rotor hub",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Sliding door panel",
+      "material": "Presidential forest green",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Pitch linkage",
+      "material": "Titanium rotor hub",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Rotor warning tip",
+      "material": "Gold coachline",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Tapered main blade",
+      "material": "Rubber and rotor",
+      "surface": "rubber",
+      "authoredMap": false
+    },
+    {
+      "object": "Pitch linkage.001",
+      "material": "Titanium rotor hub",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Rotor warning tip.001",
+      "material": "Gold coachline",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Tapered main blade.001",
+      "material": "Rubber and rotor",
+      "surface": "rubber",
+      "authoredMap": false
+    },
+    {
+      "object": "Pitch linkage.002",
+      "material": "Titanium rotor hub",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Rotor warning tip.002",
+      "material": "Gold coachline",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Tapered main blade.002",
+      "material": "Rubber and rotor",
+      "surface": "rubber",
+      "authoredMap": false
+    },
+    {
+      "object": "Pitch linkage.003",
+      "material": "Titanium rotor hub",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Rotor warning tip.003",
+      "material": "Gold coachline",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Tapered main blade.003",
+      "material": "Rubber and rotor",
+      "surface": "rubber",
+      "authoredMap": false
+    },
+    {
+      "object": "Pitch linkage.004",
+      "material": "Titanium rotor hub",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Rotor warning tip.004",
+      "material": "Gold coachline",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Tapered main blade.004",
+      "material": "Rubber and rotor",
+      "surface": "rubber",
+      "authoredMap": false
+    },
+    {
+      "object": "Boarding step",
+      "material": "Titanium rotor hub",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Boarding step.001",
+      "material": "Titanium rotor hub",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Boarding step.002",
+      "material": "Titanium rotor hub",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Stair handrail",
+      "material": "Titanium rotor hub",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Stair handrail.001",
+      "material": "Titanium rotor hub",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Tail rotor blade",
+      "material": "Rubber and rotor",
+      "surface": "rubber",
+      "authoredMap": false
+    },
+    {
+      "object": "Tail rotor blade.001",
+      "material": "Rubber and rotor",
+      "surface": "rubber",
+      "authoredMap": false
+    },
+    {
+      "object": "Tail rotor blade.002",
+      "material": "Rubber and rotor",
+      "surface": "rubber",
+      "authoredMap": false
+    },
+    {
+      "object": "Tail rotor blade.003",
+      "material": "Rubber and rotor",
+      "surface": "rubber",
+      "authoredMap": false
+    },
+    {
+      "object": "Tail rotor blade.004",
+      "material": "Rubber and rotor",
+      "surface": "rubber",
+      "authoredMap": false
+    },
+    {
+      "object": "Cabin window frame",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Cabin window frame.001",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Cabin window frame.002",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Cabin window frame.003",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Cabin window frame.004",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Cabin window frame.005",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Cabin window frame.006",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Cabin window frame.007",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Cabin window glass",
+      "material": "Smoked cockpit glass",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Cabin window glass.001",
+      "material": "Smoked cockpit glass",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Cabin window glass.002",
+      "material": "Smoked cockpit glass",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Cabin window glass.003",
+      "material": "Smoked cockpit glass",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Cabin window glass.004",
+      "material": "Smoked cockpit glass",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Cabin window glass.005",
+      "material": "Smoked cockpit glass",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Cabin window glass.006",
+      "material": "Smoked cockpit glass",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Cabin window glass.007",
+      "material": "Smoked cockpit glass",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Cockpit windshield",
+      "material": "Smoked cockpit glass",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Cockpit windshield.001",
+      "material": "Smoked cockpit glass",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Door recess",
+      "material": "Rubber and rotor",
+      "surface": "rubber",
+      "authoredMap": false
+    },
+    {
+      "object": "Engine intake",
+      "material": "Rubber and rotor",
+      "surface": "rubber",
+      "authoredMap": false
+    },
+    {
+      "object": "Engine intake.001",
+      "material": "Rubber and rotor",
+      "surface": "rubber",
+      "authoredMap": false
+    },
+    {
+      "object": "Engine nacelle",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Engine nacelle.001",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Exhaust",
+      "material": "Titanium rotor hub",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Exhaust.001",
+      "material": "Titanium rotor hub",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Gear sponson",
+      "material": "Presidential forest green",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Gear sponson.001",
+      "material": "Presidential forest green",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Gold cheatline",
+      "material": "Gold coachline",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Gold cheatline.001",
+      "material": "Gold coachline",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Main gear strut",
+      "material": "Titanium rotor hub",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Main gear strut.001",
+      "material": "Titanium rotor hub",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Main landing tire",
+      "material": "Rubber and rotor",
+      "surface": "rubber",
+      "authoredMap": false
+    },
+    {
+      "object": "Main landing tire.001",
+      "material": "Rubber and rotor",
+      "surface": "rubber",
+      "authoredMap": false
+    },
+    {
+      "object": "Main rotor mast",
+      "material": "Titanium rotor hub",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Navigation lamp",
+      "material": "Navigation red",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Navigation lamp.001",
+      "material": "Gold coachline",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Nose antenna",
+      "material": "Rubber and rotor",
+      "surface": "rubber",
+      "authoredMap": false
+    },
+    {
+      "object": "Nose radar",
+      "material": "Presidential forest green",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Pilot side glazing",
+      "material": "Smoked cockpit glass",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Pilot side glazing.001",
+      "material": "Smoked cockpit glass",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Presidential identity",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Presidential identity.001",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Red anti collision beacon",
+      "material": "Navigation red",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Sculpted boat hull",
+      "material": "Presidential forest green",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Sculpted boat hull",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Swept tail fin",
+      "material": "Presidential forest green",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Tail landing tire",
+      "material": "Rubber and rotor",
+      "surface": "rubber",
+      "authoredMap": false
+    },
+    {
+      "object": "Tail stabilizer",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Tail wheel strut",
+      "material": "Titanium rotor hub",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Tapered tail boom",
+      "material": "Presidential forest green",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Wheel hub",
+      "material": "Titanium rotor hub",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Wheel hub.001",
+      "material": "Titanium rotor hub",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Windshield frame",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Windshield frame.001",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Windshield frame.002",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Windshield frame.003",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Windshield frame.004",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Windshield frame.005",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Windshield frame.006",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Windshield frame.007",
+      "material": "Ivory upper fuselage",
+      "surface": "paint",
+      "authoredMap": false
+    }
+  ],
+  "boss-dart.glb": [
+    {
+      "object": "BossDart",
+      "material": "Dart_Steel",
+      "surface": "metal",
+      "authoredMap": false
+    }
+  ],
+  "field-archer.glb": [
+    {
+      "object": "SentinelBoot.001",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelKnee cap.001",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelShin.001",
+      "material": "ranger",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelThigh.001",
+      "material": "ranger",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelBoot",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelKnee cap",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelShin",
+      "material": "ranger",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelThigh",
+      "material": "ranger",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "Archer quiver",
+      "material": "leather",
+      "surface": "leather",
+      "authoredMap": false
+    },
+    {
+      "object": "Quiver arrow",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Quiver arrow.001",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Quiver arrow.002",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Quiver arrow.003",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelBelt",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelBreastplate",
+      "material": "ranger",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelChest chevron",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelChest star",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Ranger hood",
+      "material": "ranger",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelHelmet",
+      "material": "ranger",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelHelmet ridge",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelVisor black",
+      "material": "iron",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelVisor light",
+      "material": "cyan",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelElbow ball.001",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelForearm.001",
+      "material": "ranger",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "Bow grip",
+      "material": "leather",
+      "surface": "leather",
+      "authoredMap": false
+    },
+    {
+      "object": "Bowstring",
+      "material": "ivory",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "Recurve bow limb",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Recurve bow limb.001",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Recurve bow limb.002",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Recurve bow limb.003",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Recurve bow limb.004",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Recurve bow limb.005",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelFist.001",
+      "material": "iron",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelShoulder.001",
+      "material": "ranger",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelUpper arm.001",
+      "material": "ranger",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelElbow ball",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelForearm",
+      "material": "ranger",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelFist",
+      "material": "iron",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelShoulder",
+      "material": "ranger",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelUpper arm",
+      "material": "ranger",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelWaist",
+      "material": "iron",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "White fletching",
+      "material": "ivory",
+      "surface": "feather",
+      "authoredMap": false
+    },
+    {
+      "object": "White fletching.001",
+      "material": "ivory",
+      "surface": "feather",
+      "authoredMap": false
+    },
+    {
+      "object": "White fletching.002",
+      "material": "ivory",
+      "surface": "feather",
+      "authoredMap": false
+    },
+    {
+      "object": "White fletching.003",
+      "material": "ivory",
+      "surface": "feather",
+      "authoredMap": false
+    }
+  ],
+  "field-brute.glb": [
+    {
+      "object": "SentinelBoot.001",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelKnee cap.001",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelShin.001",
+      "material": "crimson",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelThigh.001",
+      "material": "crimson",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelBoot",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelKnee cap",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelShin",
+      "material": "crimson",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelThigh",
+      "material": "crimson",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelBelt",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelBreastplate",
+      "material": "crimson",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelChest chevron",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelChest star",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelCrown",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelHelmet",
+      "material": "crimson",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelHelmet ridge",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelVisor black",
+      "material": "iron",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelVisor light",
+      "material": "cyan",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Heavy shoulder plate.001",
+      "material": "iron",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelElbow ball.001",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelForearm.001",
+      "material": "crimson",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelFist.001",
+      "material": "iron",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelShield",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelShield face",
+      "material": "crimson",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelShoulder.001",
+      "material": "crimson",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelUpper arm.001",
+      "material": "crimson",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "Heavy shoulder plate",
+      "material": "iron",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelElbow ball",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelForearm",
+      "material": "crimson",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelFist",
+      "material": "iron",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Hammer brass cap",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Hammer brass cap.001",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Heavy hammer grip",
+      "material": "wood",
+      "surface": "leather",
+      "authoredMap": false
+    },
+    {
+      "object": "Heavy hammer head",
+      "material": "iron",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelShoulder",
+      "material": "crimson",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelUpper arm",
+      "material": "crimson",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelWaist",
+      "material": "iron",
+      "surface": "metal",
+      "authoredMap": false
+    }
+  ],
+  "field-camp.glb": [
+    {
+      "object": "Barricade crossbar",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Barricade post",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Camp banner",
+      "material": "red",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "Canvas tent",
+      "material": "leaf",
+      "surface": "canvas",
+      "authoredMap": false
+    },
+    {
+      "object": "Lantern stand",
+      "material": "iron",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Lantern warm glass",
+      "material": "lamp",
+      "surface": "glass",
+      "authoredMap": false
+    }
+  ],
+  "hero-shield.glb": [
+    {
+      "object": "Arm_strap",
+      "material": "Adventure_wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "Crimson_wing",
+      "material": "Adventure_red",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Crimson_wing.001",
+      "material": "Adventure_red",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Crimson_wing.002",
+      "material": "Adventure_red",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Crimson_wing.003",
+      "material": "Adventure_red",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Crimson_wing.004",
+      "material": "Adventure_red",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Crimson_wing.005",
+      "material": "Adventure_red",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Golden_crest",
+      "material": "Adventure_gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Shield_back",
+      "material": "Adventure_iron",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Shield_blue_face",
+      "material": "Adventure_blue",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Shield_metal_rim",
+      "material": "Adventure_steel",
+      "surface": "metal",
+      "authoredMap": false
+    }
+  ],
+  "hero-sword.glb": [
+    {
+      "object": "Gold_pommel",
+      "material": "Adventure_gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Silver_blade",
+      "material": "Adventure_steel",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Winged_crossguard",
+      "material": "Adventure_blue",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Wrapped_blue_grip",
+      "material": "Adventure_blue",
+      "surface": "paint",
+      "authoredMap": false
+    }
+  ],
+  "iron-chancellor.glb": [
+    {
+      "object": "BossBoot.001",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "BossKnee cap.001",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "BossShin.001",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "BossThigh.001",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "BossBoot",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "BossKnee cap",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "BossShin",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "BossThigh",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "BossBelt",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "BossBreastplate",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "BossCape",
+      "material": "red",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "BossChest chevron",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "BossCore",
+      "material": "cyan",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "BossCore rim",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "BossCrown",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "BossCrown.001",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "BossCrown.002",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "BossHelmet",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "BossHelmet ridge",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "BossVisor black",
+      "material": "iron",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "BossVisor light",
+      "material": "cyan",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "BossElbow ball.001",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "BossForearm.001",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "BossFist.001",
+      "material": "iron",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "BossShoulder.001",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "BossUpper arm.001",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "BossElbow ball",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "BossForearm",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "BossFist",
+      "material": "iron",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "BossHammer end",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "BossHammer end.001",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "BossHammer head",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "BossHammer shaft",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "BossShoulder",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "BossUpper arm",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "BossWaist",
+      "material": "iron",
+      "surface": "metal",
+      "authoredMap": false
+    }
+  ],
+  "oval-arena.glb": [
+    {
+      "object": "OvalArenaGeometry",
+      "material": "rug",
+      "surface": "carpet",
+      "authoredMap": false
+    },
+    {
+      "object": "OvalArenaGeometry",
+      "material": "wood",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "OvalArenaGeometry",
+      "material": "walnut",
+      "surface": "walnut",
+      "authoredMap": false
+    },
+    {
+      "object": "OvalArenaGeometry",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "OvalArenaGeometry",
+      "material": "ivory",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "OvalArenaGeometry",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "OvalArenaGeometry",
+      "material": "lamp",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "OvalArenaGeometry",
+      "material": "red",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "OvalArenaGeometry",
+      "material": "blueglass",
+      "surface": "glass",
+      "authoredMap": false
+    }
+  ],
+  "oval-cutaway.glb": [
+    {
+      "object": "OfficeCutaway_back",
+      "material": "red.001",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeCutaway_back",
+      "material": "ivory.001",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeCutaway_back",
+      "material": "blueglass.001",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeCutaway_back",
+      "material": "gold.001",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeCutaway_ceiling",
+      "material": "ivory.001",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeCutaway_ceiling",
+      "material": "gold.001",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeCutaway_ceiling",
+      "material": "lamp.001",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeCutaway_east",
+      "material": "gold.001",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeCutaway_east",
+      "material": "ivory.001",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeCutaway_east",
+      "material": "wood.001",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeCutaway_east",
+      "material": "lamp.001",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeCutaway_east",
+      "material": "navy.001",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeCutaway_front",
+      "material": "gold.001",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeCutaway_front",
+      "material": "ivory.001",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeCutaway_front",
+      "material": "navy.001",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeCutaway_front",
+      "material": "blueglass.001",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeCutaway_front",
+      "material": "red.001",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeCutaway_west",
+      "material": "gold.001",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeCutaway_west",
+      "material": "ivory.001",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeCutaway_west",
+      "material": "wood.001",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeCutaway_west",
+      "material": "lamp.001",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeCutaway_west",
+      "material": "navy.001",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeFurnishing",
+      "material": "rug.001",
+      "surface": "carpet",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeFurnishing",
+      "material": "wood.001",
+      "surface": "wood",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeFurnishing",
+      "material": "walnut.001",
+      "surface": "walnut",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeFurnishing",
+      "material": "gold.001",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeFurnishing",
+      "material": "navy.001",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeFurnishing",
+      "material": "red.001",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeFurnishing",
+      "material": "ivory.001",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "OfficeFurnishing",
+      "material": "lamp.001",
+      "surface": "glass",
+      "authoredMap": false
+    }
+  ],
+  "palace-sentinel.glb": [
+    {
+      "object": "SentinelBoot.001",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelKnee cap.001",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelShin.001",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelThigh.001",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelBoot",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelKnee cap",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelShin",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelThigh",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelBelt",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelBreastplate",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelChest chevron",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelChest star",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelCrown",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelHelmet",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelHelmet ridge",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelVisor black",
+      "material": "iron",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelVisor light",
+      "material": "cyan",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelElbow ball.001",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelForearm.001",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelFist.001",
+      "material": "iron",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelShield",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelShield face",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelShoulder.001",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelUpper arm.001",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelElbow ball",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelForearm",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelFist",
+      "material": "iron",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelSword blade",
+      "material": "ivory",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelSword hilt",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelShoulder",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelUpper arm",
+      "material": "navy",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "SentinelWaist",
+      "material": "iron",
+      "surface": "metal",
+      "authoredMap": false
+    }
+  ],
+  "park-landscape.glb": [
+    {
+      "object": "District cornice",
+      "material": "trim",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "District roof",
+      "material": "roof",
+      "surface": "roof",
+      "authoredMap": false
+    },
+    {
+      "object": "District stone block",
+      "material": "stone",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "District stone block.002",
+      "material": "shadow",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "District window",
+      "material": "glass",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Roof chimney",
+      "material": "red",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "District avenue canopy",
+      "material": "leaf",
+      "surface": "leaf",
+      "authoredMap": false
+    },
+    {
+      "object": "District avenue trunk",
+      "material": "trunk",
+      "surface": "bark",
+      "authoredMap": false
+    },
+    {
+      "object": "District cornice.048",
+      "material": "trim",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "District roof.016",
+      "material": "roof",
+      "surface": "roof",
+      "authoredMap": false
+    },
+    {
+      "object": "District stone block.016",
+      "material": "stone",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "District stone block.017",
+      "material": "shadow",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "District window.1356",
+      "material": "glass",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Roof chimney.003",
+      "material": "red",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "Bench back support.008",
+      "material": "dark",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Boxwood border.016",
+      "material": "leaf",
+      "surface": "leaf",
+      "authoredMap": false
+    },
+    {
+      "object": "Broadleaf canopy.105",
+      "material": "leaf2",
+      "surface": "leaf",
+      "authoredMap": false
+    },
+    {
+      "object": "Garden boulder.003",
+      "material": "shadow",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "Garden soil.004",
+      "material": "trunk",
+      "surface": "soil",
+      "authoredMap": false
+    },
+    {
+      "object": "Lantern warm pane.006",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Rest pocket paving.004",
+      "material": "path",
+      "surface": "paving",
+      "authoredMap": false
+    },
+    {
+      "object": "Rose flowers.112",
+      "material": "trim",
+      "surface": "flower",
+      "authoredMap": false
+    },
+    {
+      "object": "Rose flowers.113",
+      "material": "red",
+      "surface": "flower",
+      "authoredMap": false
+    },
+    {
+      "object": "Bench back support",
+      "material": "dark",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Boxwood border",
+      "material": "leaf",
+      "surface": "leaf",
+      "authoredMap": false
+    },
+    {
+      "object": "Broadleaf canopy.003",
+      "material": "leaf2",
+      "surface": "leaf",
+      "authoredMap": false
+    },
+    {
+      "object": "Garden boulder",
+      "material": "shadow",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "Garden soil",
+      "material": "trunk",
+      "surface": "soil",
+      "authoredMap": false
+    },
+    {
+      "object": "Lantern warm pane",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Rest pocket paving",
+      "material": "path",
+      "surface": "paving",
+      "authoredMap": false
+    },
+    {
+      "object": "Rose flowers",
+      "material": "trim",
+      "surface": "flower",
+      "authoredMap": false
+    },
+    {
+      "object": "Rose flowers.001",
+      "material": "red",
+      "surface": "flower",
+      "authoredMap": false
+    },
+    {
+      "object": "Garden crosswalk",
+      "material": "path",
+      "surface": "paving",
+      "authoredMap": false
+    },
+    {
+      "object": "Mown lawn stripe",
+      "material": "grass",
+      "surface": "grass",
+      "authoredMap": false
+    }
+  ],
+  "trump-n64.glb": [
+    {
+      "object": "LeftKnee_Mesh",
+      "material": "Trump_suit",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "LeftKnee_Mesh",
+      "material": "Trump_black",
+      "surface": "rubber",
+      "authoredMap": false
+    },
+    {
+      "object": "LeftLeg_Mesh",
+      "material": "Trump_suit",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "RightKnee_Mesh",
+      "material": "Trump_suit",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "RightKnee_Mesh",
+      "material": "Trump_black",
+      "surface": "rubber",
+      "authoredMap": false
+    },
+    {
+      "object": "RightLeg_Mesh",
+      "material": "Trump_suit",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "Head_Mesh",
+      "material": "Trump_skinlight",
+      "surface": "skin",
+      "authoredMap": false
+    },
+    {
+      "object": "Head_Mesh",
+      "material": "Trump_skin",
+      "surface": "skin",
+      "authoredMap": false
+    },
+    {
+      "object": "Head_Mesh",
+      "material": "Trump_white",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "Head_Mesh",
+      "material": "Trump_blue",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "Head_Mesh",
+      "material": "Trump_black",
+      "surface": "rubber",
+      "authoredMap": false
+    },
+    {
+      "object": "Head_Mesh",
+      "material": "Trump_brow",
+      "surface": "hair",
+      "authoredMap": false
+    },
+    {
+      "object": "Head_Mesh",
+      "material": "Trump_skinshade",
+      "surface": "skin",
+      "authoredMap": false
+    },
+    {
+      "object": "Head_Mesh",
+      "material": "Trump_mouth",
+      "surface": "skin",
+      "authoredMap": false
+    },
+    {
+      "object": "Head_Mesh",
+      "material": "Trump_hairshade",
+      "surface": "hair",
+      "authoredMap": false
+    },
+    {
+      "object": "Head_Mesh",
+      "material": "Trump_hair",
+      "surface": "hair",
+      "authoredMap": false
+    },
+    {
+      "object": "Head_Mesh",
+      "material": "Trump_hairlight",
+      "surface": "hair",
+      "authoredMap": false
+    },
+    {
+      "object": "LeftArm_Mesh",
+      "material": "Trump_suit",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "LeftElbow_Mesh",
+      "material": "Trump_suit",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "LeftElbow_Mesh",
+      "material": "Trump_white",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "LeftWrist_Mesh",
+      "material": "Trump_skinlight",
+      "surface": "skin",
+      "authoredMap": false
+    },
+    {
+      "object": "LeftWrist_Mesh",
+      "material": "Trump_skin",
+      "surface": "skin",
+      "authoredMap": false
+    },
+    {
+      "object": "RightArm_Mesh",
+      "material": "Trump_suit",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "RightElbow_Mesh",
+      "material": "Trump_suit",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "RightElbow_Mesh",
+      "material": "Trump_white",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "RightWrist_Mesh",
+      "material": "Trump_skinlight",
+      "surface": "skin",
+      "authoredMap": false
+    },
+    {
+      "object": "RightWrist_Mesh",
+      "material": "Trump_skin",
+      "surface": "skin",
+      "authoredMap": false
+    },
+    {
+      "object": "Sword_Mesh",
+      "material": "Trump_hilt",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Sword_Mesh",
+      "material": "Trump_silver",
+      "surface": "metal",
+      "authoredMap": false
+    },
+    {
+      "object": "Torso_Mesh",
+      "material": "Trump_suit",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "Torso_Mesh",
+      "material": "Trump_skin",
+      "surface": "skin",
+      "authoredMap": false
+    },
+    {
+      "object": "Torso_Mesh",
+      "material": "Trump_white",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "Torso_Mesh",
+      "material": "Trump_lapel",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "Torso_Mesh",
+      "material": "Trump_suitlight",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "Torso_Mesh",
+      "material": "Trump_tiehighlight",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "Torso_Mesh",
+      "material": "Trump_tie",
+      "surface": "fabric",
+      "authoredMap": false
+    },
+    {
+      "object": "Torso_Mesh",
+      "material": "Trump_blue",
+      "surface": "fabric",
+      "authoredMap": false
+    }
+  ],
+  "white-house-estate.glb": [
+    {
+      "object": "City window",
+      "material": "glass",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Downtown block",
+      "material": "stone",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "Downtown block.001",
+      "material": "shadow",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Downtown roof",
+      "material": "roof",
+      "surface": "roof",
+      "authoredMap": false
+    },
+    {
+      "object": "Ellipse canopy",
+      "material": "leaf",
+      "surface": "leaf",
+      "authoredMap": false
+    },
+    {
+      "object": "Ellipse tree trunk",
+      "material": "trunk",
+      "surface": "bark",
+      "authoredMap": false
+    },
+    {
+      "object": "Colonnade pillar.012",
+      "material": "stone",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "Colonnade roof.001",
+      "material": "trim",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "Window glass.066",
+      "material": "glass",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Window sill.066",
+      "material": "shadow",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Wing low roof.001",
+      "material": "roof",
+      "surface": "roof",
+      "authoredMap": false
+    },
+    {
+      "object": "Dormer glass",
+      "material": "glass",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Executive office cornice",
+      "material": "stone",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "Executive office stonework",
+      "material": "shadow",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Mansard roof",
+      "material": "roof",
+      "surface": "roof",
+      "authoredMap": false
+    },
+    {
+      "object": "Sash bar.348",
+      "material": "trim",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "Fence post",
+      "material": "dark",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Arrival doorway",
+      "material": "gold",
+      "surface": "gold",
+      "authoredMap": false
+    },
+    {
+      "object": "Balcony baluster",
+      "material": "trim",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "Entrance dark door",
+      "material": "dark",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Entrance stair",
+      "material": "shadow",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Flat roof",
+      "material": "roof",
+      "surface": "roof",
+      "authoredMap": false
+    },
+    {
+      "object": "Ground arcade pier",
+      "material": "stone",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "North window",
+      "material": "glass",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Constitution Avenue",
+      "material": "road",
+      "surface": "road",
+      "authoredMap": false
+    },
+    {
+      "object": "District ground",
+      "material": "grass",
+      "surface": "grass",
+      "authoredMap": false
+    },
+    {
+      "object": "Ellipse walking path",
+      "material": "path",
+      "surface": "paving",
+      "authoredMap": false
+    },
+    {
+      "object": "Sash bar.240",
+      "material": "trim",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "Treasury colonnade",
+      "material": "stone",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "Treasury main",
+      "material": "shadow",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Treasury side window",
+      "material": "glass",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Park canopy",
+      "material": "leaf2",
+      "surface": "leaf",
+      "authoredMap": false
+    },
+    {
+      "object": "Park canopy.003",
+      "material": "leaf",
+      "surface": "leaf",
+      "authoredMap": false
+    },
+    {
+      "object": "Park tree trunk",
+      "material": "trunk",
+      "surface": "bark",
+      "authoredMap": false
+    },
+    {
+      "object": "Obelisk shaft",
+      "material": "stone",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "Pyramidion",
+      "material": "trim",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "Colonnade pillar",
+      "material": "stone",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "Colonnade roof",
+      "material": "trim",
+      "surface": "stone",
+      "authoredMap": false
+    },
+    {
+      "object": "Window glass.052",
+      "material": "glass",
+      "surface": "glass",
+      "authoredMap": false
+    },
+    {
+      "object": "Window sill.052",
+      "material": "shadow",
+      "surface": "paint",
+      "authoredMap": false
+    },
+    {
+      "object": "Wing low roof",
+      "material": "roof",
+      "surface": "roof",
+      "authoredMap": false
+    }
+  ]
+}

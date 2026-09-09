@@ -50,6 +50,8 @@ export class OcclusionFade {
     this.base = materials.map((m) => m.opacity);
     this.copies = materials.map((m) => {
       const copy = m.clone();
+      copy.onBeforeCompile = m.onBeforeCompile;
+      copy.customProgramCacheKey = m.customProgramCacheKey;
       copy.transparent = true;
       copy.depthWrite = false;
       return copy;

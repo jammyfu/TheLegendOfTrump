@@ -14,26 +14,11 @@ import {
 } from "three";
 import { generatedColorMaps, texturedTint } from "./colorTextures";
 
-export type Surface =
-  | "metal"
-  | "gold"
-  | "paint"
-  | "glass"
-  | "water"
-  | "stone"
-  | "paving"
-  | "roof"
-  | "wood"
-  | "bark"
-  | "leather"
-  | "fabric"
-  | "grass"
-  | "leaf"
-  | "skin"
-  | "hair"
-  | "rubber";
+import { surfaceFor, type Surface } from "./surfaceCatalog";
+import { ensureSurfaceUVs } from "./surfaceUV";
+export { surfaceFor, type Surface } from "./surfaceCatalog";
 const normalMaps = new Map<string, Texture>();
-const strength: Record<Surface, number> = {
+const strength: Partial<Record<Surface, number>> = {
   metal: 0.22,
   gold: 0.16,
   paint: 0.24,
@@ -59,6 +44,8 @@ export function generatedNormalMap(
   repeatX = 1,
   repeatY = repeatX,
 ) {
+  const normalSource: Partial<Record<Surface, Surface>> = { road: "paving", walnut: "wood", soil: "stone", brick: "paving", terracotta: "stone", marble: "stone", hedge: "leaf", sand: "stone", carpet: "fabric", paper: "fabric", ceramic: "paint", rope: "fabric", canvas: "fabric", feather: "hair", flower: "leaf" };
+  surface = normalSource[surface] ?? surface;
   const key = `${surface}:${repeatX}:${repeatY}`;
   const cached = normalMaps.get(key);
   if (cached) return cached;
@@ -74,47 +61,29 @@ export function generatedNormalMap(
   return texture;
 }
 
-export function surfaceFor(name: string): Surface {
-  name = name.toLowerCase();
-  if (/(gold|brass)/.test(name)) return "gold";
-  if (/(silver|steel|iron|hilt|weapon|hammer|titanium)/.test(name))
-    return "metal";
-  if (/rubber/.test(name)) return "rubber";
-  if (/(fuselage|presidential|navigation)/.test(name)) return "paint";
-  if (/water/.test(name)) return "water";
-  if (/(cyan|glass)/.test(name)) return "glass";
-  if (/roof/.test(name)) return "roof";
-  if (/(path|road)/.test(name)) return "paving";
-  if (/(stone|ivory|trim|concrete)/.test(name)) return "stone";
-  if (/leather/.test(name)) return "leather";
-  if (/trunk/.test(name)) return "bark";
-  if (/(wood|walnut)/.test(name)) return "wood";
-  if (/grass/.test(name)) return "grass";
-  if (/(leaf|herb|adventure_green)/.test(name)) return "leaf";
-  if (/(hair|brow)/.test(name)) return "hair";
-  if (/(skin|mouth)/.test(name)) return "skin";
-  return "fabric";
-}
-
 /**
  * Add GPT Image color textures and derived roughness to untextured GLBs.
  * Preserve authored maps and supply projected UVs without mutating source assets.
  */
-export function legendMaterial(source: Material) {
+export function legendMaterial(source: Material, objectName = "") {
   const material = source instanceof MeshStandardMaterial ? source : null;
   if (!material) return source.clone();
   const styled = material.clone();
   const name = styled.name.toLowerCase();
-  const surface = surfaceFor(name);
+  const surface = surfaceFor(name, objectName);
+  styled.userData.surface = surface;
   const textures = generatedColorMaps(surface);
   if (!styled.map && textures.map) {
     styled.map = textures.map;
     styled.color.copy(texturedTint(styled.color, surface));
+    styled.onBeforeCompile = textures.onBeforeCompile!;
+    styled.customProgramCacheKey = textures.customProgramCacheKey!;
   }
   if (!styled.roughnessMap && textures.roughnessMap) styled.roughnessMap = textures.roughnessMap;
   if (!styled.normalMap) {
     styled.normalMap = generatedNormalMap(surface);
-    styled.normalScale = new Vector2(strength[surface], strength[surface]);
+    const amount = (strength[surface] ?? 0.25) * 0.45;
+    styled.normalScale = new Vector2(amount, amount);
   }
   styled.envMapIntensity = 0.7;
   styled.roughness = 0.62;
@@ -122,14 +91,11 @@ export function legendMaterial(source: Material) {
   styled.emissiveIntensity = 0;
 
   if (surface === "metal" || surface === "gold") {
-    styled.metalness = 0.78;
+    styled.metalness = 0.52;
     styled.roughness = /(iron|hammer)/.test(name) ? 0.42 : 0.28;
     styled.envMapIntensity = 1.15;
   }
-  if (/(navy|suit|dark|roof)/.test(name)) {
-    styled.metalness = 0.28;
-    styled.roughness = 0.43;
-  }
+  if (["fabric", "canvas", "carpet"].includes(surface)) styled.roughness = 0.85;
   if (surface === "glass") {
     styled.metalness = 0.35;
     styled.roughness = 0.18;
@@ -160,12 +126,18 @@ export function legendMaterial(source: Material) {
 }
 
 export function applyLegendMaterials(root: Object3D) {
+  root.updateWorldMatrix(true, true);
   root.traverse((node) => {
     if (!(node instanceof Mesh)) return;
-    ensureNormalUVs(node);
+    const materials = Array.isArray(node.material) ? node.material : [node.material];
+    const primary = materials[0];
+    const surface = surfaceFor(primary.name, node.name);
+    const authored = materials.some(m => m instanceof MeshStandardMaterial && m.map && !m.map.name.startsWith("GPTImage_"));
+    if (!authored && surface !== "glass" && surface !== "water") ensureSurfaceUVs(node, surface);
+    else ensureNormalUVs(node);
     node.material = Array.isArray(node.material)
-      ? node.material.map(legendMaterial)
-      : legendMaterial(node.material);
+      ? node.material.map(m => legendMaterial(m, node.name))
+      : legendMaterial(node.material, node.name);
   });
   return root;
 }
