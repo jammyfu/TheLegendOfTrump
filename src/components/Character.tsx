@@ -53,7 +53,7 @@ export function Character() {
     }),
     [model],
   );
-  useFrame(({ clock }) => {
+  useFrame(({ clock, camera }) => {
     if (!root.current) return;
     const seated =
       game.zone === "office" &&
@@ -75,6 +75,31 @@ export function Character() {
     parts.rightKnee.rotation.x = Math.max(0, walk) * 0.9;
     parts.leftElbow.rotation.x = -0.12 - Math.abs(walk) * 0.4;
     parts.rightElbow.rotation.x = -0.12 - Math.abs(walk) * 0.4;
+    // When a wall forces the camera inside the character, fade the body so it
+    // cannot cover the view. Collision still determines the camera position.
+    const distance = Math.hypot(
+      camera.position.x - game.x,
+      camera.position.y - game.y - 1.9,
+      camera.position.z - game.z,
+    );
+    const opacity =
+      seated || game.phase === "intro"
+        ? 1
+        : Math.max(0, Math.min(1, (distance - 0.8) / 1.8));
+    for (const object of [model, gear.sword, gear.shield])
+      object.traverse((node) => {
+        if (node instanceof Mesh)
+          for (const material of Array.isArray(node.material)
+            ? node.material
+            : [node.material]) {
+            if (material.transparent !== opacity < 1) {
+              material.transparent = opacity < 1;
+              material.needsUpdate = true;
+            }
+            material.opacity = opacity;
+            material.depthWrite = opacity > 0.95;
+          }
+      });
     parts.leftLeg.rotation.x = walk;
     parts.rightLeg.rotation.x = -walk;
     parts.leftArm.rotation.x = -walk;

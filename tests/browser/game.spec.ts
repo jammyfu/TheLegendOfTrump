@@ -284,3 +284,56 @@ test("jointed three-hit combo animates wrists and visibly staggers an enemy", as
     .toBe(0);
   await expect.poll(async () => (await parents(page)).sword).toBe("TorsoPivot");
 });
+
+test("first left click attacks, camera settings persist and portrait view expands", async ({
+  page,
+}) => {
+  await start(page);
+  await page.evaluate(() => window.__game!.guards.forEach((g) => (g.hp = 0)));
+  const stamina = await page.evaluate(() => window.__game!.stamina);
+  await page.locator("canvas").click({ position: { x: 700, y: 400 } });
+  await expect
+    .poll(() => page.evaluate(() => window.__game!.stamina))
+    .toBeLessThan(stamina);
+  await expect
+    .poll(() => page.evaluate(() => !!document.pointerLockElement))
+    .toBeTruthy();
+  await page.keyboard.press("Escape");
+  await page.getByText("视角与鼠标设置", { exact: true }).click();
+  await page.getByRole("slider", { name: "视野角度" }).fill("75");
+  await page.getByRole("slider", { name: "镜头距离" }).fill("12");
+  await page.getByRole("checkbox", { name: "反转垂直视角" }).check();
+  await page.screenshot({ path: "artifacts/camera-settings.png" });
+  await page.reload();
+  await page.getByRole("button", { name: /开始冒险/ }).click();
+  await page.getByRole("button", { name: "跳过片头 · E" }).click();
+  await expect
+    .poll(() => page.evaluate(() => window.__game!.cameraSettings))
+    .toMatchObject({ distance: 12, fov: 75, invertY: true });
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => (window.__camera as import("three").PerspectiveCamera).fov,
+      ),
+    )
+    .toBe(75);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => (window.__camera as import("three").PerspectiveCamera).fov,
+      ),
+    )
+    .toBeGreaterThan(85);
+  // A browser denying pointer lock must not disable attacks.
+  await page.evaluate(() => {
+    document.querySelector("canvas")!.requestPointerLock = () =>
+      Promise.reject(new Error("Denied"));
+  });
+  const before = await page.evaluate(() => window.__game!.stamina);
+  await page.locator("canvas").click({ position: { x: 195, y: 400 } });
+  await expect
+    .poll(() => page.evaluate(() => window.__game!.stamina))
+    .toBeLessThan(before);
+  expect(await page.evaluate(() => document.pointerLockElement)).toBeNull();
+});

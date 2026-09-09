@@ -1,3 +1,9 @@
+import {
+  loadCamera,
+  saveCamera,
+  sanitizeCamera,
+  type CameraSettings,
+} from "./camera";
 import { ATTACKS, COMBO_GRACE } from "./combat";
 import {
   staticColliders,
@@ -119,8 +125,9 @@ export class Simulation {
   events: SoundEvent[] = [];
   version = 0;
   cameraYaw = 0;
-  cameraPitch = 0.24;
-  cameraDistance = 8;
+  cameraSettings = loadCamera();
+  cameraPitch = 0.3;
+  cameraDistance = this.cameraSettings.distance;
   lockedTarget: number | null = null;
   constructor() {
     this.resetEntities();
@@ -189,8 +196,8 @@ export class Simulation {
     this.guarding = false;
     this.sprinting = false;
     this.cameraYaw = 0;
-    this.cameraPitch = 0.24;
-    this.cameraDistance = 8;
+    this.cameraPitch = 0.3;
+    this.cameraDistance = this.cameraSettings.distance;
     this.lockedTarget = null;
     this.opened.clear();
     this.harvested.clear();
@@ -234,19 +241,34 @@ export class Simulation {
   }
   look(dx: number, dy: number) {
     if (this.phase !== "playing") return;
-    this.cameraYaw -= dx * 0.004;
+    this.cameraYaw -= dx * 0.004 * this.cameraSettings.sensitivity;
     this.cameraPitch = Math.max(
-      -0.22,
-      Math.min(1.05, this.cameraPitch + dy * 0.003),
+      0.06,
+      Math.min(
+        1.05,
+        this.cameraPitch +
+          dy *
+            0.003 *
+            this.cameraSettings.sensitivity *
+            (this.cameraSettings.invertY ? -1 : 1),
+      ),
     );
     if (Math.abs(dx) > 2) this.lockedTarget = null;
   }
-  zoom(delta: number) {
-    this.cameraDistance = Math.max(
-      3.5,
-      Math.min(12, this.cameraDistance + delta * 0.007),
-    );
+  setCamera(settings: Partial<CameraSettings>) {
+    this.cameraSettings = sanitizeCamera({
+      ...this.cameraSettings,
+      ...settings,
+    });
+    this.cameraDistance = this.cameraSettings.distance;
+    saveCamera(this.cameraSettings);
+    this.version++;
   }
+  zoom(delta: number) {
+    if (this.phase !== "playing") return;
+    this.setCamera({ distance: this.cameraDistance + delta * 0.007 });
+  }
+
   toggleLock() {
     if (this.phase !== "playing" || this.zone !== "grounds") return;
     if (this.lockedTarget !== null) {
@@ -444,7 +466,7 @@ export class Simulation {
         this.vy = 0;
         this.cameraYaw = 0;
         this.cameraPitch = 0.35;
-        this.cameraDistance = 6;
+        this.cameraDistance = this.cameraSettings.distance;
         this.lockedTarget = null;
         this.events.push("door");
         this.notify("走近书桌，签署冒险宣言");
@@ -457,7 +479,7 @@ export class Simulation {
         this.vy = 0;
         this.yaw = 0;
         this.cameraYaw = 0;
-        this.cameraDistance = 8;
+        this.cameraDistance = this.cameraSettings.distance;
         this.events.push("door");
         break;
       case "desk":

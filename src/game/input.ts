@@ -82,7 +82,7 @@ export function bindInput() {
     if (e.code === "KeyQ") game.toggleLock();
     if (e.code === "KeyR") {
       game.cameraYaw = game.yaw - Math.PI;
-      game.cameraPitch = 0.24;
+      game.cameraPitch = 0.3;
     }
   };
   const up = (e: KeyboardEvent) => keys.delete(e.code);
@@ -96,8 +96,8 @@ export function bindInput() {
       return;
     unlockAudio();
     if (e.button === 0) {
-      if (document.pointerLockElement) game.attack();
-      else requestMouseLook();
+      game.attack();
+      if (!document.pointerLockElement) requestMouseLook();
     }
     if (e.button === 2) held.guard = true;
   };

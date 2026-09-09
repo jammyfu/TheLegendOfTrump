@@ -1,3 +1,4 @@
+import { CameraSettings } from "./components/CameraSettings";
 import { Component, useEffect, useState, type ReactNode } from "react";
 import { Scene } from "./components/Scene";
 import { Hud } from "./components/Hud";
@@ -118,6 +119,7 @@ export default function App() {
                 <span className="eyebrow">TAKE A BREATH</span>
                 <h2>冒险暂停</h2>
                 <p>南草坪的风，依然为你而吹。</p>
+                <CameraSettings />
                 <button className="primary" onClick={resume}>
                   继续冒险 <span>→</span>
                 </button>
@@ -252,7 +254,7 @@ export default function App() {
               ))}
             </dl>
             <p className="help-note">
-              桌面点击场景启用鼠标视角。无法锁定时按住中键拖动。手机左摇杆移动、右半屏滑动视角，虚拟按钮支持同时按住防御或冲刺。剑盾不用时背在身后；冲刺、跳跃、攻击和格挡消耗体力。
+              桌面左键直接攻击并启用鼠标视角，滚轮调整距离。暂停菜单可设置视野、距离与灵敏度。无法锁定时按住中键拖动。手机左摇杆移动、右半屏滑动视角，虚拟按钮支持同时按住防御或冲刺。剑盾不用时背在身后；冲刺、跳跃、攻击和格挡消耗体力。
             </p>
             <button className="primary" onClick={() => setHelp(false)}>
               明白了 <span>→</span>

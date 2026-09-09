@@ -1,12 +1,24 @@
 import { Suspense, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Group, Vector3, Mesh, MeshStandardMaterial } from "three";
+import {
+  Group,
+  Vector3,
+  Mesh,
+  MeshStandardMaterial,
+  PerspectiveCamera,
+} from "three";
 import { game } from "../game/simulation";
 import { getInput, releaseMouse } from "../game/input";
 import { playSound } from "../game/audio";
 import { Grounds, Office } from "./World";
 import { Character } from "./Character";
 import { Box, Cylinder } from "./Primitives";
+import {
+  cameraBoom,
+  cameraObstacles,
+  recoverBoom,
+  responsiveFov,
+} from "../game/camera";
 import { cameraFraction } from "../game/collision";
 import { InteractiveProps } from "./InteractiveProps";
 const desired = new Vector3(),
@@ -15,6 +27,7 @@ function Runtime() {
   const previousZone = useRef(game.zone);
   const [zone, setZone] = useState(game.zone);
   const first = useRef(true);
+  const boom = useRef(game.cameraDistance);
   useFrame(({ camera }, delta) => {
     for (let remaining = Math.min(delta, 0.2); remaining > 0; remaining -= 0.05)
       game.update(Math.min(remaining, 0.05), getInput());
@@ -37,29 +50,51 @@ function Runtime() {
       desired.set(0, 3.2, 1.8);
       target.set(0, 2.05, -5.6);
     } else {
-      const distance = game.cameraDistance,
-        yaw = game.cameraYaw,
-        pitch = game.cameraPitch;
       target.set(game.x, game.y + 1.9, game.z);
-      desired.set(
-        target.x + Math.sin(yaw) * Math.cos(pitch) * distance,
-        target.y + Math.sin(pitch) * distance,
-        target.z + Math.cos(yaw) * Math.cos(pitch) * distance,
+      const obstacles = cameraObstacles(game.colliders);
+      const safe = cameraBoom(
+        obstacles,
+        target,
+        game.cameraYaw,
+        game.cameraPitch,
+        game.cameraDistance,
       );
+      boom.current = first.current
+        ? safe.distance
+        : recoverBoom(boom.current, safe.distance, delta);
+      desired.set(
+        target.x + safe.direction.x * boom.current,
+        target.y + safe.direction.y * boom.current,
+        target.z + safe.direction.z * boom.current,
+      );
+      // Check the chosen segment again after changing angle; never impose a
+      // minimum distance that could place the camera on the other side of a wall.
       desired.lerpVectors(
         target,
         desired,
-        cameraFraction(game.colliders, target, desired),
+        cameraFraction(obstacles, target, desired),
       );
     }
     if (game.phase !== "playing" && document.pointerLockElement) releaseMouse();
-    camera.position.lerp(desired, first.current ? 1 : 1 - Math.exp(-delta * 9));
-    if (game.phase === "playing" || game.phase === "paused") {
-      camera.position.lerpVectors(
-        target,
-        camera.position,
-        cameraFraction(game.colliders, target, camera.position),
+    const cinematic =
+      game.phase === "title" ||
+      game.phase === "intro" ||
+      game.phase === "dialogue" ||
+      game.phase === "won";
+    if (cinematic)
+      camera.position.lerp(
+        desired,
+        first.current ? 1 : 1 - Math.exp(-delta * 9),
       );
+    else camera.position.copy(desired);
+    if (camera instanceof PerspectiveCamera) {
+      const fov = cinematic
+        ? 48
+        : responsiveFov(game.cameraSettings.fov, camera.aspect);
+      if (camera.fov !== fov) {
+        camera.fov = fov;
+        camera.updateProjectionMatrix();
+      }
     }
     camera.lookAt(target);
     first.current = false;
