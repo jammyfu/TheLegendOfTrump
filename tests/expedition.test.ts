@@ -181,7 +181,7 @@ test("archer telegraphs and fires a nonhoming shot that can be dodged or shielde
   tick(shield.g, 2.35, true);
   assert.equal(shield.g.hp, 3);
   assert.ok(shield.g.events.includes("block"));
-  assert.ok(shield.g.stamina < 100);
+  assert.ok(shield.g.stamina < shield.g.maxStamina);
   const hit = archer();
   tick(hit.g, 2.35);
   assert.equal(hit.g.hp, 2);

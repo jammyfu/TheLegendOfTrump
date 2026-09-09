@@ -18,30 +18,30 @@ test("sprint jump launches one forward roll, lands and cannot be extended in air
   g.jump(input);
   assert.equal(g.grounded, false);
   assert.equal(g.dodgeTime, 0.55);
-  assert.equal(g.stamina, 76);
+  assert.equal(g.stamina, g.maxStamina - 24);
   const velocity = g.vy;
   g.jump(input);
   assert.equal(g.vy, velocity);
-  assert.equal(g.stamina, 76);
+  assert.equal(g.stamina, g.maxStamina - 24);
   for (let i = 0; i < 40; i++) g.update(1 / 60, idle);
   assert.equal(g.grounded, true);
   assert.equal(g.dodgeTime, 0);
   assert.ok(g.x > 3);
 });
-test("locked directional input rolls once per deflection, with stamina and collision", () => {
+test("sprint directional input rolls once per chord, with stamina and collision", () => {
   const g = fresh();
   g.x = -20;
   g.z = 15;
   Object.assign(g.guards[0], { hp: 3, x: -20, z: 8, stun: 100 });
   g.lockedTarget = 0;
-  g.update(0.016, { x: 1, z: 0, sprint: false });
+  g.update(0.016, { x: 1, z: 0, sprint: true });
   assert.ok(g.dodgeTime > 0);
   assert.ok(g.y > 0);
-  for (let i = 0; i < 60; i++) g.update(1 / 60, { x: 1, z: 0, sprint: false });
+  for (let i = 0; i < 60; i++) g.update(1 / 60, { x: 1, z: 0, sprint: true });
   assert.equal(g.dodgeTime, 0);
   g.update(0.016, idle);
   g.stamina = 0;
-  g.update(0.016, { x: 1, z: 0, sprint: false });
+  g.update(0.016, { x: 1, z: 0, sprint: true });
   assert.equal(g.dodgeTime, 0);
 });
 test("camera keeps near-plane clearance from walls, cylinders and initial overlaps", () => {

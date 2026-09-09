@@ -184,9 +184,9 @@ test("guard telegraphs damage; directional block consumes stamina and dodge avoi
   const block = setup();
   tick(block, 0.12, { ...idle, guard: true });
   assert.equal(block.hp, 3);
-  assert.ok(block.stamina <= 80);
+  assert.ok(block.stamina <= block.maxStamina - 20);
   const dodge = setup();
-  dodge.dodge({ ...idle, x: 1 });
+  dodge.dodge({ ...idle, x: 1, sprint: true });
   tick(dodge, 0.12);
   assert.equal(dodge.hp, 3);
   const back = setup();
@@ -199,7 +199,7 @@ test("stamina is bounded, depleted combat actions fail while jumping stays avail
   const g = quiet();
   g.stamina = 5;
   g.jump();
-  g.dodge();
+  g.dodge({ x: 1, z: 0, sprint: true });
   g.attack();
   assert.ok(g.vy > 0);
   assert.equal(g.dodgeTime, 0);
@@ -208,7 +208,7 @@ test("stamina is bounded, depleted combat actions fail while jumping stays avail
   tick(g, 2);
   assert.ok(g.stamina > 40);
   tick(g, 10);
-  assert.equal(g.stamina, 100);
+  assert.equal(g.stamina, g.maxStamina);
 });
 test("door unlock and desk interaction still complete the adventure; restart resets all props", () => {
   const g = quiet();
@@ -272,12 +272,12 @@ test("three-stage combo buffers one press, costs stamina per stage and resets af
   assert.equal(g.comboQueued, true);
   tick(g, 0.38);
   assert.equal(g.combo, 1);
-  assert.equal(g.stamina, 83);
+  assert.equal(g.stamina, g.maxStamina - 17);
   tick(g, 0.12);
   g.attack();
   tick(g, 0.4);
   assert.equal(g.combo, 2);
-  assert.equal(g.stamina, 71);
+  assert.equal(g.stamina, g.maxStamina - 29);
   g.attack();
   assert.equal(g.comboQueued, false);
   tick(g, 0.9);
@@ -303,7 +303,7 @@ test("insufficient stamina and dodge cancel buffered chains without phantom dama
   b.attack();
   tick(b, 0.1);
   b.attack();
-  b.dodge();
+  b.dodge({ x: 1, z: 0, sprint: true });
   assert.equal(b.attackTime, 0);
   assert.equal(b.hitPending, false);
   tick(b, 0.7);

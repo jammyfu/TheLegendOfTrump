@@ -56,10 +56,10 @@ test("boss sweep blocks directionally, heavy slam defeats block, dodge grants sa
       move: mode === "slam" ? "slam" : "sweep",
       timer: 0.05,
     });
-    if (mode === "dodge") g.dodge();
+    if (mode === "dodge") g.dodge({ x: 1, z: 0, sprint: true });
     tick(g, 0.12, { ...idle, guard: true });
     assert.equal(g.hp, mode === "slam" ? 2 : 3, mode);
-    if (mode === "block") assert.ok(g.stamina < 100);
+    if (mode === "block") assert.ok(g.stamina < g.maxStamina);
   }
 });
 test("shockwave can be jumped, hits once, enrage and retry reset work", () => {
@@ -110,7 +110,7 @@ test("full boss AI can be beaten with guarding, evasion and recovery attacks", (
       else if (b.move === "slam" && d < 3.7) {
         input.x = -dx / d;
         input.z = -dz / d;
-        if (b.timer < 0.35) g.dodge(input);
+        if (b.timer < 0.35) g.dodge({ ...input, sprint: true });
       } else if (b.move === "wave" && b.timer < 0.13) g.jump();
     } else if (b.state === "recover") {
       if (d > 2) {

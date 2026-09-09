@@ -33,7 +33,7 @@ test("ledge grace is consumed once and roll does not allow an early jump", () =>
   assert.ok(g.vy > 0);
   assert.equal(g.coyoteTime, 0);
   const h = fresh();
-  h.dodge();
+  h.dodge({ x: 1, z: 0, sprint: true });
   h.jump();
   h.update(1 / 60, idle);
   assert.equal(h.grounded, false);
@@ -59,7 +59,7 @@ test("held guard persists and resumes after a roll", () => {
     g.update(1 / 60, guard);
     assert.equal(g.guarding, true);
   }
-  g.dodge();
+  g.dodge({ x: 1, z: 0, sprint: true });
   assert.equal(g.guarding, false);
   for (let i = 0; i < 40; i++) g.update(1 / 60, guard);
   assert.equal(g.guarding, true);

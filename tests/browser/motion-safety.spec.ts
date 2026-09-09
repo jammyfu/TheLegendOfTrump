@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-test("unlock stops residual mouse motion; directional combat roll and sprint jump", async ({
+test("unlock stops residual mouse motion; sprint-direction combat roll and sprint jump", async ({
   page,
 }) => {
   const errors: string[] = [];
@@ -75,11 +75,12 @@ test("unlock stops residual mouse motion; directional combat roll and sprint jum
     g.lockedTarget = 0;
   });
   await page.keyboard.down("KeyD");
-  expect(await page.evaluate(() => window.__game!.dodgeTime)).toBeGreaterThan(
-    0,
-  );
+  expect(await page.evaluate(() => window.__game!.dodgeTime)).toBe(0);
+  await page.keyboard.down("ShiftLeft");
+  await expect.poll(() => page.evaluate(() => window.__game!.dodgeTime), { intervals: [20, 30, 50] }).toBeGreaterThan(0);
   await page.screenshot({ path: "artifacts/directional-air-roll.png" });
   await page.keyboard.up("KeyD");
+  await page.keyboard.up("ShiftLeft");
   expect(errors).toEqual([]);
 });
 test("helicopter handoff and wall-side gameplay cameras stay outside collision volumes", async ({

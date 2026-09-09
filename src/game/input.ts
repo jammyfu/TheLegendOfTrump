@@ -97,20 +97,6 @@ export function bindInput() {
     keys.add(e.code);
     if (e.repeat) return;
     unlockAudio();
-    if (
-      game.lockTarget &&
-      [
-        "KeyW",
-        "KeyA",
-        "KeyS",
-        "KeyD",
-        "ArrowUp",
-        "ArrowDown",
-        "ArrowLeft",
-        "ArrowRight",
-      ].includes(e.code)
-    )
-      game.dodge(getInput());
     if (e.code === "KeyE") game.interact();
     if (e.code === "Space") game.jump(getInput());
     if (e.code === "KeyJ") game.pressAttack();

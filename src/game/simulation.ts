@@ -136,7 +136,7 @@ export class Simulation {
   deathTime = 0;
   fcUnlocked = false;
   mouseLookSuspended = false;
-  private directionHeld = false;
+  private rollChordHeld = false;
   private lastInput: Input = { x: 0, z: 0, sprint: false };
   autoLockCooldown = 0;
   private autoLockScan = 0;
@@ -150,7 +150,8 @@ export class Simulation {
     value: 2,
     collected: false,
   }));
-  stamina = 100;
+  readonly maxStamina = 200;
+  stamina = this.maxStamina;
   staminaDelay = 0;
   sprinting = false;
   guarding = false;
@@ -448,7 +449,7 @@ export class Simulation {
       ) {
         drop.collected = true;
         this.arrows = Math.min(30, this.arrows + 3);
-        this.stamina = Math.min(100, this.stamina + 20);
+        this.stamina = Math.min(this.maxStamina, this.stamina + 20);
         this.events.push("gem");
         this.notify("补给 · +3 箭矢 · +20 体力");
       }
@@ -466,7 +467,7 @@ export class Simulation {
               z: g.originZ,
               hp: 2,
               windup: 0,
-              cooldown: 2,
+              cooldown: 0.8,
               stun: 0,
               hitFlash: 0,
               knockX: 0,
@@ -474,7 +475,7 @@ export class Simulation {
               defeatTime: 0,
             });
         this.boss.state = "recover";
-        this.boss.timer = 1.6;
+        this.boss.timer = 0.55;
         this.summonCooldown = 14;
         this.notify("卫兵入场 · 优先击破卫兵，再攻击统领！");
       }
@@ -486,9 +487,9 @@ export class Simulation {
       this.minions.every((g) => g.hp <= 0)
     ) {
       this.summonWaves++;
-      this.summonTime = 2.4;
+      this.summonTime = 1.2;
       this.boss.wave = -1;
-      this.notify("统领正在召唤卫兵 · 蓝色光圈将在 2.4 秒后出现援军");
+      this.notify("统领正在召唤卫兵 · 蓝色光圈将在 1.2 秒后出现援军");
     }
   }
   crates: Pot[] = [];
@@ -560,7 +561,7 @@ export class Simulation {
     this.jumpBuffer = this.coyoteTime = this.lockObscuredTime = 0;
     this.lockRangeElapsed = 0;
     this.autoLockCooldown = this.autoLockScan = 0;
-    this.directionHeld = this.mouseLookSuspended = false;
+    this.rollChordHeld = this.mouseLookSuspended = false;
     this.lastInput = { x: 0, z: 0, sprint: false };
     this.hp = 3;
     this.gems = 0;
@@ -572,7 +573,7 @@ export class Simulation {
       value: 2,
       collected: false,
     }));
-    this.stamina = 100;
+    this.stamina = this.maxStamina;
     this.staminaDelay = 0;
     this.elapsed = 0;
     this.attackTime = 0;
@@ -629,7 +630,7 @@ export class Simulation {
       this.boss.reset();
       this.resetEncounter();
       this.hp = 3;
-      this.stamina = 100;
+      this.stamina = this.maxStamina;
       this.x = 0;
       this.z = 6;
       this.y = 0;
@@ -760,7 +761,7 @@ export class Simulation {
     if (this.phase !== "playing") return;
     if (
       Math.hypot(input.x, input.z) > 0.1 &&
-      (input.sprint || this.lockTarget)
+      input.sprint
     ) {
       this.dodge(input);
       return;
@@ -781,7 +782,11 @@ export class Simulation {
     this.grounded = false;
     this.guarding = false;
   }
-  dodge(input: Input = { x: 0, z: 0, sprint: false }) {
+  dodge(input: Input = this.lastInput) {
+    if (!input.sprint || Math.hypot(input.x, input.z) <= 0.1) {
+      this.jump({ ...input, sprint: false });
+      return;
+    }
     if (
       this.phase !== "playing" ||
       !this.grounded ||
@@ -956,7 +961,7 @@ export class Simulation {
           break;
         }
         this.hp = 3;
-        this.stamina = 100;
+        this.stamina = this.maxStamina;
         this.notify("营地休整 · 生命与体力已恢复");
         break;
       case "door":
@@ -979,7 +984,7 @@ export class Simulation {
           this.boss.reset();
           this.resetEncounter();
           this.hp = 3;
-          this.stamina = 100;
+          this.stamina = this.maxStamina;
           this.notify(
             "铁甲统领 · 红色预警闪避，金色横扫可格挡，冲击波跳跃躲避",
           );
@@ -1081,7 +1086,7 @@ export class Simulation {
       case "herb":
         this.harvested.add(i.id);
         this.hp = Math.min(3, this.hp + 1);
-        this.stamina = Math.min(100, this.stamina + 35);
+        this.stamina = Math.min(this.maxStamina, this.stamina + 35);
         this.events.push("gem");
         this.notify("回复草 · 恢复 1 颗爱心与体力");
         break;
@@ -1091,7 +1096,7 @@ export class Simulation {
           return;
         }
         this.hp = Math.min(3, this.hp + 1);
-        this.stamina = 100;
+        this.stamina = this.maxStamina;
         this.restCooldown = 20;
         this.phase = "reading";
         this.moving = false;
@@ -1101,7 +1106,7 @@ export class Simulation {
         };
         break;
       case "fountain":
-        this.stamina = 100;
+        this.stamina = this.maxStamina;
         this.notify("清凉的水雾 · 体力已恢复");
         break;
     }
@@ -1573,10 +1578,9 @@ export class Simulation {
       this.spinTime <= 0 &&
       this.chargeTime <= 0;
     this.lastInput = input;
-    const directionPressed = Math.hypot(input.x, input.z) > 0.35;
-    if (directionPressed && !this.directionHeld && this.lockTarget)
-      this.dodge(input);
-    this.directionHeld = directionPressed;
+    const rollChord = input.sprint && Math.hypot(input.x, input.z) > 0.35;
+    if (rollChord && !this.rollChordHeld) this.dodge(input);
+    this.rollChordHeld = rollChord;
     const length = Math.hypot(input.x, input.z),
       dx = input.x / Math.max(1, length),
       dz = input.z / Math.max(1, length),
@@ -1661,7 +1665,7 @@ export class Simulation {
       this.dodgeTime <= 0 &&
       this.staminaDelay <= 0
     )
-      this.stamina = Math.min(100, this.stamina + 24 * dt);
+      this.stamina = Math.min(this.maxStamina, this.stamina + 24 * dt);
     if (this.zone === "grounds") {
       for (const gem of this.items)
         if (
@@ -1763,7 +1767,7 @@ export class Simulation {
                 this.impact(this.x, this.z);
                 this.cancelCombo();
                 this.invincible = 1.1;
-                this.notify("受到攻击！右键防御或 Ctrl 闪避");
+                this.notify("受到攻击！右键防御或 Shift + 方向翻滚");
                 if (this.hp <= 0) {
                   this.beginDefeat();
                   return;

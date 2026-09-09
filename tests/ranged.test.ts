@@ -120,7 +120,7 @@ test("boss summons two telegraphed finite waves; checkpoint clears enemies and r
   g.z = 10;
   tick(g, 0.05);
   assert.equal(g.summonWaves, 1);
-  assert.ok(g.summonTime > 2);
+  assert.ok(g.summonTime > 1 && g.summonTime <= 1.2);
   assert.equal(g.minions.filter((x) => x.hp > 0).length, 0);
   tick(g, 2.5);
   assert.equal(g.minions.filter((x) => x.hp > 0).length, 2);

@@ -199,7 +199,7 @@ export function Hud() {
         <div className="stamina">
           <meter
             min="0"
-            max="100"
+            max={game.maxStamina}
             value={game.stamina}
             aria-label={t("体力")}
           />
@@ -350,7 +350,7 @@ export function Hud() {
         <span>{t("右键 / F 防御 / 精瞄")}</span>
         <span>{t("Space 跳跃")}</span>
         <span>{t("Shift 冲刺")}</span>
-        <span>{t("Ctrl / K 翻滚")}</span>
+        <span>{t("Shift + 方向 翻滚")}</span>
         <span>{t("E 互动 · Q 锁定")}</span>
       </div>
       <TouchControls />
