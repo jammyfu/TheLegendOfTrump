@@ -58,3 +58,15 @@
   .game .lt-menu-label { font-size: 36px; }
   .game .lt-controls .lt-menu-label { font-size: 26px; }
 }
+
+@font-face {
+  font-family: "Legend Relic KR";
+  src: url("../../public/fonts/legend-relic-kr.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+}
+.game { --game-font: "Legend Relic Latin", "Legend Relic SC", "Legend Relic JP", "Legend Relic HK", "Legend Relic KR", serif; }
+:lang(ja) .game { --game-font: "Legend Relic Latin", "Legend Relic JP", "Legend Relic SC", "Legend Relic HK", "Legend Relic KR", serif; }
+:lang(zh-HK) .game { --game-font: "Legend Relic Latin", "Legend Relic HK", "Legend Relic SC", "Legend Relic JP", "Legend Relic KR", serif; }
+:lang(ko) .game { --game-font: "Legend Relic Latin", "Legend Relic KR", "Legend Relic SC", "Legend Relic JP", "Legend Relic HK", serif; }

@@ -17,6 +17,7 @@ base = 'https://raw.githubusercontent.com/google/fonts/main/ofl/'
 locations = {
  'caps': (SOURCES/'CinzelDecorative-Bold.ttf', 'cinzeldecorative/CinzelDecorative-Bold.ttf'),
  'text': (SOURCES/'CormorantGaramond.ttf', 'cormorantgaramond/CormorantGaramond%5Bwght%5D.ttf'),
+ 'ko': (Path('/tmp/Legend-NotoSerifKR.ttf'), 'notoserifkr/NotoSerifKR%5Bwght%5D.ttf'),
  'hk': (Path('/tmp/Legend-NotoSerifHK.ttf'), 'notoserifhk/NotoSerifHK%5Bwght%5D.ttf'),
  'zh': (Path(tempfile.gettempdir())/'Legend-NotoSerifSC.ttf', 'notoserifsc/NotoSerifSC%5Bwght%5D.ttf'),
  'ja': (Path(tempfile.gettempdir())/'Legend-NotoSerifJP.ttf', 'notoserifjp/NotoSerifJP%5Bwght%5D.ttf'),
@@ -31,7 +32,7 @@ for path,url in locations.values():
  if not path.exists():
   if not args.fetch: raise RuntimeError(f'Missing source {path}; run with --fetch')
   path.write_bytes(urllib.request.urlopen(base+url).read())
-for family in ['cinzeldecorative','cormorantgaramond','notoserifsc','notoserifjp','notoserifhk']:
+for family in ['cinzeldecorative','cormorantgaramond','notoserifsc','notoserifjp','notoserifhk','notoserifkr']:
  p=OUT/(family+'-OFL.txt')
  if not p.exists():
   if not args.fetch: raise RuntimeError(f'Missing license {p}; run with --fetch')
@@ -42,8 +43,8 @@ all_source=''.join(p.read_text() for p in (ROOT/'src').rglob('*') if p.suffix in
 zh_text=''.join(translations)+all_source+'简体中文日本語'
 ja_text=''.join(row[1] for row in translations.values())+'日本語简体中文'
 latin=set(range(32,127)) | {ord(c) for c in ''.join(translations)+''.join(''.join(v) for v in translations.values()) if ord(c)<0x3000}
-# Hangul uses the existing Korean serif fallback; CJK fonts do not pretend to cover it.
-cjk=lambda text:{ord(c) for c in text if 0x3000<=ord(c)<=0x9fff or 0xff00<=ord(c)<=0xffef}
+# Include every localized menu label, including the language selector itself.
+cjk=lambda text:{ord(c) for c in text if 0x3000<=ord(c)<=0x9fff or 0xff00<=ord(c)<=0xffef or 0xac00<=ord(c)<=0xd7af}
 
 def load(key,chars,weight=700):
  font=TTFont(locations[key][0]); opts=subset.Options(); opts.layout_features=[]
@@ -77,7 +78,7 @@ def build(name,characters,pick):
  return font
 # Condensed decorative capitals, real lowercase with ascenders/descenders; not small-cap remapping.
 build('Legend Relic Latin',latin,lambda cp:(caps,.79,1.05) if 65<=cp<=90 else (text,.92,1.13))
-for lang,label,chars in [('zh','SC',cjk(zh_text)),('ja','JP',cjk(ja_text)),('hk','HK',cjk(''.join(row[3] for row in translations.values())+'繁體中文香港'))]:
+for lang,label,chars in [('zh','SC',cjk(zh_text)),('ja','JP',cjk(ja_text)),('ko','KR',cjk(''.join(row[2] for row in translations.values())+'한국어')),('hk','HK',cjk(''.join(row[3] for row in translations.values())+'繁體中文香港'))]:
  font=load(lang,chars,800)
  missing=chars-set(font.getBestCmap())
  if missing: print('Source lacks:', ''.join(map(chr,sorted(missing))))
