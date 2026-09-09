@@ -14,7 +14,7 @@ for (const size of [
     // Render the real HUD with a deterministic game state, independent of WebGL
     // asset loading. Full-game smoke coverage lives in game.spec.ts.
     await page.route('**/src/main.tsx*', route => route.fulfill({contentType:'application/javascript',body:`import '/tests/browser/hud-fixture.tsx';`}));
-    await page.goto('http://127.0.0.1:4439/',{waitUntil:'domcontentloaded'});
+    await page.goto(process.env.GAME_URL ?? 'http://127.0.0.1:4439/',{waitUntil:'domcontentloaded'});
     await expect(page.locator('.hud-layout')).toBeVisible();
     await page.evaluate(()=>document.fonts.ready);
     const inspect=()=>page.evaluate(()=>{

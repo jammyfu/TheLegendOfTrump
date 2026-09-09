@@ -35,6 +35,36 @@ export function floorAt(
       floor = Math.max(floor, c.top);
   return floor;
 }
+/** Sweep the entire body vertically, including props that cannot be auto-stepped. */
+export function moveVertical(
+  colliders: Collider[],
+  x: number,
+  z: number,
+  y: number,
+  targetY: number,
+) {
+  let nextY = targetY;
+  if (targetY > y) {
+    for (const c of colliders) {
+      const underside = c.bottom ?? 0;
+      if (
+        underside >= y + PLAYER_HEIGHT - 0.01 &&
+        underside < nextY + PLAYER_HEIGHT &&
+        overlaps(c, x, z)
+      )
+        nextY = Math.max(y, underside - PLAYER_HEIGHT);
+    }
+    return { y: nextY, grounded: false, hitCeiling: nextY < targetY };
+  }
+  let floor = 0;
+  for (const c of colliders)
+    if (c.top <= y + 0.015 && overlaps(c, x, z)) floor = Math.max(floor, c.top);
+  return {
+    y: Math.max(floor, nextY),
+    grounded: nextY <= floor,
+    hitCeiling: false,
+  };
+}
 export function moveAndSlide(
   colliders: Collider[],
   x: number,
@@ -45,6 +75,22 @@ export function moveAndSlide(
   step: boolean,
   radius = PLAYER_RADIUS,
 ) {
+  // Conservative swept bounds: keep every obstacle any substep can reach,
+  // then run the same precise circle/box checks against this small local set.
+  const minX = Math.min(x, x + dx) - radius,
+    maxX = Math.max(x, x + dx) + radius,
+    minZ = Math.min(z, z + dz) - radius,
+    maxZ = Math.max(z, z + dz) + radius;
+  colliders = colliders.filter((c) => {
+    const halfX = c.radius ?? (c.w ?? 0) / 2,
+      halfZ = c.radius ?? (c.d ?? 0) / 2;
+    return (
+      c.x + halfX >= minX &&
+      c.x - halfX <= maxX &&
+      c.z + halfZ >= minZ &&
+      c.z - halfZ <= maxZ
+    );
+  });
   const count = Math.max(1, Math.ceil(Math.hypot(dx, dz) / 0.12));
   let height = y;
   for (let i = 0; i < count; i++) {

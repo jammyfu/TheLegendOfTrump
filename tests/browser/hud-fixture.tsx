@@ -7,6 +7,7 @@ import '../../src/styles.css';
 import '../../src/components/GameMenus.css';
 import.meta.glob('../../src/components/AdventureTheme.css', {eager:true});
 import '../../src/components/RelicTypography.css';
+import.meta.glob('../../src/components/MobileMinimalHud.css', {eager:true});
 game.phase='playing';game.toast='获得回复药';game.toastTime=60;
 game.bowUnlocked=true;game.weapon='bow';
 Object.defineProperty(game,'prompt',{get:()=> '打开宝箱'});

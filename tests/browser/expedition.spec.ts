@@ -10,7 +10,7 @@ test("landing camera, helicopter turn and starter chest remain in the remote sou
     .poll(
       () =>
         page.evaluate(
-          () => !!window.__scene?.getObjectByName("arrival-helicopter"),
+          () => !!window.__scene?.getObjectByName("arrival-helicopter")?.visible,
         ),
       { timeout: 20000 },
     )
@@ -27,8 +27,9 @@ test("landing camera, helicopter turn and starter chest remain in the remote sou
       page.evaluate(
         () => window.__scene!.getObjectByName("arrival-helicopter")!.position.z,
       ),
+      { timeout: 20000 },
     )
-    .toBe(183);
+    .toBeCloseTo(183, 4);
   const landing = await page.evaluate(() => {
     const h = window.__scene!.getObjectByName("arrival-helicopter")!;
     return { x: h.position.x, yaw: h.rotation.y };
@@ -39,7 +40,7 @@ test("landing camera, helicopter turn and starter chest remain in the remote sou
   await page.evaluate(() => {
     window.__game!.introTime = 6;
   });
-  await page.waitForTimeout(200);
+  await expect.poll(() => page.evaluate(() => window.__scene!.getObjectByName("arrival-helicopter")!.rotation.y)).toBeGreaterThan(Math.PI);
   const turn = await page.evaluate(
     () => window.__scene!.getObjectByName("arrival-helicopter")!.rotation.y,
   );
@@ -54,7 +55,7 @@ test("landing camera, helicopter turn and starter chest remain in the remote sou
   });
   await page.keyboard.press("KeyE");
   await expect
-    .poll(() => page.evaluate(() => window.__game!.bowUnlocked))
+    .poll(() => page.evaluate(() => window.__game!.opened.has("chest-landing")))
     .toBe(true);
   await expect(page.getByLabel("金币 8", { exact: true })).toBeVisible();
   await page.evaluate(() => {

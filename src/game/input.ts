@@ -42,11 +42,45 @@ export function requestMouseLook() {
 }
 export function bindInput() {
   const down = (e: KeyboardEvent) => {
-    if (
-      e.target instanceof HTMLElement &&
-      ["INPUT", "TEXTAREA"].includes(e.target.tagName)
-    )
+    const target = e.target instanceof HTMLElement ? e.target : null;
+    const editable = target?.closest(
+      'input, textarea, select, [contenteditable="true"]',
+    );
+    if (editable && e.code !== "Escape") return;
+    const control = target?.closest('button, a, summary, [role="button"]');
+    // Menus retain native focus navigation and button activation. Only gameplay
+    // owns movement keys; otherwise a held menu key can leak into the next phase.
+    if (e.code === "Escape") {
+      e.preventDefault();
+      if (game.phase === "reading") game.phase = "playing";
+      else game.pause();
+      clearInput();
+      releaseMouse();
       return;
+    }
+    if (control && ["Space", "Enter", "Tab"].includes(e.code)) return;
+    if (game.phase !== "playing") {
+      if (e.repeat) return;
+      if (
+        game.phase === "intro" &&
+        ["Enter", "KeyE", "Space"].includes(e.code)
+      ) {
+        e.preventDefault();
+        clearInput();
+        game.skipIntro();
+      } else if (game.phase === "title" && e.code === "Enter") {
+        unlockAudio();
+        clearInput();
+        game.beginIntro();
+      } else if (
+        ["reading", "dialogue"].includes(game.phase) &&
+        e.code === "KeyE"
+      ) {
+        clearInput();
+        game.interact();
+      }
+      return;
+    }
     if (
       [
         "Tab",
@@ -63,20 +97,6 @@ export function bindInput() {
     keys.add(e.code);
     if (e.repeat) return;
     unlockAudio();
-    if (game.phase === "intro" && ["Enter", "KeyE", "Space"].includes(e.code)) {
-      game.skipIntro();
-      return;
-    }
-    if (game.phase === "title" && e.code === "Enter") {
-      game.beginIntro();
-      return;
-    }
-    if (e.code === "Escape") {
-      if (game.phase === "reading") game.phase = "playing";
-      else game.pause();
-      clearInput();
-      releaseMouse();
-    }
     if (
       game.lockTarget &&
       [

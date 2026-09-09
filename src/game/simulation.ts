@@ -28,7 +28,7 @@ import {
 } from "./world";
 import {
   occupied,
-  floorAt,
+  moveVertical,
   moveAndSlide,
   lineClear,
   rayFraction,
@@ -1364,9 +1364,15 @@ export class Simulation {
       this.effects = this.effects.filter((effect) => effect.age < 0.36);
       this.deathTime = Math.max(0, this.deathTime - dt);
       this.vy -= 18 * dt;
-      const floor = floorAt(this.colliders, this.x, this.z, this.y);
-      this.y = Math.max(floor, this.y + this.vy * dt);
-      if (this.y === floor) this.vy = 0;
+      const fall = moveVertical(
+        this.colliders,
+        this.x,
+        this.z,
+        this.y,
+        this.y + this.vy * dt,
+      );
+      this.y = fall.y;
+      if (fall.grounded || fall.hitCeiling) this.vy = 0;
       for (const g of this.activeGuards)
         g.defeatTime = Math.max(0, g.defeatTime - dt);
       if (this.deathTime === 0) this.phase = "lost";
@@ -1637,21 +1643,17 @@ export class Simulation {
     this.z = next.z;
     this.y = next.y;
     this.moving = Math.hypot(this.x - oldX, this.z - oldZ) > 0.0001;
-    const previousY = this.y;
     this.vy -= 18 * dt;
-    let candidate = this.y + this.vy * dt;
-    const floor = floorAt(
+    const vertical = moveVertical(
       colliders,
       this.x,
       this.z,
-      previousY + (this.grounded ? 0.26 : 0),
+      this.y,
+      this.y + this.vy * dt,
     );
-    if (this.vy <= 0 && candidate <= floor) {
-      candidate = floor;
-      this.vy = 0;
-      this.grounded = true;
-    } else this.grounded = false;
-    this.y = Math.max(0, candidate);
+    this.y = vertical.y;
+    this.grounded = vertical.grounded;
+    if (vertical.grounded || vertical.hitCeiling) this.vy = 0;
     this.tryJump();
     if (
       !this.sprinting &&

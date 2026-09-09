@@ -12,7 +12,8 @@
   position: relative; inset: auto; transform: none; margin: 0; min-width: 0;
   max-width: 100%; width: auto; align-self: start; box-sizing: border-box;
 }
-.game .hud-layout button { pointer-events: auto; }
+.game .hud-layout button,
+.game .hud-layout .look-pad { pointer-events: auto; }
 .game .hud-layout .vital-hud { grid-area: vital; }
 .game .hud-layout .weapon-hud { grid-area: weapon; display: grid; gap: 8px; }
 .game .hud-layout .expedition-hud { grid-area: pack; display: flex; flex-wrap: wrap; gap: 8px; }
@@ -50,6 +51,7 @@
     gap: 8px 12px; padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
   }
   .game .hud-layout .adventure-controls { display: none; }
+  .game .hud-layout .weapon-hud.using-bow .ammunition { font-size: 15px; }
   .game .hud-layout :is(.quest p,.toast,.interact-prompt,.weapon-hud button,.expedition-hud,.boss-hud > span,.combo-status strong) { font-size: 18px; }
   .game .hud-layout .adventure-menu { gap: 6px; }
   .game .hud-layout .adventure-menu button { min-width: 44px; width: 44px; min-height: 44px; }
@@ -85,6 +87,7 @@
   .game .hud-layout .minimap { grid-area: combo; position: relative; inset: auto; width: 112px; height: 130px; max-height: 100%; align-self: start; overflow: auto; pointer-events: auto; }
   .game .hud-layout:has(.minimap) .combo-status { max-width: calc(100% - 120px); justify-self: start; }
   .game .hud-layout .adventure-controls { display: none; }
+  .game .hud-layout .weapon-hud.using-bow .ammunition { font-size: 15px; }
   .game .hud-layout .adventure-buttons { grid-template-columns: repeat(2,60px); grid-template-rows: repeat(2,60px); gap: 8px; }
   .game .hud-layout .adventure-buttons button { width: 60px; height: 60px; }
 }

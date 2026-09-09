@@ -1,8 +1,10 @@
+import { equipMelee, collectChest } from "./fixtures";
 import { test, expect } from "@playwright/test";
 async function start(page: import("@playwright/test").Page) {
   await page.goto("/");
   await page.getByRole("button", { name: /开始冒险/ }).click();
   await page.getByRole("button", { name: "跳过片头 · E" }).click();
+  await equipMelee(page);
   await expect(page.getByLabel("体力", { exact: true })).toBeVisible();
   // Legacy control/combat fixtures stay in the forecourt; expedition tests cover remote spawn.
   await page.evaluate(() => {
@@ -97,13 +99,12 @@ test("desktop controls, back equipment, jump, block, attack and mouse camera", a
   });
   await page.waitForTimeout(800);
   expect(
-    await page.evaluate(() => {
-      const g = window.__game!,
-        c = window.__camera!;
-      return (
-        g.blocked(18.45, 0) &&
-        Math.hypot(c.position.x - g.x, c.position.z - g.z) > 5
-      );
+    await page.evaluate(async () => {
+      const g = window.__game!, c = window.__camera!;
+      const modulePath = '/src/game/collision.ts';
+      const { rayFraction } = await import(modulePath);
+      return g.blocked(18.45, 0) && g.colliders.filter(v => !v.id.startsWith('guard-'))
+        .every(v => rayFraction(v, c.position, c.position, 0.42) === null);
     }),
   ).toBeTruthy();
   expect(errors).toEqual([]);
@@ -135,8 +136,7 @@ test("interactive props, occlusion, secret chest and complete adventure", async 
     page.getByRole("heading", { name: "南草坪探险告示" }),
   ).toBeVisible();
   await page.keyboard.press("KeyE");
-  await place(17, 7.7);
-  await page.keyboard.press("KeyE");
+  await collectChest(page, "chest-east", false);
   await expect.poll(() => page.evaluate(() => window.__game!.gems)).toBe(3);
   await page.waitForTimeout(400);
   await page.screenshot({ path: "artifacts/adventure-chest.png" });
@@ -162,8 +162,8 @@ test("interactive props, occlusion, secret chest and complete adventure", async 
   }); // Isolate traversal; boss is covered below.
   await page.keyboard.down("KeyW");
   await expect
-    .poll(() => page.evaluate(() => window.__game!.z), { timeout: 12000 })
-    .toBeLessThan(-4.8);
+    .poll(() => page.evaluate(() => window.__game!.interaction?.id), { timeout: 12000 })
+    .toBe("desk");
   await page.keyboard.up("KeyW");
   await page.keyboard.press("KeyE");
   await expect(
@@ -189,6 +189,7 @@ test("mobile multitouch movement + sprint + camera, held block and release clean
   await page.goto(process.env.GAME_URL ?? "http://127.0.0.1:4439");
   await page.getByRole("button", { name: /开始冒险/ }).click();
   await page.getByRole("button", { name: "跳过片头 · E" }).click();
+  await equipMelee(page);
   await page.evaluate(() => window.__game!.guards.forEach((g) => (g.hp = 0)));
   await expect(
     page.getByRole("button", { name: "跳跃", exact: true }),
@@ -197,7 +198,7 @@ test("mobile multitouch movement + sprint + camera, held block and release clean
   const cdp = await context.newCDPSession(page);
   const box = await page.getByLabel("移动摇杆").boundingBox();
   const p1 = { x: box!.x + box!.width / 2, y: box!.y + box!.height / 2, id: 1 },
-    p3 = { x: 260, y: 260, id: 3 };
+    p3 = { x: 260, y: 420, id: 3 };
   await cdp.send("Input.dispatchTouchEvent", {
     type: "touchStart",
     touchPoints: [p1, p3],
@@ -206,7 +207,7 @@ test("mobile multitouch movement + sprint + camera, held block and release clean
     type: "touchMove",
     touchPoints: [
       { ...p1, y: p1.y - 50 },
-      { ...p3, x: 300, y: 285 },
+      { ...p3, x: 300, y: 445 },
     ],
   });
   await expect
@@ -400,6 +401,7 @@ test("first left click attacks, camera settings persist and portrait view expand
   await page.reload();
   await page.getByRole("button", { name: /开始冒险/ }).click();
   await page.getByRole("button", { name: "跳过片头 · E" }).click();
+  await equipMelee(page);
   await expect
     .poll(() => page.evaluate(() => window.__game!.cameraSettings))
     .toMatchObject({ distance: 12, fov: 75, invertY: true });
@@ -466,7 +468,8 @@ test("helicopter has proportional fuselage, working door and articulated rotors"
   await page.getByRole("button", { name: /开始冒险/ }).click();
   await expect
     .poll(() =>
-      page.evaluate(() => !!window.__scene?.getObjectByName("ArrivalAircraft")),
+      page.evaluate(() => !!window.__scene?.getObjectByName("arrival-helicopter")?.visible),
+      { timeout: 20000 },
     )
     .toBeTruthy();
   await page.evaluate(() => {
@@ -551,6 +554,7 @@ test("helicopter has proportional fuselage, working door and articulated rotors"
       .toBeCloseTo(0.7);
   }
   await page.getByRole("button", { name: "跳过片头 · E" }).click();
+  await equipMelee(page);
   await expect(page.getByLabel("体力", { exact: true })).toBeVisible();
   await expect
     .poll(() =>
@@ -684,6 +688,7 @@ test("hold left mouse charges, releases one radial spin and clears its effects",
   await page.evaluate(() => {
     const g = window.__game!;
     g.guards = g.guards.slice(0, 2);
+    g.autoLockCooldown = 100; // Isolate mouse motion from automatic target-follow.
     g.guards.forEach((e) => (e.hp = 0));
     g.x = 0;
     g.z = 12;

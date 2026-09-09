@@ -1,9 +1,10 @@
+import { equipMelee, collectChest } from "./fixtures";
 import { test, expect } from "@playwright/test";
 async function start(page: import("@playwright/test").Page) {
   await page.goto("/");
   await page.getByRole("button", { name: /开始冒险/ }).click();
   await page.getByRole("button", { name: "跳过片头 · E" }).click();
-  await expect(page.getByLabel("切换武器")).toBeVisible();
+  await equipMelee(page);
   await expect
     .poll(() =>
       page.evaluate(() => !!window.__scene?.getObjectByName("EquippedBow")),
@@ -16,11 +17,9 @@ test("chest bow, visible lock, drawn joints and real mouse shot", async ({
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await start(page);
+  await collectChest(page, "chest-east");
   await page.evaluate(() => {
     const g = window.__game!;
-    g.x = 17;
-    g.z = 7.7;
-    g.interact();
     g.x = 0;
     g.z = 12;
     Object.assign(g.guards[0], {
