@@ -21,6 +21,7 @@ import {
 } from "../game/combat";
 import { game } from "../game/simulation";
 import { applyLegendMaterials } from "../game/materials";
+import { AERIAL, aerialPose } from "../game/aerialCombat";
 const UP = new Vector3(0, 1, 0);
 function cloneGear(source: Group) {
   const clone = source.clone(true);
@@ -232,6 +233,31 @@ export function Character() {
       parts.rightKnee.rotation.x = 0.16;
       parts.leftKnee.rotation.x = game.combo === 2 ? 0.25 : 0.08;
     }
+    if (game.airAttack && attacking) {
+      const pose = aerialPose(game.airAttack, AERIAL[game.airAttack].duration - game.attackTime);
+      const strike = pose.strike;
+      parts.head.rotation.y = 0;
+      parts.leftArm.rotation.set(-0.7, 0, -0.35);
+      parts.leftElbow.rotation.x = -1;
+      if (game.airAttack === "flyingKick") {
+        parts.waist.rotation.set(-0.25 - strike * 0.18, 0.12, -0.08);
+        parts.rightLeg.rotation.x = -0.75 - strike * 1.05;
+        parts.rightKnee.rotation.x = 1.1 * pose.load + 0.08;
+        parts.leftLeg.rotation.x = 0.35;
+        parts.leftKnee.rotation.x = 1.15;
+        parts.rightArm.rotation.set(-0.8, 0, 0.4);
+        parts.rightElbow.rotation.x = -1.1;
+      } else {
+        parts.waist.rotation.set(-0.12 + strike * 0.42, 0, 0);
+        parts.rightArm.rotation.set(-2.8 + strike * 2.15, 0, -0.12);
+        parts.rightElbow.rotation.set(-0.65 + strike * 0.5, 0, 0);
+        parts.rightWrist.rotation.set(0, 0, 0);
+        parts.rightLeg.rotation.x = -0.3;
+        parts.leftLeg.rotation.x = 0.2;
+        parts.rightKnee.rotation.x = 0.55;
+        parts.leftKnee.rotation.x = 0.8;
+      }
+    }
     if (game.chargeTime > 0 || spinning) {
       parts.rightArm.rotation.set(-0.8, 0, -0.9);
       parts.rightElbow.rotation.set(-0.3, 0, 0);
@@ -241,8 +267,8 @@ export function Character() {
       parts.leftKnee.rotation.x = parts.rightKnee.rotation.x = 0.2;
     }
     if (slash.current) {
-      const elapsed = ATTACKS[game.combo].duration - game.attackTime;
-      const hit = ATTACKS[game.combo].hit;
+      const elapsed = game.meleeSpec.duration - game.attackTime;
+      const hit = game.meleeSpec.hit;
       const sweep = swingProgress(game.combo, elapsed);
       slash.current.visible =
         attacking && elapsed > hit - 0.045 && elapsed < hit + 0.12;
@@ -254,6 +280,8 @@ export function Character() {
           : (game.combo === 1 ? 1 : -1) * (sweep - 0.5) * Math.PI,
       );
     }
+    gear.sword.visible = game.swordUnlocked && game.phase !== "intro";
+    gear.shield.visible = game.shieldUnlocked && game.phase !== "intro";
     gear.sword.name = "EquippedSword";
     gear.shield.name = "EquippedShield";
     const swordParent = drawn ? parts.rightWrist : parts.torso;
@@ -334,7 +362,7 @@ export function Character() {
       uprightRotation.setFromAxisAngle(UP, root.current.rotation.y);
       gear.bow.quaternion.copy(gripRotation).multiply(uprightRotation);
     }
-    if (!game.grounded) {
+    if (!game.grounded && !game.airAttack) {
       parts.leftLeg.rotation.x = -0.45;
       parts.rightLeg.rotation.x = 0.3;
     }
@@ -368,7 +396,11 @@ export function Character() {
     if (drawn) {
       root.current.updateMatrixWorld(true);
       parts.rightWrist.getWorldQuaternion(gripRotation).invert();
-      if (attacking)
+      if (game.airAttack === "jumpSlash" && attacking) {
+        const p = aerialPose("jumpSlash", AERIAL.jumpSlash.duration - game.attackTime);
+        const angle = p.strike * Math.PI * 0.85;
+        blade.set(0, Math.cos(angle), Math.sin(angle));
+      } else if (attacking)
         blade
           .set(
             ...bladeDirection(

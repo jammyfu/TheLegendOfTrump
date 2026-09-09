@@ -31,9 +31,9 @@ export class Boss {
     Object.assign(this, new Boss());
     this.active = true;
   }
-  hit(finisher: boolean) {
+  hit(finisher: boolean, damage = finisher ? 2 : 1) {
     if (!this.active || this.hp <= 0) return false;
-    this.hp = Math.max(0, this.hp - (finisher ? 2 : 1));
+    this.hp = Math.max(0, this.hp - damage);
     this.flash = 0.13;
     // The boss can be staggered in recovery; anticipation retains armor so it
     // cannot be permanently stun-locked by repeating a combo.

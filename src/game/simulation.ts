@@ -18,6 +18,8 @@ import {
   type CameraSettings,
 } from "./camera";
 import { ATTACKS, COMBO_GRACE, SPIN } from "./combat";
+import { AERIAL, type AerialAttack } from "./aerialCombat";
+import { UNARMED } from "./unarmed";
 import {
   staticColliders,
   gateCollider,
@@ -112,6 +114,7 @@ export const POT_POSITIONS = [
   [11, -7],
 ];
 export type SoundEvent =
+  | "punchHit" | "kickHit" | "fistSwing" | "bowDraw"
   | "arrow"
   | "gem"
   | "sword"
@@ -177,6 +180,10 @@ export class Simulation {
   combo = 0;
   comboWindow = 0;
   comboQueued = false;
+  attackConnected = false;
+  airAttack: AerialAttack | null = null;
+  airAttackUsed = false;
+  get meleeSpec() { return this.airAttack ? AERIAL[this.airAttack] : this.weapon === "none" ? UNARMED[this.combo] : ATTACKS[this.combo]; }
   hitStop = 0;
   impactTime = 0;
   impactStrength = 0;
@@ -186,6 +193,7 @@ export class Simulation {
     age: number;
     heavy: boolean;
     block: boolean;
+    body?: boolean;
   }[] = [];
   toast = "";
   toastTime = 0;
@@ -607,6 +615,9 @@ export class Simulation {
     this.elapsed = 0;
     this.attackTime = 0;
     this.combo = 0;
+    this.airAttack = null;
+    this.airAttackUsed = false;
+    this.attackConnected = false;
     this.comboWindow = 0;
     this.comboQueued = false;
     this.hitStop = 0;
@@ -1164,10 +1175,6 @@ export class Simulation {
       this.dodgeTime > 0
     )
       return;
-    if (this.weapon === "none") {
-      this.notify("尚未取得武器 · 前方左侧宝箱可获得剑");
-      return;
-    }
     this.acquireAutoTarget(true);
     if (this.weapon === "bow") {
       if (this.cooldown > 0 || this.stamina < 14) return;
@@ -1177,6 +1184,7 @@ export class Simulation {
       }
       this.bowDraw = 0;
       this.attackHeld = true;
+      this.events.push("bowDraw");
       return;
     }
     this.attack();
@@ -1218,7 +1226,7 @@ export class Simulation {
     this.events.push("spin");
   }
   attack() {
-    if (this.weapon !== "sword" || !this.swordUnlocked) return;
+    if (this.weapon === "bow" || (this.weapon === "sword" && !this.swordUnlocked)) return;
     if (
       this.phase !== "playing" ||
       this.dodgeTime > 0 ||
@@ -1231,7 +1239,7 @@ export class Simulation {
       // or spamming cannot skip a stage or stack several future attacks.
       if (
         this.combo < 2 &&
-        ATTACKS[this.combo].duration - this.attackTime >= 0.035
+        this.meleeSpec.duration - this.attackTime >= 0.035
       )
         this.comboQueued = true;
       return;
@@ -1241,9 +1249,15 @@ export class Simulation {
     this.beginAttack(stage);
   }
   private beginAttack(stage: number) {
-    const spec = ATTACKS[stage];
+    if (!this.grounded && this.airAttackUsed) return;
+    const aerial = !this.grounded ? this.weapon === "none" ? "flyingKick" : "jumpSlash" : null;
+    const spec = aerial ? AERIAL[aerial] : this.weapon === "none" ? UNARMED[stage] : ATTACKS[stage];
+    const cost = aerial ? AERIAL[aerial].cost : this.weapon === "none" ? 5 : ATTACKS[stage].cost;
+    this.attackConnected = false;
     this.comboQueued = false;
-    if (this.stamina < spec.cost) return;
+    if (this.stamina < cost) return;
+    this.airAttack = aerial;
+    if (aerial) this.airAttackUsed = true;
     const target = this.combatTargets
       .filter((g) => {
         const dx = g.x - this.x,
@@ -1282,45 +1296,59 @@ export class Simulation {
     }
     this.combo = stage;
     this.comboWindow = 0;
-    this.stamina -= spec.cost;
+    this.stamina -= cost;
     this.staminaDelay = 0.6;
     this.attackTime = spec.duration;
     this.cooldown = spec.duration;
     this.hitPending = true;
     this.guarding = false;
-    this.events.push("sword");
     this.version++;
   }
   private cancelCombo() {
+    this.airAttack = null;
     this.cancelCharge();
     this.spinTime = 0;
     this.spinHitPending = false;
     this.attackTime = 0;
     this.hitPending = false;
     this.comboQueued = false;
+    this.attackConnected = false;
     this.comboWindow = 0;
     this.hitStop = 0;
   }
-  impact(x: number, z: number, heavy = false, block = false) {
+  impact(x: number, z: number, heavy = false, block = false, body = false) {
     this.impactTime = 0.2;
     this.impactStrength = heavy ? 1 : block ? 0.5 : 0.65;
     if (block) this.hitStop = Math.max(this.hitStop, 0.045);
-    this.effects.push({ x, z, age: 0, heavy, block });
+    this.effects.push({ x, z, age: 0, heavy, block, body });
     if (this.effects.length > 8) this.effects.shift();
   }
   strike(spin = false) {
-    if (!this.swordUnlocked || this.weapon !== "sword") return;
-    const heavy = spin || this.combo === 2;
+    if (this.weapon === "bow" || (this.weapon === "sword" && !this.swordUnlocked)) return;
+    const unarmed = this.weapon === "none";
+    if (spin && unarmed) return;
+    const air = this.airAttack ? AERIAL[this.airAttack] : null;
+    const fist=air ?? UNARMED[this.combo];
+    const damage = air ? air.damage : unarmed ? fist.damage : spin ? 2 : 1;
+    const heavy = !unarmed && (!!air || spin || this.combo === 2);
+    const contact = (x: number,z: number) => {
+      this.attackConnected = true;
+      // Contact on the target's near surface, not deep inside its torso.
+      const d=Math.max(.001,Math.hypot(x-this.x,z-this.z));
+      this.impact(x-(x-this.x)/d*.35,z-(z-this.z)/d*.35,heavy || (unarmed && this.combo===2),false,unarmed);
+      this.hitStop=Math.max(this.hitStop,unarmed ? fist.stop : heavy ? .115 : .065);
+      if(unarmed) this.impactStrength=fist.impact;
+    };
     const reachable = (x: number, z: number, id: string) => {
       const dx = x - this.x,
         dz = z - this.z,
         d = Math.hypot(dx, dz);
       return (
-        this.y < 1.5 &&
-        d < (spin ? SPIN.radius : 2.7) &&
+        this.y < (air ? (id === "guard-100" ? 4.3 : 2.5 * enemyScale(this.activeGuards.find(g => "guard-" + g.id === id) ?? { kind: "sentinel" })) + 0.3 : 1.5) &&
+        d < (air ? air.range : unarmed ? fist.range : spin ? SPIN.radius : 2.7) &&
         (spin ||
           d < 0.65 ||
-          (dx * Math.sin(this.yaw) + dz * Math.cos(this.yaw)) / d > 0.15) &&
+          (dx * Math.sin(this.yaw) + dz * Math.cos(this.yaw)) / d > (unarmed ? .45 : .15)) &&
         lineClear(this.colliders.filter(c => !c.id.startsWith("guard-")),
           {x:this.x,y:this.y+1.3,z:this.z}, {x,y:1.2,z}, id)
       );
@@ -1328,18 +1356,17 @@ export class Simulation {
     if (this.zone === "office") {
       if (
         reachable(this.boss.x, this.boss.z, "guard-100") &&
-        this.boss.hit(heavy)
+        this.boss.hit(heavy, air || unarmed ? damage : undefined)
       ) {
-        this.impact(this.boss.x, this.boss.z, heavy);
-        this.hitStop = heavy ? 0.115 : 0.065;
-        this.events.push(heavy ? "heavy" : "hit");
+        contact(this.boss.x, this.boss.z);
+        this.events.push(unarmed ? (this.airAttack === "flyingKick" || this.combo===2 ? "kickHit" : "punchHit") : heavy ? "heavy" : "hit");
         if (!this.boss.hp) {
           this.bossDefeated();
         }
         this.version++;
       }
     }
-    if (this.zone === "grounds")
+    if (this.zone === "grounds" && !unarmed)
       for (const [list, prefix, reward] of [
         [this.pots, "pot-", 2],
         [this.crates, "crate-", 1],
@@ -1365,20 +1392,19 @@ export class Simulation {
           }
     for (const g of this.activeGuards)
       if (g.hp > 0 && reachable(g.x, g.z, "guard-" + g.id)) {
-        g.hp = Math.max(0, g.hp - (spin ? 2 : 1));
-        const spec = spin ? { stun: 1.1, push: 5 } : ATTACKS[this.combo];
+        g.hp = Math.max(0, g.hp - damage);
+        const spec = air ?? (unarmed ? fist : spin ? { stun: 1.1, push: 5 } : ATTACKS[this.combo]);
         g.stun = g.stunDuration =
           spec.stun * (g.kind === "brute" && !heavy ? 0.4 : 1);
         g.hitFlash = 0.14;
         const distance = Math.hypot(g.x - this.x, g.z - this.z) || 1;
         g.knockX = ((g.x - this.x) / distance) * spec.push;
         g.knockZ = ((g.z - this.z) / distance) * spec.push;
-        this.hitStop = heavy ? 0.115 : 0.065;
-        this.impact(g.x, g.z, heavy);
+        contact(g.x, g.z);
         g.windup = 0;
         g.attackTime = 0;
         g.cooldown = 0.8;
-        this.events.push(heavy ? "heavy" : "hit");
+        this.events.push(unarmed ? (this.airAttack === "flyingKick" || this.combo===2 ? "kickHit" : "punchHit") : heavy ? "heavy" : "hit");
         if (g.hp === 0) {
           this.guardDefeated(g);
         }
@@ -1568,7 +1594,13 @@ export class Simulation {
       this.strike(true);
     }
     const wasAttacking = this.attackTime > 0;
+    const previousAttackTime = this.attackTime;
     this.attackTime = Math.max(0, this.attackTime - dt);
+    const swingAt = this.meleeSpec.duration - Math.max(0, this.meleeSpec.hit - 0.08);
+    if (this.weapon === "sword" && previousAttackTime > swingAt && this.attackTime <= swingAt)
+      this.events.push("sword");
+    const fistAt=this.meleeSpec.duration-Math.max(0,this.meleeSpec.hit-.055);
+    if(this.weapon==="none" && previousAttackTime>fistAt && this.attackTime<=fistAt) this.events.push("fistSwing");
     this.comboWindow = Math.max(0, this.comboWindow - dt);
     this.cooldown = Math.max(0, this.cooldown - dt);
     this.invincible = Math.max(0, this.invincible - dt);
@@ -1576,23 +1608,28 @@ export class Simulation {
     this.staminaDelay = Math.max(0, this.staminaDelay - dt);
     if (
       this.hitPending &&
-      ATTACKS[this.combo].duration - this.attackTime >= ATTACKS[this.combo].hit
+      this.meleeSpec.duration - this.attackTime >= this.meleeSpec.hit
     ) {
       this.hitPending = false;
       this.strike();
+      if(this.weapon==="none" && this.hitStop>0) this.attackTime=this.meleeSpec.duration-this.meleeSpec.hit;
     }
     if (
-      this.comboQueued &&
+      !this.airAttack && this.comboQueued &&
       this.combo < 2 &&
       this.attackTime > 0 &&
-      this.attackTime <= 0.1 &&
-      this.stamina >= ATTACKS[this.combo + 1].cost
+      this.attackTime <= (this.weapon === "none" ? (this.attackConnected ? UNARMED[this.combo].chain : 0) : .1) &&
+      this.hitStop <= 0 &&
+      this.stamina >= (this.weapon === "none" ? 5 : ATTACKS[this.combo + 1].cost)
     ) {
       this.beginAttack(this.combo + 1);
     }
     if (wasAttacking && this.attackTime === 0) {
-      this.comboWindow = this.combo < 2 ? COMBO_GRACE : 0;
-      if (this.combo === 2) this.cooldown = 0.22;
+      const aerial = this.airAttack !== null;
+      this.airAttack = null;
+      if (aerial) this.comboQueued = false;
+      this.comboWindow = !aerial && this.combo < 2 ? COMBO_GRACE : 0;
+      if (this.combo === 2) this.cooldown = this.weapon === "none" ? .12 : .22;
       if (this.comboQueued && this.combo < 2) this.beginAttack(this.combo + 1);
       else this.comboQueued = false;
     }
@@ -1693,12 +1730,14 @@ export class Simulation {
     const colliders = this.colliders,
       oldX = this.x,
       oldZ = this.z;
-    const attackElapsed = ATTACKS[this.combo].duration - this.attackTime;
+    const attackElapsed = this.meleeSpec.duration - this.attackTime;
     const lunge =
-      this.grounded &&
+      this.airAttack && this.attackTime > 0 ? (this.airAttack === "flyingKick" ? 3.8 : 1.2) : this.grounded &&
       this.attackTime > 0 &&
-      attackElapsed < ATTACKS[this.combo].hit + 0.06
-        ? this.combo === 2
+      attackElapsed < this.meleeSpec.hit + 0.06
+        ? this.weapon === "none"
+          ? (attackElapsed >= this.meleeSpec.hit-.065 ? (this.combo===2 ? 2.8 : 2.4) : 0)
+          : this.combo === 2
           ? 2.8
           : 2.1
         : 0;
@@ -1724,7 +1763,9 @@ export class Simulation {
       this.y + this.vy * dt,
     );
     this.y = vertical.y;
+    if (!this.grounded && vertical.grounded && this.airAttack === "jumpSlash") this.impact(this.x, this.z, true);
     this.grounded = vertical.grounded;
+    if (this.grounded) this.airAttackUsed = false;
     if (vertical.grounded || vertical.hitCeiling) this.vy = 0;
     this.tryJump();
     if (
