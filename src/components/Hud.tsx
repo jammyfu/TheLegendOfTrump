@@ -1,3 +1,5 @@
+import { ExpeditionHud } from "./ExpeditionHud";
+import { ENEMY_RULES, CAMPS, FIELD_CHESTS } from "../game/expedition";
 import { t } from "../game/i18n";
 import { ATTACKS, SPIN } from "../game/combat";
 import { useRef, useState } from "react";
@@ -68,6 +70,26 @@ export function Minimap() {
               strokeWidth="3"
             />
             <path d="m80 76 3 5-3 5-3-5Z" fill="#e6c57e" />
+            {CAMPS.map((c) => (
+              <rect
+                key={c.id}
+                x={78 + c.x * 0.35}
+                y={74 + c.z * 0.35}
+                width="4"
+                height="4"
+                fill={c.safe ? "#89dff5" : "#dd9970"}
+              />
+            ))}
+            {FIELD_CHESTS.filter((c) => !game.opened.has(c.id)).map((c) => (
+              <circle
+                key={c.id}
+                cx={80 + c.x * 0.35}
+                cy={76 + c.z * 0.35}
+                r="1.5"
+                fill="#f7d56c"
+              />
+            ))}
+            <circle cx="80" cy="139" r="3" fill="none" stroke="#83cfdf" />
           </>
         ) : (
           <>
@@ -120,6 +142,7 @@ export function Hud() {
   );
   return (
     <>
+      <ExpeditionHud />
       <div
         id="lock-reticle"
         className="target-reticle"
@@ -128,8 +151,13 @@ export function Hud() {
       >
         <i />
         <span>
-          {game.lockTarget?.id === 100 ? "铁甲统领" : "卫兵"} ·{" "}
-          {game.lockTarget?.hp ?? 0}
+          {game.lockTarget?.id === 100
+            ? "铁甲统领"
+            : ENEMY_RULES[
+                game.activeGuards.find((g) => g.id === game.lockedTarget)
+                  ?.kind ?? "sentinel"
+              ].name}{" "}
+          · {game.lockTarget?.hp ?? 0}
         </span>
       </div>
       {game.weapon === "bow" && !game.lockTarget && (
@@ -144,7 +172,7 @@ export function Hud() {
         <span>
           {game.bowUnlocked
             ? `箭矢 ${game.arrows} / 30`
-            : "东侧宝箱 · 获取弓箭"}
+            : "降落区宝箱 · 获取弓箭"}
         </span>
         {game.weapon === "bow" && (
           <>

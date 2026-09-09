@@ -40,6 +40,7 @@ test("tap attacks immediately; charged release hits both sides once and consumes
   tick(g, 1);
   assert.equal(g.spinTime, 0);
   charge(g);
+  g.guards = g.guards.slice(0, 2);
   g.guards.forEach((e, i) =>
     Object.assign(e, {
       hp: 3,

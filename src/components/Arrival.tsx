@@ -33,8 +33,7 @@ export function Arrival() {
     if (game.phase !== "intro") return;
     const p = introPose(game.introTime);
     root.current.position.set(...p.helicopter);
-    root.current.rotation.z =
-      Math.sin(p.t * 1.4) * 0.025 * (p.t < 5.5 ? 1 : 0.2);
+    root.current.rotation.set(p.pitch, p.heading, p.bank);
     if (rotor) rotor.rotation.y += dt * 38;
     if (rear) rear.rotation.x += dt * 48;
     if (door) door.position.z = 0.7 - p.door * 1.5;

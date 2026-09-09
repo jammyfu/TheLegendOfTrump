@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Group, Vector3 } from "three";
+import { Group, Mesh, MeshBasicMaterial, Vector3 } from "three";
 import { game } from "../game/simulation";
 const projected = new Vector3(),
   forward = new Vector3(),
@@ -38,6 +38,10 @@ export function RangedCombat() {
       o.visible = !!a;
       if (a) {
         o.position.set(a.x, a.y, a.z);
+        o.traverse((n) => {
+          if (n instanceof Mesh && n.material instanceof MeshBasicMaterial)
+            n.material.color.set(a.owner === undefined ? "#a2faff" : "#ff7351");
+        });
         forward.set(a.vx, a.vy, a.vz).normalize();
         o.quaternion.setFromUnitVectors(up, forward);
       }
@@ -60,7 +64,7 @@ export function RangedCombat() {
   return (
     <>
       <group ref={arrows}>
-        {Array.from({ length: 8 }, (_, i) => (
+        {Array.from({ length: 32 }, (_, i) => (
           <group key={i} visible={false} name={`arrow-${i}`}>
             <mesh>
               <cylinderGeometry args={[0.025, 0.025, 0.85, 5]} />
@@ -123,7 +127,7 @@ export function RangedCombat() {
         ))}
       </group>
       <group ref={supplies}>
-        {Array.from({ length: 8 }, (_, i) => (
+        {Array.from({ length: 32 }, (_, i) => (
           <group key={i} visible={false}>
             <mesh>
               <octahedronGeometry args={[0.28]} />

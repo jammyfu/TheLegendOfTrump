@@ -1,3 +1,4 @@
+import { LANDING } from "../game/expedition";
 import { RangedCombat } from "./RangedCombat";
 import { rayFraction } from "../game/collision";
 import { EnemyModel } from "./EnemyModel";
@@ -83,8 +84,8 @@ function Runtime() {
       const pose = introPose(game.introTime);
       desired.set(...pose.camera);
       target.set(...pose.target);
-      if (pose.t > 12) {
-        const q = Math.min(1, (pose.t - 12) / 3);
+      if (pose.t > INTRO_DURATION - 3) {
+        const q = Math.min(1, (pose.t - (INTRO_DURATION - 3)) / 3);
         const d = game.cameraDistance,
           yaw = game.cameraYaw,
           pitch = game.cameraPitch;
@@ -92,7 +93,7 @@ function Runtime() {
           new Vector3(
             Math.sin(yaw) * Math.cos(pitch) * d,
             1.9 + Math.sin(pitch) * d,
-            15 + Math.cos(yaw) * Math.cos(pitch) * d,
+            LANDING.heroZ + Math.cos(yaw) * Math.cos(pitch) * d,
           ),
           q * q * (3 - 2 * q),
         );

@@ -1,3 +1,11 @@
+import {
+  LANDING,
+  ENEMY_SPAWNS,
+  ENEMY_RULES,
+  COIN_POSITIONS,
+  FIELD_CHESTS,
+  type EnemyKind,
+} from "./expedition";
 import { Boss } from "./boss";
 import { LOCK_CAMERA, followLockYaw, lockRangeTime } from "./lockCamera";
 import { INTRO_DURATION } from "./intro";
@@ -53,6 +61,9 @@ export interface Pot {
   broken: boolean;
 }
 export interface Guard {
+  kind: EnemyKind;
+  shotX?: number;
+  shotZ?: number;
   id: number;
   x: number;
   z: number;
@@ -107,7 +118,7 @@ export class Simulation {
   phase: Phase = "title";
   zone: Zone = "grounds";
   x = 0;
-  z = 15;
+  z = LANDING.heroZ;
   y = 0;
   vy = 0;
   yaw = Math.PI;
@@ -119,6 +130,14 @@ export class Simulation {
   lockRangeElapsed = 0;
   hp = 3;
   gems = 0;
+  coins = 0;
+  potions = 0;
+  coinDrops = COIN_POSITIONS.map(([x, z]) => ({
+    x,
+    z,
+    value: 2,
+    collected: false,
+  }));
   stamina = 100;
   staminaDelay = 0;
   sprinting = false;
@@ -163,6 +182,7 @@ export class Simulation {
   aiming = false;
   aimPoint = { x: 0, y: 1.5, z: -30 };
   projectiles: {
+    owner?: number;
     x: number;
     y: number;
     z: number;
@@ -209,6 +229,13 @@ export class Simulation {
     this.supplies = [];
     if (this.bowUnlocked) this.arrows = Math.max(12, this.arrows);
   }
+  usePotion() {
+    if (this.phase !== "playing" || this.hp >= 3 || this.potions <= 0) return;
+    this.potions--;
+    this.hp = Math.min(3, this.hp + 2);
+    this.events.push("gem");
+    this.notify("使用回复药 · 恢复 2 颗爱心");
+  }
   switchWeapon() {
     if (
       this.phase !== "playing" ||
@@ -247,12 +274,20 @@ export class Simulation {
   }
   private guardDefeated(g: Guard) {
     g.defeatTime = 0.65;
-    if (this.zone === "grounds") this.gems++;
+    if (this.zone === "grounds") {
+      if (g.id < 2) this.gems++;
+      this.coinDrops.push({
+        x: g.x,
+        z: g.z,
+        value: ENEMY_RULES[g.kind].reward,
+        collected: false,
+      });
+    }
     this.supplies.push({ x: g.x, z: g.z, collected: false });
     this.notify(
       this.zone === "office"
         ? "卫兵倒下 · 拾取补给恢复体力与 3 支箭"
-        : "守卫已解除 · +1 翡翠 · 掉落箭矢补给",
+        : "敌人倒下 · 拾取金币与箭矢补给",
     );
   }
   private bossDefeated() {
@@ -308,7 +343,20 @@ export class Simulation {
       };
       let first = 1.01,
         hit: Collider | undefined;
-      for (const c of this.colliders) {
+      const obstacles = this.colliders.filter(
+        (c) => a.owner === undefined || c.id !== "guard-" + a.owner,
+      );
+      if (a.owner !== undefined)
+        obstacles.push({
+          id: "player-arrow-target",
+          zone: this.zone,
+          x: this.x,
+          z: this.z,
+          radius: 0.38,
+          bottom: this.y,
+          top: this.y + 2.2,
+        });
+      for (const c of obstacles) {
         const t = rayFraction(c, a, next, 0.04);
         if (t !== null && t < first) {
           first = t;
@@ -320,7 +368,30 @@ export class Simulation {
         const target = this.combatTargets.find(
           (g) => "guard-" + g.id === hit!.id && g.hp > 0,
         );
-        if (target) {
+        if (hit.id === "player-arrow-target") {
+          if (this.invincible === 0) {
+            const facing =
+              -a.vx * Math.sin(this.yaw) - a.vz * Math.cos(this.yaw) > 0;
+            if (this.guarding && facing && this.stamina >= 15) {
+              this.stamina -= 15;
+              this.staminaDelay = 1;
+              this.events.push("block");
+              this.impact(this.x, this.z, false, true);
+              this.notify("挡下箭矢 · -15 体力");
+            } else {
+              this.hp--;
+              this.invincible = 1.1;
+              this.cancelCombo();
+              this.events.push("hurt");
+              this.impact(this.x, this.z);
+              this.notify("被箭矢击中 · 横移躲箭或举盾格挡");
+              if (this.hp <= 0) {
+                this.phase = "lost";
+                this.moving = false;
+              }
+            }
+          }
+        } else if (target && a.owner === undefined) {
           if (target instanceof Boss) {
             target.hit(
               a.power >= 0.95 &&
@@ -347,6 +418,19 @@ export class Simulation {
       if (a.y < 0) a.life = 0;
     }
     this.projectiles = this.projectiles.filter((a) => a.life > 0);
+    if (this.zone === "grounds")
+      for (const coin of this.coinDrops) {
+        if (
+          !coin.collected &&
+          this.y < 1.8 &&
+          Math.hypot(coin.x - this.x, coin.z - this.z) < 1.25
+        ) {
+          coin.collected = true;
+          this.coins += coin.value;
+          this.events.push("gem");
+          this.notify(`拾取 ${coin.value} 金币`);
+        }
+      }
     for (const drop of this.supplies)
       if (
         !drop.collected &&
@@ -432,13 +516,14 @@ export class Simulation {
       z,
       broken: false,
     }));
-    this.guards = [-1, 1].map((s, id) => ({
+    this.guards = ENEMY_SPAWNS.map((spawn, id) => ({
+      kind: spawn.kind,
       id,
-      x: s * 8,
-      z: 0,
-      originX: s * 8,
-      originZ: 0,
-      hp: 3,
+      x: spawn.x,
+      z: spawn.z,
+      originX: spawn.x,
+      originZ: spawn.z,
+      hp: ENEMY_RULES[spawn.kind].hp,
       windup: 0,
       cooldown: 1,
       yaw: 0,
@@ -455,7 +540,7 @@ export class Simulation {
     this.boss = new Boss();
     this.zone = "grounds";
     this.x = 0;
-    this.z = 15;
+    this.z = LANDING.heroZ;
     this.y = 0;
     this.vy = 0;
     this.yaw = Math.PI;
@@ -465,6 +550,14 @@ export class Simulation {
     this.lockRangeElapsed = 0;
     this.hp = 3;
     this.gems = 0;
+    this.coins = 0;
+    this.potions = 0;
+    this.coinDrops = COIN_POSITIONS.map(([x, z]) => ({
+      x,
+      z,
+      value: 2,
+      collected: false,
+    }));
     this.stamina = 100;
     this.staminaDelay = 0;
     this.elapsed = 0;
@@ -500,7 +593,7 @@ export class Simulation {
     this.aiming = false;
     this.resetEncounter();
     this.events = [];
-    this.notify("寻找翡翠与宝箱 · E 互动 · Space 跳跃");
+    this.notify("南草坪降落区 · 领取右前方宝箱，向北探索白宫");
   }
   beginIntro() {
     this.start();
@@ -763,6 +856,48 @@ export class Simulation {
     const i = this.interaction;
     if (!i) return;
     switch (i.kind) {
+      case "field-sign":
+        this.phase = "reading";
+        this.moving = false;
+        this.reading = {
+          title: "南草坪远征",
+          text: "你在白宫以南的降落区。先领取右侧宝箱中的弓和回复药，再沿金币指引向北。西侧巡逻营、东侧弓箭营和两翼重甲据点藏有金币与补给；北侧花园还有秘藏。弓箭手瞄准后射箭，可横移、盾挡或利用掩体；重甲卫兵挥锤很慢，绕后或用连招终结攻击。金币在蓝旗营地购买箭矢、回复药；H 或药瓶按钮使用回复药。大门仍需 8 枚翡翠。",
+        };
+        break;
+      case "merchant": {
+        const arrows = i.id === "merchant-arrows",
+          price = arrows ? 8 : 12;
+        if (this.coins < price) {
+          this.notify(`金币不足 · 需要 ${price} 金币`);
+          break;
+        }
+        if (arrows ? this.arrows >= 30 : this.potions >= 3) {
+          this.notify("背包已满");
+          break;
+        }
+        this.coins -= price;
+        if (arrows) this.arrows = Math.min(30, this.arrows + 6);
+        else this.potions++;
+        this.events.push("gem");
+        this.notify(arrows ? "购买箭矢 · +6 箭矢" : "购买回复药 · H 使用");
+        break;
+      }
+      case "camp":
+        if (
+          this.guards.some(
+            (g) =>
+              g.hp > 0 &&
+              Math.hypot(g.x - this.x, g.z - this.z) <
+                (g.kind === "archer" ? 28 : 22),
+          )
+        ) {
+          this.notify("附近有敌人，无法休整");
+          break;
+        }
+        this.hp = 3;
+        this.stamina = 100;
+        this.notify("营地休整 · 生命与体力已恢复");
+        break;
       case "door":
         if (this.gems < 8) {
           this.notify(`还需要 ${8 - this.gems} 枚翡翠`);
@@ -828,6 +963,35 @@ export class Simulation {
         };
         break;
       case "chest":
+        if (FIELD_CHESTS.some((c) => c.id === i.id)) {
+          if (
+            i.id !== "chest-landing" &&
+            this.guards.some(
+              (g) =>
+                g.hp > 0 && Math.hypot(g.originX - i.x, g.originZ - i.z) < 16,
+            )
+          ) {
+            this.notify("先清除据点守卫，再开启宝箱");
+            break;
+          }
+          this.opened.add(i.id);
+          if (i.id === "chest-landing") {
+            this.bowUnlocked = true;
+            this.arrows = Math.min(30, this.arrows + 12);
+            this.potions = Math.min(3, this.potions + 1);
+            this.coins += 8;
+            this.notify(
+              "远征装备 · 冒险弓、12 支箭、回复药与 8 金币 · X 切换武器",
+            );
+          } else {
+            this.coins += 20;
+            this.arrows = Math.min(30, this.arrows + 6);
+            this.potions = Math.min(3, this.potions + 1);
+            this.notify("据点秘藏 · +20 金币、6 支箭与回复药");
+          }
+          this.events.push("gem");
+          break;
+        }
         if (i.id === "chest-garden" && !this.gateOpen) {
           this.notify("先找到喷泉西侧的机关");
           return;
@@ -1065,17 +1229,27 @@ export class Simulation {
           if (!p.broken && reachable(p.x, p.z, prefix + p.id)) {
             p.broken = true;
             this.impact(p.x, p.z);
-            this.gems += reward;
+            if (prefix === "crate-" && p.id >= 3) {
+              this.coinDrops.push({
+                x: p.x,
+                z: p.z,
+                value: 5,
+                collected: false,
+              });
+              this.notify("补给木箱 · 掉落 5 金币");
+            } else this.gems += reward;
             this.events.push("break");
-            this.notify(
-              `击碎${prefix === "pot-" ? "陶罐" : "木箱"} · +${reward} 翡翠`,
-            );
+            if (prefix !== "crate-" || p.id < 3)
+              this.notify(
+                `击碎${prefix === "pot-" ? "陶罐" : "木箱"} · +${reward} 翡翠`,
+              );
           }
     for (const g of this.activeGuards)
       if (g.hp > 0 && reachable(g.x, g.z, "guard-" + g.id)) {
         g.hp = Math.max(0, g.hp - (spin ? 2 : 1));
         const spec = spin ? { stun: 1.1, push: 5 } : ATTACKS[this.combo];
-        g.stun = g.stunDuration = spec.stun;
+        g.stun = g.stunDuration =
+          spec.stun * (g.kind === "brute" && !heavy ? 0.4 : 1);
         g.hitFlash = 0.14;
         const distance = Math.hypot(g.x - this.x, g.z - this.z) || 1;
         g.knockX = ((g.x - this.x) / distance) * spec.push;
@@ -1417,10 +1591,33 @@ export class Simulation {
         g.cooldown = Math.max(0, g.cooldown - dt);
         if (g.stun > 0) continue;
         const distance = Math.hypot(g.x - this.x, g.z - this.z);
+        const rules = ENEMY_RULES[g.kind];
         if (g.windup > 0) {
           g.windup = Math.max(0, g.windup - dt);
           if (g.windup === 0) {
-            g.cooldown = 1.4;
+            g.cooldown =
+              g.kind === "archer" ? 2.4 : g.kind === "brute" ? 2 : 1.4;
+            if (g.kind === "archer") {
+              if (distance < 28 && this.visible(g.x, g.z, "guard-" + g.id)) {
+                const dx = (g.shotX ?? this.x) - g.x,
+                  dz = (g.shotZ ?? this.z) - g.z,
+                  d = Math.hypot(dx, dz) || 1,
+                  speed = 16;
+                this.projectiles.push({
+                  owner: g.id,
+                  x: g.x,
+                  y: 1.65,
+                  z: g.z,
+                  vx: (dx / d) * speed,
+                  vy: ((1.2 - 1.65) * speed) / d + (1.5 * d) / speed,
+                  vz: (dz / d) * speed,
+                  life: 2.4,
+                  power: 0.5,
+                });
+                this.events.push("arrow");
+              }
+              continue;
+            }
             const forward =
               (this.x - g.x) * Math.sin(g.yaw) +
               (this.z - g.z) * Math.cos(g.yaw);
@@ -1434,10 +1631,18 @@ export class Simulation {
               const face =
                 (g.x - this.x) * Math.sin(this.yaw) +
                 (g.z - this.z) * Math.cos(this.yaw);
-              if (this.guarding && face > 0 && this.stamina >= 20) {
-                this.stamina -= 20;
+              if (
+                this.guarding &&
+                face > 0 &&
+                this.stamina >= (g.kind === "brute" ? 40 : 20)
+              ) {
+                this.stamina -= g.kind === "brute" ? 40 : 20;
                 this.staminaDelay = 1;
-                this.notify("成功格挡 · -20 体力");
+                this.notify(
+                  g.kind === "brute"
+                    ? "挡下重锤 · -40 体力"
+                    : "成功格挡 · -20 体力",
+                );
                 this.events.push("block");
                 this.impact(this.x, this.z, false, true);
                 g.stun = g.stunDuration = 0.25;
@@ -1459,27 +1664,61 @@ export class Simulation {
           continue;
         }
         const chasing =
-          distance < (this.zone === "office" ? 30 : 7) &&
+          distance <
+            (this.zone === "office" ? 30 : g.id < 2 ? 7 : rules.range) &&
           this.visible(g.x, g.z, "guard-" + g.id);
-        const tx = chasing
-            ? this.x
-            : g.originX + Math.sin(this.elapsed * 0.45 + g.id * Math.PI) * 1.1,
-          tz = chasing
-            ? this.z
-            : g.originZ + Math.cos(this.elapsed * 0.45 + g.id * Math.PI) * 2.2;
+        if (
+          g.kind === "archer" &&
+          chasing &&
+          distance >= 6 &&
+          g.cooldown === 0
+        ) {
+          // A small global attack budget avoids overlapping volleys and melee dogpiles.
+          if (
+            this.activeGuards.filter((other) => other.windup > 0).length < 2
+          ) {
+            g.shotX = this.x;
+            g.shotZ = this.z;
+            g.yaw = Math.atan2(this.x - g.x, this.z - g.z);
+            g.windup = rules.windup;
+          }
+          continue;
+        }
+        const retreat = g.kind === "archer" && chasing && distance < 8;
+        const tx = retreat
+            ? g.x + (g.x - this.x)
+            : chasing
+              ? this.x
+              : g.originX +
+                Math.sin(this.elapsed * 0.45 + g.id * Math.PI) * 1.1,
+          tz = retreat
+            ? g.z + (g.z - this.z)
+            : chasing
+              ? this.z
+              : g.originZ +
+                Math.cos(this.elapsed * 0.45 + g.id * Math.PI) * 2.2;
         const vx = tx - g.x,
           vz = tz - g.z,
           l = Math.hypot(vx, vz);
         if (l > 0.1) g.yaw = Math.atan2(vx, vz);
-        if (chasing && distance < 2.2 && g.cooldown === 0) {
+        if (
+          g.kind !== "archer" &&
+          chasing &&
+          distance < 2.2 &&
+          g.cooldown === 0
+        ) {
           if (
             this.activeGuards.some((other) => other !== g && other.windup > 0)
           )
             continue;
-          g.windup = this.zone === "office" ? 0.95 : 0.7;
+          g.windup = this.zone === "office" ? 0.95 : rules.windup;
           continue;
         }
-        if (l > 0.2 && (!chasing || distance > 1.6)) {
+        if (
+          l > 0.2 &&
+          (g.kind !== "archer" || !chasing || distance < 8 || distance > 18) &&
+          (!chasing || distance > 1.6 || retreat)
+        ) {
           const obstacles = colliders.filter((c) => c.id !== "guard-" + g.id);
           obstacles.push({
             id: "player",
@@ -1494,8 +1733,8 @@ export class Simulation {
             g.x,
             g.z,
             0,
-            (vx / l) * dt * (chasing ? 2 : 1),
-            (vz / l) * dt * (chasing ? 2 : 1),
+            (vx / l) * dt * (chasing ? rules.speed : 1),
+            (vz / l) * dt * (chasing ? rules.speed : 1),
             false,
           );
           g.x = moved.x;

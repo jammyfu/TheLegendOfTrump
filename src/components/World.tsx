@@ -1,3 +1,4 @@
+import { Expedition } from "./Expedition";
 import { Estate } from "./Estate";
 import { OfficeScene } from "./OfficeScene";
 import { useMemo, useRef } from "react";
@@ -210,6 +211,7 @@ export function Grounds() {
     <group>
       <Ground />
       <Estate />
+      <Expedition />
       <Fountain />
       {[-1, 1].flatMap((s) =>
         [-11, -1, 10, 20].map((z, i) => (

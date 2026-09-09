@@ -1,3 +1,4 @@
+import { CAMPS, FIELD_CHESTS, FIELD_HERBS, FIELD_CRATES } from "./expedition";
 import { estateColliders } from "./estate";
 export type Zone = "grounds" | "office";
 export type Collider = {
@@ -18,6 +19,9 @@ export type Interaction = {
   x: number;
   z: number;
   kind:
+    | "merchant"
+    | "camp"
+    | "field-sign"
     | "door"
     | "desk"
     | "exit"
@@ -30,6 +34,55 @@ export type Interaction = {
   label: string;
 };
 export const interactions: Interaction[] = [
+  ...FIELD_CHESTS.map((p) => ({
+    ...p,
+    zone: "grounds" as const,
+    kind: "chest" as const,
+    label:
+      p.id === "chest-landing"
+        ? "领取远征装备 · 冒险弓与回复药"
+        : "打开远征宝箱",
+  })),
+  ...FIELD_HERBS.map(([x, z], i) => ({
+    id: `herb-field-${i}`,
+    x,
+    z,
+    zone: "grounds" as const,
+    kind: "herb" as const,
+    label: "采集回复草",
+  })),
+  {
+    id: "merchant-arrows",
+    zone: "grounds",
+    x: 10,
+    z: 159,
+    kind: "merchant",
+    label: "购买 6 支箭 · 8 金币",
+  },
+  {
+    id: "merchant-potion",
+    zone: "grounds",
+    x: 13,
+    z: 159,
+    kind: "merchant",
+    label: "购买回复药 · 12 金币",
+  },
+  {
+    id: "camp-rest",
+    zone: "grounds",
+    x: 6,
+    z: 158,
+    kind: "camp",
+    label: "营火休整 · 恢复生命与体力",
+  },
+  {
+    id: "landing-sign",
+    zone: "grounds",
+    x: -5,
+    z: 174,
+    kind: "field-sign",
+    label: "查看远征地图与敌人情报",
+  },
   {
     id: "door",
     zone: "grounds",
@@ -148,6 +201,14 @@ const circle = (
 ): Collider => ({ id, zone, x, z, radius, top, walkable });
 export const staticColliders: Collider[] = [
   ...estateColliders,
+  ...FIELD_CHESTS.map((p) => box(p.id, "grounds", p.x, p.z, 1.5, 1, 1.1)),
+  ...CAMPS.flatMap((p) => [
+    box(`tent-${p.id}`, "grounds", p.x - 3, p.z, 4, 4, 3.2),
+    box(`cover-${p.id}`, "grounds", p.x + 4, p.z + 2, 3, 0.6, 1.5),
+    circle(`banner-${p.id}`, "grounds", p.x + 2, p.z - 1, 0.12, 4),
+  ]),
+  box("landing-sign", "grounds", -5, 174, 1.8, 0.23, 2.2),
+  box("merchant-table", "grounds", 11.5, 159, 5, 1, 1.1),
   circle("basin", "grounds", 0, 1, 3.7, 0.55, true),
   circle("fountain-core", "grounds", 0, 1, 1.65, 2.6),
   box("office-back", "office", 0, -16.4, 36.9, 1.025, 9.7),
@@ -265,12 +326,9 @@ export const gateCollider = box(
   0.25,
   2.5,
 );
-export const cratePositions: [
-  [number, number],
-  [number, number],
-  [number, number],
-] = [
+export const cratePositions: number[][] = [
   [-4, 9],
   [16, -11],
   [18, -11],
+  ...FIELD_CRATES,
 ];

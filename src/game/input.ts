@@ -84,6 +84,7 @@ export function bindInput() {
     if (e.code === "KeyJ") game.pressAttack();
     if (["ControlLeft", "ControlRight", "KeyK"].includes(e.code))
       game.dodge(getInput());
+    if (e.code === "KeyH") game.usePotion();
     if (e.code === "KeyX") game.switchWeapon();
     if (e.code === "Tab") game.cycleTarget();
     if (e.code === "KeyQ") game.toggleLock();

@@ -1,3 +1,4 @@
+import { LANDING } from "../src/game/expedition";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { Simulation } from "../src/game/simulation.ts";
@@ -28,7 +29,10 @@ test("camera-relative movement normalizes diagonals and pause freezes simulation
   tick(a, 1, { ...idle, x: 1 });
   tick(b, 1, { ...idle, x: 1, z: 1 });
   assert.ok(
-    Math.abs(Math.hypot(a.x, a.z - 15) - Math.hypot(b.x, b.z - 15)) < 0.05,
+    Math.abs(
+      Math.hypot(a.x, a.z - LANDING.heroZ) -
+        Math.hypot(b.x, b.z - LANDING.heroZ),
+    ) < 0.05,
   );
   a.pause();
   const x = a.x;
@@ -228,6 +232,7 @@ test("door unlock and desk interaction still complete the adventure; restart res
 });
 test("lawn pickup route remains traversable around new props and hedges", () => {
   const g = quiet();
+  g.z = 15; // This test covers the original forecourt route; expedition has a separate traversal test.
   for (const [x, z] of [
     [-5, 12],
     [-7, 8],

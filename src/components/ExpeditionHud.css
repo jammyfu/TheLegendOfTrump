@@ -1,0 +1,53 @@
+.expedition-hud {
+  position: absolute;
+  left: 24px;
+  top: 174px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  pointer-events: auto;
+  font-size: 12px;
+  color: #f1deb0;
+}
+.expedition-hud > span,
+.expedition-hud > button {
+  background: rgba(25, 43, 42, 0.88);
+  border: 1px solid #a18a56;
+  padding: 7px 9px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.expedition-hud button {
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+.expedition-hud button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.field-coins i {
+  color: #f2c85c;
+  font-size: 17px;
+  font-style: normal;
+}
+.expedition-hud .field-route {
+  background: none;
+  border: 0;
+  text-shadow: 0 1px 3px #142522;
+}
+@media (max-width: 700px) {
+  .expedition-hud {
+    left: 12px;
+    top: 136px;
+    gap: 4px;
+    font-size: 10px;
+  }
+  .expedition-hud > span,
+  .expedition-hud > button {
+    padding: 5px;
+  }
+  .expedition-hud .field-route {
+    display: none;
+  }
+}

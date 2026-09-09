@@ -10,6 +10,7 @@ export function EnemyModel({
   id: number;
   boss?: boolean;
 }) {
+  const kind = game.activeGuards.find((g) => g.id === id)?.kind ?? "sentinel";
   const ref = useRef<Group>(null),
     warning = useRef<Mesh>(null),
     wave = useRef<Mesh>(null);
@@ -17,7 +18,11 @@ export function EnemyModel({
     GLTFLoader,
     import.meta.env.BASE_URL +
       "models/" +
-      (boss ? "iron-chancellor" : "palace-sentinel") +
+      (boss
+        ? "iron-chancellor"
+        : kind === "sentinel"
+          ? "palace-sentinel"
+          : "field-" + kind) +
       ".glb",
   );
   const model = useMemo(() => {
@@ -63,6 +68,10 @@ export function EnemyModel({
     const guard = game.activeGuards.find((g) => g.id === id);
     const g = boss ? game.boss : guard;
     if (!g) {
+      ref.current.visible = false;
+      return;
+    }
+    if (!boss && Math.hypot(g.x - game.x, g.z - game.z) > 75) {
       ref.current.visible = false;
       return;
     }
@@ -125,6 +134,16 @@ export function EnemyModel({
     }
     joints.Weapon.rotation.x =
       weaponPitch - joints.RightArm.rotation.x - joints.RightElbow.rotation.x;
+    if (!boss && kind === "archer") {
+      joints.LeftArm.rotation.x = windup ? -Math.PI / 2 : -0.4;
+      joints.LeftElbow.rotation.x = 0;
+      joints.LeftArm.rotation.y = -0.2;
+      joints.RightArm.rotation.x = windup ? -1.45 : walk;
+      joints.RightArm.rotation.y = windup ? -0.7 : 0;
+      joints.RightElbow.rotation.x = windup ? -1.3 : -0.25;
+      const bow = model.getObjectByName("ArcherBow");
+      if (bow) bow.rotation.x = -joints.LeftArm.rotation.x;
+    }
     model.traverse((n) => {
       if (n instanceof Mesh)
         for (const m of Array.isArray(n.material) ? n.material : [n.material])
@@ -141,10 +160,20 @@ export function EnemyModel({
     });
     if (warning.current) {
       warning.current.visible = alive && windup;
-      const r = boss ? (game.boss.move === "sweep" ? 3.8 : 3.1) : 2.1;
+      const r = boss
+        ? game.boss.move === "sweep"
+          ? 3.8
+          : 3.1
+        : kind === "archer"
+          ? 1
+          : 2.1;
       warning.current.scale.set(r, r, 1);
       (warning.current.material as MeshStandardMaterial).color.set(
-        boss && game.boss.move !== "sweep" ? "#ff4534" : "#ffc757",
+        boss && game.boss.move !== "sweep"
+          ? "#ff4534"
+          : kind === "archer"
+            ? "#ff8574"
+            : "#ffc757",
       );
     }
     if (wave.current) {

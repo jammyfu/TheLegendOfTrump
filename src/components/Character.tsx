@@ -150,7 +150,7 @@ export function Character() {
     if (arrival) {
       root.current.position.set(...arrival.hero);
       root.current.visible = arrival.visible;
-      root.current.rotation.y = arrival.walking ? Math.PI / 2 : Math.PI;
+      root.current.rotation.y = arrival.walking ? arrival.heroHeading : Math.PI;
     }
     for (const part of Object.values(parts)) part.rotation.set(0, 0, 0);
     parts.leftKnee.rotation.x = Math.max(0, -walk) * 0.9;

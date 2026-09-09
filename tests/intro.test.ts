@@ -1,3 +1,4 @@
+import { LANDING } from "../src/game/expedition";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { INTRO_DURATION, introPose } from "../src/game/intro";
@@ -13,7 +14,7 @@ test("arrival hides hero until landing and finishes at playable spawn", () => {
   assert.equal(walking.visible, true);
   assert.equal(walking.walking, true);
   const end = introPose(0);
-  assert.deepEqual(end.hero, [0, 0, 15]);
+  assert.deepEqual(end.hero, [LANDING.heroX, 0, LANDING.heroZ]);
   assert.equal(end.walking, false);
 });
 test("skipping every cinematic stage restores grounded playable state", () => {
@@ -26,7 +27,7 @@ test("skipping every cinematic stage restores grounded playable state", () => {
     assert.equal(s.introTime, 0);
     assert.equal(s.x, 0);
     assert.equal(s.y, 0);
-    assert.equal(s.z, 15);
+    assert.equal(s.z, LANDING.heroZ);
     assert.equal(s.grounded, true);
   }
 });
@@ -37,7 +38,7 @@ test("intro completes automatically without consuming movement input", () => {
   for (let t = 0; t < INTRO_DURATION - 0.02; t += 0.05)
     s.update(0.05, { x: 1, z: 1, sprint: true });
   assert.equal(s.x, 0);
-  assert.equal(s.z, 15);
+  assert.equal(s.z, LANDING.heroZ);
   s.update(0.05, { x: 0, z: 0, sprint: false });
   assert.equal(s.phase, "playing");
 });

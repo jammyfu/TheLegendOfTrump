@@ -4,6 +4,11 @@ async function start(page: import("@playwright/test").Page) {
   await page.getByRole("button", { name: /开始冒险/ }).click();
   await page.getByRole("button", { name: "跳过片头 · E" }).click();
   await expect(page.getByLabel("体力", { exact: true })).toBeVisible();
+  // Legacy control/combat fixtures stay in the forecourt; expedition tests cover remote spawn.
+  await page.evaluate(() => {
+    window.__game!.x = 0;
+    window.__game!.z = 15;
+  });
   await expect
     .poll(() =>
       page.evaluate(() => !!window.__scene?.getObjectByName("EquippedSword")),
@@ -89,10 +94,16 @@ test("desktop controls, back equipment, jump, block, attack and mouse camera", a
     window.__game!.cameraYaw = Math.PI / 2;
   });
   await page.waitForTimeout(800);
-  expect(await page.evaluate(() => {
-    const g=window.__game!,c=window.__camera!;
-    return g.blocked(18.45,0) && Math.hypot(c.position.x-g.x,c.position.z-g.z)>5;
-  })).toBeTruthy();
+  expect(
+    await page.evaluate(() => {
+      const g = window.__game!,
+        c = window.__camera!;
+      return (
+        g.blocked(18.45, 0) &&
+        Math.hypot(c.position.x - g.x, c.position.z - g.z) > 5
+      );
+    }),
+  ).toBeTruthy();
   expect(errors).toEqual([]);
 });
 test("interactive props, occlusion, secret chest and complete adventure", async ({
@@ -178,28 +189,28 @@ test("mobile multitouch movement + sprint + camera, held block and release clean
   await expect(
     page.getByRole("button", { name: "跳跃", exact: true }),
   ).toBeVisible();
+  const initialZ = await page.evaluate(() => window.__game!.z);
   const cdp = await context.newCDPSession(page);
-  const box = await page.getByLabel("移动摇杆").boundingBox(),
-    sprint = await page
-      .getByRole("button", { name: "冲刺", exact: true })
-      .boundingBox();
-  const p1 = { x: box!.x + 57, y: box!.y + 57, id: 1 },
-    p2 = { x: sprint!.x + 25, y: sprint!.y + 25, id: 2 },
+  const box = await page.getByLabel("移动摇杆").boundingBox();
+  const p1 = { x: box!.x + box!.width / 2, y: box!.y + box!.height / 2, id: 1 },
     p3 = { x: 260, y: 260, id: 3 };
   await cdp.send("Input.dispatchTouchEvent", {
     type: "touchStart",
-    touchPoints: [p1, p2, p3],
+    touchPoints: [p1, p3],
   });
   await cdp.send("Input.dispatchTouchEvent", {
     type: "touchMove",
-    touchPoints: [{ ...p1, y: p1.y - 35 }, p2, { ...p3, x: 300, y: 285 }],
+    touchPoints: [
+      { ...p1, y: p1.y - 50 },
+      { ...p3, x: 300, y: 285 },
+    ],
   });
   await expect
     .poll(() => page.evaluate(() => window.__game!.sprinting))
     .toBeTruthy();
   await expect
     .poll(() => page.evaluate(() => window.__game!.z))
-    .toBeLessThan(14);
+    .toBeLessThan(initialZ - 1);
   expect(await page.evaluate(() => window.__game!.cameraYaw)).not.toBe(0);
   await cdp.send("Input.dispatchTouchEvent", {
     type: "touchEnd",
@@ -376,6 +387,7 @@ test("first left click attacks, camera settings persist and portrait view expand
     .poll(() => page.evaluate(() => !!document.pointerLockElement))
     .toBeTruthy();
   await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "设置", exact: true }).click();
   await page.getByText("视角与鼠标设置", { exact: true }).click();
   await page.getByRole("slider", { name: "视野角度" }).fill("75");
   await page.getByRole("slider", { name: "镜头距离" }).fill("12");
@@ -419,11 +431,20 @@ test("helicopter has proportional fuselage, working door and articulated rotors"
   page,
 }) => {
   await page.addInitScript(() => {
-    const probe: { oscillators: OscillatorNode[]; gains: GainNode[] } = {
+    const probe: {
+      oscillators: OscillatorNode[];
+      gains: GainNode[];
+      rotorGain?: AudioParam;
+    } = {
       oscillators: [],
       gains: [],
     };
     (window as unknown as { audioProbe: typeof probe }).audioProbe = probe;
+    const target = AudioParam.prototype.setTargetAtTime;
+    AudioParam.prototype.setTargetAtTime = function (value, time, constant) {
+      if (value === 0.28) probe.rotorGain = this;
+      return target.call(this, value, time, constant);
+    };
     const oscillator = AudioContext.prototype.createOscillator;
     const gain = AudioContext.prototype.createGain;
     AudioContext.prototype.createOscillator = function () {
@@ -445,7 +466,7 @@ test("helicopter has proportional fuselage, working door and articulated rotors"
     )
     .toBeTruthy();
   await page.evaluate(() => {
-    window.__game!.introTime = 8.3;
+    window.__game!.introTime = 11.3;
     window.__game!.update = () => {};
   });
   await expect
@@ -478,7 +499,11 @@ test("helicopter has proportional fuselage, working door and articulated rotors"
       page.evaluate(() => {
         const probe = (
           window as unknown as {
-            audioProbe: { oscillators: OscillatorNode[]; gains: GainNode[] };
+            audioProbe: {
+              oscillators: OscillatorNode[];
+              gains: GainNode[];
+              rotorGain?: AudioParam;
+            };
           }
         ).audioProbe;
         return (
@@ -486,14 +511,14 @@ test("helicopter has proportional fuselage, working door and articulated rotors"
             probe.oscillators.some(
               (o) => o.frequency.value === f && o.context.state === "running",
             ),
-          ) && probe.gains[0].gain.value > 0.1
+          ) && (probe.rotorGain?.value ?? 0) > 0.1
         );
       }),
     )
     .toBeTruthy();
   await page.screenshot({ path: "artifacts/helicopter-arrival.png" });
   await page.evaluate(() => {
-    window.__game!.introTime = 6.5;
+    window.__game!.introTime = 9.5;
   });
   await expect
     .poll(() =>
@@ -502,7 +527,7 @@ test("helicopter has proportional fuselage, working door and articulated rotors"
       ),
     )
     .toBeLessThan(-0.7);
-  for (const remaining of [12, 5]) {
+  for (const remaining of [15, 8]) {
     await page.evaluate((remaining) => {
       window.__game!.introTime = remaining;
     }, remaining);
@@ -527,8 +552,8 @@ test("helicopter has proportional fuselage, working door and articulated rotors"
     .poll(() =>
       page.evaluate(
         () =>
-          (window as unknown as { audioProbe: { gains: GainNode[] } })
-            .audioProbe.gains[0].gain.value,
+          (window as unknown as { audioProbe: { rotorGain?: AudioParam } })
+            .audioProbe.rotorGain?.value,
       ),
     )
     .toBeLessThan(0.001);
@@ -552,7 +577,9 @@ test("oval arena boss telegraphs, blocks, enrages and unlocks the desk after def
   await expect(page.getByLabel("Boss 战", { exact: true })).toBeVisible();
   await expect
     .poll(() =>
-      page.evaluate(() => !!window.__scene?.getObjectByName("OfficeFurnishing")),
+      page.evaluate(
+        () => !!window.__scene?.getObjectByName("OfficeFurnishing"),
+      ),
     )
     .toBeTruthy();
   await page.evaluate(() => {
@@ -652,6 +679,7 @@ test("hold left mouse charges, releases one radial spin and clears its effects",
   await start(page);
   await page.evaluate(() => {
     const g = window.__game!;
+    g.guards = g.guards.slice(0, 2);
     g.guards.forEach((e) => (e.hp = 0));
     g.x = 0;
     g.z = 12;

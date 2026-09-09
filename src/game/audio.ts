@@ -1,3 +1,4 @@
+import { INTRO_DURATION } from "./intro";
 import {
   getAudioSettings,
   saveAudioSettings,
@@ -145,12 +146,12 @@ let rotor:
 export function rotorSound(remaining: number | null) {
   if (!context) return;
   const ctx = context;
-  const t = remaining === null ? 15 : 15 - remaining;
+  const t = remaining === null ? INTRO_DURATION : INTRO_DURATION - remaining;
   const level =
     enabled && remaining !== null
       ? 0.28 *
         Math.min(1, 0.2 + t / 4) *
-        (t > 10 ? Math.max(0, 1 - (t - 10) / 4.5) : 1)
+        (t > 13.5 ? Math.max(0, 1 - (t - 13.5) / 4.5) : 1)
       : 0;
   if (!rotor && level > 0) {
     const master = ctx.createGain(),
