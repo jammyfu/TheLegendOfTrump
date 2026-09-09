@@ -1,3 +1,4 @@
+import { useTitleEntrance } from "./useTitleEntrance";
 import { TitleMagic } from "./TitleMagic";
 import { t } from "../game/i18n";
 import { useRef, type CSSProperties, type PointerEvent } from "react";
@@ -20,6 +21,7 @@ export function TitleScreen({
   onToggleSound,
 }: Props) {
   const surface = useRef<HTMLElement>(null);
+  useTitleEntrance(surface);
   const base = import.meta.env.BASE_URL + "title/";
   const move = (event: PointerEvent<HTMLElement>) => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
