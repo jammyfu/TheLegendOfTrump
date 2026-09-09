@@ -11,9 +11,9 @@ export function introPose(remaining: number) {
     exit = smooth((t - 6.5) / 2.5),
     departure = smooth((t - 10) / 5);
   const helicopter: [number, number, number] = [
-    mix(-32, -8, arrival) - departure * 25,
-    mix(19, 0.1, arrival) + departure * 24,
-    mix(-16, 18, arrival) - departure * 22,
+    mix(-80, -8, arrival) - departure * 75,
+    mix(42, 0.1, arrival) + departure * 35,
+    mix(95, 18, arrival) + departure * 35,
   ];
   const hero: [number, number, number] = [
     mix(-5.55, 0, exit),

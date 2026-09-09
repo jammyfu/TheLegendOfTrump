@@ -1,3 +1,4 @@
+import { estateColliders } from "./estate";
 export type Zone = "grounds" | "office";
 export type Collider = {
   id: string;
@@ -146,9 +147,7 @@ const circle = (
   walkable = false,
 ): Collider => ({ id, zone, x, z, radius, top, walkable });
 export const staticColliders: Collider[] = [
-  box("house", "grounds", 0, -19, 30, 7, 10),
-  box("wing-west", "grounds", -23, -19.5, 15, 6, 5),
-  box("wing-east", "grounds", 23, -19.5, 15, 6, 5),
+  ...estateColliders,
   circle("basin", "grounds", 0, 1, 3.7, 0.55, true),
   circle("fountain-core", "grounds", 0, 1, 1.65, 2.6),
   box("office-back", "office", 0, -16.4, 36.9, 1.025, 9.7),
@@ -238,16 +237,6 @@ export const staticColliders: Collider[] = [
     ),
     circle(`flag-${s}`, "grounds", s * 8, -12, 0.13, 5.9),
   ]),
-  ...[-1.4, -0.85, -0.3, 0.3, 0.85, 1.4].map((a, i) =>
-    circle(
-      "column-" + i,
-      "grounds",
-      Math.sin(a) * 4.55,
-      -15.8 + Math.cos(a) * 3.7,
-      0.55,
-      8.4,
-    ),
-  ),
   ...[0, 1, 2, 3].map((i) =>
     box(
       "step-" + i,

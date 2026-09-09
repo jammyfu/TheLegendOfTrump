@@ -692,44 +692,6 @@ export class Simulation {
             radius: 0.48,
             top: 2.5,
           });
-      list.push(
-        {
-          id: "west-boundary",
-          zone: this.zone,
-          x: -26,
-          z: 0,
-          w: 0.4,
-          d: 60,
-          top: 20,
-        },
-        {
-          id: "east-boundary",
-          zone: this.zone,
-          x: 26,
-          z: 0,
-          w: 0.4,
-          d: 60,
-          top: 20,
-        },
-        {
-          id: "south-boundary",
-          zone: this.zone,
-          x: 0,
-          z: 24,
-          w: 54,
-          d: 0.4,
-          top: 20,
-        },
-        {
-          id: "north-boundary",
-          zone: this.zone,
-          x: 0,
-          z: -24,
-          w: 54,
-          d: 0.4,
-          top: 20,
-        },
-      );
     }
     if (this.zone === "office" && this.boss.active && this.boss.hp > 0)
       list.push({

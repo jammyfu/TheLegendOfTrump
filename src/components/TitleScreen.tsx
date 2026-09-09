@@ -1,3 +1,4 @@
+import { TitleMagic } from "./TitleMagic";
 import { t } from "../game/i18n";
 import { useRef, type CSSProperties, type PointerEvent } from "react";
 import "./TitleScreen.css";
@@ -48,6 +49,8 @@ export function TitleScreen({
     >
       <div className="lt-tapestry" aria-hidden="true" />
       <div className="lt-light" aria-hidden="true" />
+      <div className="lt-rays" aria-hidden="true" />
+      <TitleMagic />
       <div className="lt-frame" aria-hidden="true" />
       <p className="lt-overline">AN UNLIKELY HERO. AN UNTOLD LEGEND.</p>
       <div className="lt-emblem">

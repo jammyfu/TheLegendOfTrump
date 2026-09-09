@@ -27,10 +27,11 @@ export function floorAt(
   x: number,
   z: number,
   ceiling: number,
+  radius = 0.18,
 ) {
   let floor = 0;
   for (const c of colliders)
-    if (c.walkable && c.top <= ceiling + 0.015 && overlaps(c, x, z, 0.18))
+    if (c.walkable && c.top <= ceiling + 0.015 && overlaps(c, x, z, radius))
       floor = Math.max(floor, c.top);
   return floor;
 }
@@ -49,7 +50,9 @@ export function moveAndSlide(
   for (let i = 0; i < count; i++) {
     const nx = x + dx / count,
       nz = z + dz / count;
-    const nextFloor = step ? floorAt(colliders, nx, nz, height + 0.26) : height;
+    const nextFloor = step
+      ? floorAt(colliders, nx, nz, height + 0.26, radius)
+      : height;
     const ny = Math.max(height, nextFloor);
     if (!occupied(colliders, nx, nz, ny, radius)) {
       x = nx;

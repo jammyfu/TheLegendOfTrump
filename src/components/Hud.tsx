@@ -12,6 +12,8 @@ import {
 import { Heart, GemIcon } from "./Icons";
 export function Minimap() {
   const office = game.zone === "office";
+  const wide =
+    !office && (Math.abs(game.x) > 25 || game.z > 24 || game.z < -24);
   return (
     <div className="minimap">
       <div className="map-heading">
@@ -32,6 +34,40 @@ export function Minimap() {
           <>
             <rect x="67" y="45" width="26" height="14" fill="#b09463" />
             <circle cx="80" cy="86" r="32" fill="#344e5e" />
+          </>
+        ) : wide ? (
+          <>
+            <rect
+              x="31"
+              y="20"
+              width="98"
+              height="138"
+              rx="8"
+              fill="none"
+              stroke="var(--ui-gold-dim, #b09463)"
+            />
+            <ellipse
+              cx="80"
+              cy="108"
+              rx="41"
+              ry="38"
+              fill="none"
+              stroke="var(--ui-map-path, #7f947c)"
+              strokeWidth="3"
+            />
+            <rect
+              x="67"
+              y="61"
+              width="26"
+              height="13"
+              fill="var(--ui-ivory, #e7dfc6)"
+            />
+            <path
+              d="M40 70h27m26 0h27"
+              stroke="var(--ui-ivory, #e7dfc6)"
+              strokeWidth="3"
+            />
+            <path d="m80 76 3 5-3 5-3-5Z" fill="#e6c57e" />
           </>
         ) : (
           <>
@@ -61,7 +97,7 @@ export function Minimap() {
           </>
         )}
         <g
-          transform={`translate(${80 + game.x * (office ? 3.3 : 2.6)} ${office ? 85 + game.z * 3.3 : 88 + game.z * 2.8}) rotate(${(-game.yaw * 180) / Math.PI + 180})`}
+          transform={`translate(${80 + game.x * (office ? 3.3 : wide ? 0.35 : 2.6)} ${office ? 85 + game.z * 3.3 : wide ? 76 + game.z * 0.35 : 88 + game.z * 2.8}) rotate(${(-game.yaw * 180) / Math.PI + 180})`}
         >
           <circle r="6" fill="#e9d298" opacity=".2" />
           <path

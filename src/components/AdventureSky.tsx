@@ -9,7 +9,7 @@ export function AdventureSky() {
   return (
     <>
       <mesh renderOrder={-100}>
-        <sphereGeometry args={[220, 32, 20]} />
+        <sphereGeometry args={[2100, 32, 20]} />
         <shaderMaterial
           side={BackSide}
           depthWrite={false}
@@ -19,7 +19,7 @@ export function AdventureSky() {
         />
       </mesh>
       <mesh position={[0, -0.15, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[500, 500]} />
+        <planeGeometry args={[2300, 2400]} />
         <meshStandardMaterial color="#8eaa6a" />
       </mesh>
       <group ref={clouds}>
@@ -28,14 +28,18 @@ export function AdventureSky() {
           return (
             <group
               key={i}
-              position={[Math.cos(a) * 76, 24 + (i % 4) * 5, Math.sin(a) * 76]}
+              position={[
+                Math.cos(a) * 350,
+                100 + (i % 4) * 20,
+                Math.sin(a) * 350,
+              ]}
               rotation={[0, a, 0]}
             >
               {[0, 1, 2, 3].map((j) => (
                 <mesh
                   key={j}
-                  position={[j * 3 - 4, Math.sin(j * 2) * 1.1, 0]}
-                  scale={[5, 1.6 + (j % 2), 2.6]}
+                  position={[j * 12 - 16, Math.sin(j * 2) * 1.1, 0]}
+                  scale={[18, 3.5 + (j % 2), 9]}
                 >
                   <sphereGeometry args={[1, 12, 8]} />
                   <meshBasicMaterial

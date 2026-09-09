@@ -230,7 +230,11 @@ function Runtime() {
       />
       <fog
         attach="fog"
-        args={[zone === "grounds" ? "#bddef0" : "#d8c7a1", 40, 100]}
+        args={[
+          zone === "grounds" ? "#bddef0" : "#d8c7a1",
+          zone === "grounds" ? 150 : 40,
+          zone === "grounds" ? 2000 : 100,
+        ]}
       />
       <ambientLight intensity={zone === "grounds" ? 0.8 : 1.1} />
       <hemisphereLight args={["#bac6ed", "#6b655c", 0.8]} />
@@ -391,6 +395,7 @@ function DoorMarker() {
 export function Scene() {
   return (
     <Canvas
+      frameloop={game.phase === "title" ? "demand" : "always"}
       shadows
       onCreated={({ scene, camera }) => {
         if (import.meta.env.DEV) {
@@ -399,7 +404,7 @@ export function Scene() {
         }
       }}
       dpr={[1, 1.5]}
-      camera={{ fov: 48, near: 0.1, far: 300 }}
+      camera={{ fov: 48, near: 0.1, far: 2400 }}
       gl={{ antialias: true, powerPreference: "high-performance" }}
     >
       <Suspense fallback={null}>
