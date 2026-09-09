@@ -39,10 +39,22 @@
   letter-spacing: .035em;
   font-weight: 700;
 }
-.game .lt-menu-label { font-size: clamp(26px, 3vw, 38px); }
-.game .lt-controls .lt-menu-label { font-size: 21px; }
-.game .menu-panel h2 { line-height: 1.45; }
+.game .lt-menu-label { font-size: clamp(36px, 4vw, 52px); line-height: 1.2; }
+.game .lt-controls .lt-menu-label { font-size: clamp(26px, 2.5vw, 32px); }
+.game :is(.menu-panel, .dialogue) h2 { font-size: clamp(28px, 3.5vw, 36px); line-height: 1.35; }
 .game .settings-panel label, .game .music-settings dl { line-height: 1.65; }
 
 @font-face { font-family: "Legend Relic HK"; src: url("../../public/fonts/legend-relic-hk.woff2") format("woff2"); font-style: normal; font-weight: 400 900; font-display: swap; }
 :lang(zh-HK) .game { --game-font: "Legend Relic Latin", "Legend Relic HK", "Noto Serif HK", "Songti TC", serif; }
+
+/* Keep the larger menu labels inside narrow phone screens. */
+.game .lt-menu button { max-width: 100%; }
+@media (max-width: 600px) {
+  .game .lt-start { gap: 12px; padding-inline: 12px; }
+  .game .lt-menu-label { font-size: clamp(30px, 8vw, 38px); }
+  .game .lt-controls .lt-menu-label { font-size: 26px; }
+}
+@media (max-height: 500px) and (min-width: 601px) {
+  .game .lt-menu-label { font-size: 36px; }
+  .game .lt-controls .lt-menu-label { font-size: 26px; }
+}
