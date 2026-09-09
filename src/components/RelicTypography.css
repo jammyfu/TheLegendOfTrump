@@ -43,3 +43,6 @@
 .game .lt-controls .lt-menu-label { font-size: 21px; }
 .game .menu-panel h2 { line-height: 1.45; }
 .game .settings-panel label, .game .music-settings dl { line-height: 1.65; }
+
+@font-face { font-family: "Legend Relic HK"; src: url("../../public/fonts/legend-relic-hk.woff2") format("woff2"); font-style: normal; font-weight: 400 900; font-display: swap; }
+:lang(zh-HK) .game { --game-font: "Legend Relic Latin", "Legend Relic HK", "Noto Serif HK", "Songti TC", serif; }

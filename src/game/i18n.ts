@@ -1,6 +1,7 @@
 import translations from "./translations.json";
 export const languages = {
   zh: "简体中文",
+  "zh-HK": "繁體中文（香港）",
   en: "English",
   ja: "日本語",
   ko: "한국어",
@@ -37,7 +38,7 @@ export function t(text: string): string {
   if (language === "zh") return text;
   const key = text.replace(/\s+/g, " ").trim();
   const values = (translations as Record<string, string[]>)[key];
-  if (values) return values[{ en: 0, ja: 1, ko: 2 }[language]];
+  if (values) return values[{ en: 0, ja: 1, ko: 2, "zh-HK": 3 }[language]];
   for (const [pattern, translated] of Object.entries(translations)) {
     if (!pattern.includes("{n}")) continue;
     const [before, after] = pattern.split("{n}");
@@ -47,7 +48,7 @@ export function t(text: string): string {
         after ? -after.length : undefined,
       );
       if (/^\d+$/.test(number))
-        return translated[{ en: 0, ja: 1, ko: 2 }[language]].replace(
+        return translated[{ en: 0, ja: 1, ko: 2, "zh-HK": 3 }[language]].replace(
           "{n}",
           number,
         );

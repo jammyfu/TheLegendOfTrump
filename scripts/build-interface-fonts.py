@@ -17,6 +17,7 @@ base = 'https://raw.githubusercontent.com/google/fonts/main/ofl/'
 locations = {
  'caps': (SOURCES/'CinzelDecorative-Bold.ttf', 'cinzeldecorative/CinzelDecorative-Bold.ttf'),
  'text': (SOURCES/'CormorantGaramond.ttf', 'cormorantgaramond/CormorantGaramond%5Bwght%5D.ttf'),
+ 'hk': (Path('/tmp/Legend-NotoSerifHK.ttf'), 'notoserifhk/NotoSerifHK%5Bwght%5D.ttf'),
  'zh': (Path(tempfile.gettempdir())/'Legend-NotoSerifSC.ttf', 'notoserifsc/NotoSerifSC%5Bwght%5D.ttf'),
  'ja': (Path(tempfile.gettempdir())/'Legend-NotoSerifJP.ttf', 'notoserifjp/NotoSerifJP%5Bwght%5D.ttf'),
 }
@@ -30,7 +31,7 @@ for path,url in locations.values():
  if not path.exists():
   if not args.fetch: raise RuntimeError(f'Missing source {path}; run with --fetch')
   path.write_bytes(urllib.request.urlopen(base+url).read())
-for family in ['cinzeldecorative','cormorantgaramond','notoserifsc','notoserifjp']:
+for family in ['cinzeldecorative','cormorantgaramond','notoserifsc','notoserifjp','notoserifhk']:
  p=OUT/(family+'-OFL.txt')
  if not p.exists():
   if not args.fetch: raise RuntimeError(f'Missing license {p}; run with --fetch')
@@ -76,7 +77,7 @@ def build(name,characters,pick):
  return font
 # Condensed decorative capitals, real lowercase with ascenders/descenders; not small-cap remapping.
 build('Legend Relic Latin',latin,lambda cp:(caps,.79,1.05) if 65<=cp<=90 else (text,.92,1.13))
-for lang,label,chars in [('zh','SC',cjk(zh_text)),('ja','JP',cjk(ja_text))]:
+for lang,label,chars in [('zh','SC',cjk(zh_text)),('ja','JP',cjk(ja_text)),('hk','HK',cjk(''.join(row[3] for row in translations.values())+'繁體中文香港'))]:
  font=load(lang,chars,800)
  missing=chars-set(font.getBestCmap())
  if missing: print('Source lacks:', ''.join(map(chr,sorted(missing))))

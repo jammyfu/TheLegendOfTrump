@@ -1,6 +1,6 @@
 # The Legend of Trump · 白宫奇遇记
 
-[简体中文](README.md) · [English](README.en.md) · [日本語](README.ja.md) · [한국어](README.ko.md)
+[简体中文](README.md) · [繁體中文（香港）](README.zh-HK.md) · [English](README.en.md) · [日本語](README.ja.md) · [한국어](README.ko.md)
 
 基于 **React 19 + Three.js + React Three Fiber + TypeScript + Vite** 的可玩低多边形冒险游戏。
 

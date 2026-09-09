@@ -14,13 +14,14 @@ import {
 import translations from "../src/game/translations.json";
 test("all language catalogs are complete and switch synchronously", () => {
   for (const values of Object.values(translations)) {
-    assert.equal(values.length, 3);
+    assert.equal(values.length, 4);
     assert.ok(values.every((v) => v.trim().length > 0));
   }
   let updates = 0;
   const off = subscribeLanguage(() => updates++);
   for (const [language, expected] of [
     ["zh", "设置"],
+    ["zh-HK", "設定"],
     ["en", "Settings"],
     ["ja", "設定"],
     ["ko", "설정"],
@@ -29,10 +30,10 @@ test("all language catalogs are complete and switch synchronously", () => {
     assert.equal(getLanguage(), language);
     assert.equal(t("设置"), expected);
   }
-  assert.equal(updates, 4);
+  assert.equal(updates, 5);
   off();
   setLanguage("zh");
-  assert.equal(updates, 4);
+  assert.equal(updates, 5);
 });
 test("dynamic gem and health messages retain values", () => {
   setLanguage("en");

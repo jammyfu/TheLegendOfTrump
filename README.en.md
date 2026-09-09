@@ -1,6 +1,6 @@
 # The Legend of Trump · A White House Adventure
 
-[简体中文](README.md) · [English](README.en.md) · [日本語](README.ja.md) · [한국어](README.ko.md)
+[简体中文](README.md) · [繁體中文（香港）](README.zh-HK.md) · [English](README.en.md) · [日本語](README.ja.md) · [한국어](README.ko.md)
 
 A playable low-poly adventure built with **React 19, Three.js, React Three Fiber, TypeScript and Vite**.
 

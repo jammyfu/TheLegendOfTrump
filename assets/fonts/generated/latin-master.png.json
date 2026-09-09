@@ -1,0 +1,574 @@
+[
+  {
+    "character": "A",
+    "box": [
+      19,
+      144,
+      123,
+      279
+    ],
+    "contours": 6,
+    "inlays": []
+  },
+  {
+    "character": "B",
+    "box": [
+      141,
+      144,
+      228,
+      278
+    ],
+    "contours": 6,
+    "inlays": []
+  },
+  {
+    "character": "C",
+    "box": [
+      254,
+      141,
+      338,
+      280
+    ],
+    "contours": 5,
+    "inlays": []
+  },
+  {
+    "character": "D",
+    "box": [
+      366,
+      144,
+      458,
+      278
+    ],
+    "contours": 5,
+    "inlays": []
+  },
+  {
+    "character": "E",
+    "box": [
+      484,
+      143,
+      566,
+      278
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "F",
+    "box": [
+      599,
+      143,
+      681,
+      278
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "G",
+    "box": [
+      709,
+      141,
+      805,
+      279
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "H",
+    "box": [
+      830,
+      144,
+      937,
+      279
+    ],
+    "contours": 7,
+    "inlays": []
+  },
+  {
+    "character": "I",
+    "box": [
+      964,
+      143,
+      1021,
+      279
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "J",
+    "box": [
+      1052,
+      143,
+      1134,
+      282
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "K",
+    "box": [
+      1160,
+      143,
+      1266,
+      279
+    ],
+    "contours": 7,
+    "inlays": []
+  },
+  {
+    "character": "L",
+    "box": [
+      1289,
+      143,
+      1372,
+      279
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "M",
+    "box": [
+      1399,
+      143,
+      1518,
+      280
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "N",
+    "box": [
+      20,
+      360,
+      117,
+      495
+    ],
+    "contours": 5,
+    "inlays": []
+  },
+  {
+    "character": "O",
+    "box": [
+      138,
+      358,
+      230,
+      495
+    ],
+    "contours": 7,
+    "inlays": []
+  },
+  {
+    "character": "P",
+    "box": [
+      251,
+      360,
+      339,
+      494
+    ],
+    "contours": 5,
+    "inlays": []
+  },
+  {
+    "character": "Q",
+    "box": [
+      362,
+      358,
+      452,
+      514
+    ],
+    "contours": 7,
+    "inlays": []
+  },
+  {
+    "character": "R",
+    "box": [
+      478,
+      359,
+      578,
+      494
+    ],
+    "contours": 5,
+    "inlays": []
+  },
+  {
+    "character": "S",
+    "box": [
+      606,
+      357,
+      682,
+      496
+    ],
+    "contours": 6,
+    "inlays": []
+  },
+  {
+    "character": "T",
+    "box": [
+      712,
+      359,
+      799,
+      495
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "U",
+    "box": [
+      828,
+      359,
+      927,
+      496
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "V",
+    "box": [
+      946,
+      359,
+      1040,
+      497
+    ],
+    "contours": 3,
+    "inlays": []
+  },
+  {
+    "character": "W",
+    "box": [
+      1053,
+      359,
+      1182,
+      496
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "X",
+    "box": [
+      1190,
+      359,
+      1293,
+      495
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "Y",
+    "box": [
+      1305,
+      359,
+      1405,
+      495
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "Z",
+    "box": [
+      1423,
+      360,
+      1514,
+      494
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "a",
+    "box": [
+      31,
+      615,
+      109,
+      703
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "b",
+    "box": [
+      148,
+      569,
+      232,
+      702
+    ],
+    "contours": 5,
+    "inlays": []
+  },
+  {
+    "character": "c",
+    "box": [
+      273,
+      613,
+      342,
+      703
+    ],
+    "contours": 5,
+    "inlays": []
+  },
+  {
+    "character": "d",
+    "box": [
+      388,
+      569,
+      472,
+      703
+    ],
+    "contours": 5,
+    "inlays": []
+  },
+  {
+    "character": "e",
+    "box": [
+      508,
+      615,
+      583,
+      703
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "f",
+    "box": [
+      623,
+      568,
+      692,
+      703
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "g",
+    "box": [
+      718,
+      614,
+      798,
+      742
+    ],
+    "contours": 6,
+    "inlays": []
+  },
+  {
+    "character": "h",
+    "box": [
+      837,
+      573,
+      926,
+      703
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "i",
+    "box": [
+      968,
+      568,
+      1010,
+      703
+    ],
+    "contours": 5,
+    "inlays": []
+  },
+  {
+    "character": "j",
+    "box": [
+      1048,
+      575,
+      1103,
+      746
+    ],
+    "contours": 5,
+    "inlays": []
+  },
+  {
+    "character": "k",
+    "box": [
+      1157,
+      577,
+      1250,
+      703
+    ],
+    "contours": 6,
+    "inlays": []
+  },
+  {
+    "character": "l",
+    "box": [
+      1290,
+      571,
+      1340,
+      703
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "m",
+    "box": [
+      1380,
+      614,
+      1504,
+      703
+    ],
+    "contours": 6,
+    "inlays": []
+  },
+  {
+    "character": "n",
+    "box": [
+      30,
+      803,
+      118,
+      893
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "o",
+    "box": [
+      151,
+      804,
+      229,
+      894
+    ],
+    "contours": 9,
+    "inlays": []
+  },
+  {
+    "character": "p",
+    "box": [
+      260,
+      802,
+      343,
+      921
+    ],
+    "contours": 5,
+    "inlays": []
+  },
+  {
+    "character": "q",
+    "box": [
+      379,
+      803,
+      468,
+      926
+    ],
+    "contours": 5,
+    "inlays": []
+  },
+  {
+    "character": "r",
+    "box": [
+      501,
+      802,
+      574,
+      893
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "s",
+    "box": [
+      612,
+      800,
+      673,
+      897
+    ],
+    "contours": 2,
+    "inlays": []
+  },
+  {
+    "character": "t",
+    "box": [
+      718,
+      781,
+      772,
+      895
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "u",
+    "box": [
+      810,
+      804,
+      895,
+      894
+    ],
+    "contours": 4,
+    "inlays": []
+  },
+  {
+    "character": "v",
+    "box": [
+      924,
+      806,
+      1008,
+      894
+    ],
+    "contours": 2,
+    "inlays": []
+  },
+  {
+    "character": "w",
+    "box": [
+      1037,
+      806,
+      1160,
+      894
+    ],
+    "contours": 3,
+    "inlays": []
+  },
+  {
+    "character": "x",
+    "box": [
+      1182,
+      805,
+      1273,
+      893
+    ],
+    "contours": 3,
+    "inlays": []
+  },
+  {
+    "character": "y",
+    "box": [
+      1306,
+      806,
+      1393,
+      931
+    ],
+    "contours": 3,
+    "inlays": []
+  },
+  {
+    "character": "z",
+    "box": [
+      1427,
+      806,
+      1505,
+      893
+    ],
+    "contours": 4,
+    "inlays": []
+  }
+]
