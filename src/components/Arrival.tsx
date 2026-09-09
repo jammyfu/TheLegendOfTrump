@@ -26,6 +26,7 @@ export function Arrival() {
     [model],
   );
   const door = useMemo(() => model.getObjectByName("ArrivalDoor"), [model]);
+  const stairs = useMemo(() => model.getObjectByName("ArrivalStairs"), [model]);
   useFrame((_, dt) => {
     if (!root.current) return;
     root.current.visible = game.phase === "intro";
@@ -37,6 +38,11 @@ export function Arrival() {
     if (rotor) rotor.rotation.y += dt * 38;
     if (rear) rear.rotation.x += dt * 48;
     if (door) door.position.z = 0.7 - p.door * 1.5;
+    if (stairs) {
+      stairs.visible = p.stairs > 0.001;
+      stairs.scale.x = Math.max(0.01, p.stairs);
+      stairs.position.x = 1.3 + p.stairs * 0.6;
+    }
   });
   return (
     <group ref={root} name="arrival-helicopter" visible={false}>

@@ -1,3 +1,4 @@
+import { EnemyModel } from "./EnemyModel";
 import { CombatEffects } from "./CombatEffects";
 import { Arrival } from "./Arrival";
 import { introPose } from "../game/intro";
@@ -12,7 +13,7 @@ import {
 } from "three";
 import { game } from "../game/simulation";
 import { getInput, releaseMouse } from "../game/input";
-import { playSound } from "../game/audio";
+import { playSound, rotorSound } from "../game/audio";
 import { Grounds, Office } from "./World";
 import { Character } from "./Character";
 import { Box, Cylinder } from "./Primitives";
@@ -35,6 +36,7 @@ function Runtime() {
     for (let remaining = Math.min(delta, 0.2); remaining > 0; remaining -= 0.05)
       game.update(Math.min(remaining, 0.05), getInput());
     for (const event of game.events.splice(0)) playSound(event);
+    rotorSound(game.phase === "intro" ? game.introTime : null);
     if (previousZone.current !== game.zone) {
       previousZone.current = game.zone;
       setZone(game.zone);
@@ -161,6 +163,7 @@ function Runtime() {
       )}
       <Character />
       <CombatEffects />
+      {zone === "office" && <EnemyModel id={100} boss />}
       {zone === "grounds" && (
         <>
           <Entities />
@@ -173,11 +176,9 @@ function Runtime() {
 }
 function Entities() {
   const gems = useRef<Group>(null),
-    pots = useRef<Group>(null),
-    guards = useRef<Group>(null);
+    pots = useRef<Group>(null);
   useFrame(({ clock }) => {
     if (gems.current) gems.current.visible = game.phase !== "intro";
-    if (guards.current) guards.current.visible = game.phase !== "intro";
     gems.current?.children.forEach((child, i) => {
       child.visible = !game.items[i].collected;
       child.position.y = 1.05 + Math.sin(clock.elapsedTime * 2.5 + i) * 0.16;
@@ -185,46 +186,6 @@ function Entities() {
     });
     pots.current?.children.forEach((child, i) => {
       child.visible = !game.pots[i].broken;
-    });
-    guards.current?.children.forEach((child, i) => {
-      const guard = game.guards[i];
-      child.visible = guard.hp > 0 || guard.defeatTime > 0;
-      child.position.set(
-        guard.x,
-        0.12 + (guard.stun > 0 ? 0 : Math.sin(game.elapsed * 3 + i) * 0.12),
-        guard.z,
-      );
-      const recoil =
-        guard.stunDuration > 0 ? guard.stun / guard.stunDuration : 0;
-      child.rotation.set(
-        -Math.sin(recoil * Math.PI * 0.7) * 0.4,
-        guard.yaw,
-        guard.hp <= 0
-          ? (1 - guard.defeatTime / 0.65) * 1.5
-          : Math.sin(recoil * Math.PI * 3) * 0.07,
-      );
-      child.traverse((node) => {
-        if (node instanceof Mesh) {
-          for (const material of Array.isArray(node.material)
-            ? node.material
-            : [node.material]) {
-            if (material instanceof MeshStandardMaterial) {
-              material.emissive.setHex(0xffc078);
-              material.emissiveIntensity = guard.hitFlash > 0 ? 0.45 : 0;
-            }
-          }
-        }
-      });
-      child.scale.setScalar(
-        guard.hp <= 0
-          ? Math.min(1, guard.defeatTime * 4)
-          : guard.windup > 0
-            ? 1.05
-            : 1,
-      );
-      const warning = child.getObjectByName("guard-warning");
-      if (warning)
-        warning.visible = guard.windup > 0 || game.lockedTarget === guard.id;
     });
   });
   return (
@@ -292,55 +253,9 @@ function Entities() {
           </group>
         ))}
       </group>
-      <group ref={guards}>
-        {game.guards.map((g) => (
-          <group key={g.id} name={`guard-${g.id}`}>
-            <mesh name="guard-warning" position={[0, 3, 0]}>
-              <octahedronGeometry args={[0.2]} />
-              <meshBasicMaterial color="#ff714d" />
-            </mesh>
-            <Cylinder
-              position={[0, 0.35, 0]}
-              radius={0.5}
-              rise={0.5}
-              segments={8}
-              color="#53636b"
-            />
-            <Box position={[0, 1.1, 0]} scale={[0.9, 1, 0.6]} color="#6d7d80" />
-            <Box
-              position={[0, 1.95, 0]}
-              scale={[0.75, 0.7, 0.7]}
-              color="#899393"
-            />
-            <Box
-              position={[0, 2, 0.36]}
-              scale={[0.61, 0.12, 0.05]}
-              color="#bd5e43"
-            />
-            <Box
-              position={[0, 2.4, 0]}
-              scale={[0.16, 0.4, 0.48]}
-              color="#ae5d4c"
-            />
-            {[-1, 1].map((s) => (
-              <Box
-                key={s}
-                position={[s * 0.62, 1.2, 0]}
-                scale={[0.25, 0.85, 0.3]}
-                color="#495e64"
-              />
-            ))}
-            <Cylinder
-              position={[-0.7, 1.2, 0.4]}
-              radius={0.45}
-              rise={0.12}
-              rotation={[Math.PI / 2, 0, 0]}
-              segments={8}
-              color="#967d54"
-            />
-          </group>
-        ))}
-      </group>
+      {game.guards.map((g) => (
+        <EnemyModel key={g.id} id={g.id} />
+      ))}
     </>
   );
 }
@@ -349,7 +264,8 @@ function DoorMarker() {
   useFrame(({ clock }) => {
     if (ref.current) {
       ref.current.visible =
-        game.phase === "playing" && (game.zone === "office" || game.gems >= 8);
+        game.phase === "playing" &&
+        (game.zone === "office" ? game.boss.hp <= 0 : game.gems >= 8);
       ref.current.position.set(
         0,
         3.8 + Math.sin(clock.elapsedTime * 2) * 0.15,

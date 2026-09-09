@@ -1,13 +1,16 @@
 import { introPose } from "../game/intro";
 import { useMemo, useRef } from "react";
 import { useFrame, useLoader } from "@react-three/fiber";
-import { Group, Mesh } from "three";
+import { Group, Mesh, Quaternion, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ATTACKS, attackPose } from "../game/combat";
 import { game } from "../game/simulation";
+const UP = new Vector3(0, 1, 0);
 const MODEL_URL = import.meta.env.BASE_URL + "models/trump-n64.glb";
 export function Character() {
   const root = useRef<Group>(null);
+  const gripRotation = useMemo(() => new Quaternion(), []);
+  const uprightRotation = useMemo(() => new Quaternion(), []);
   const slash = useRef<Mesh>(null);
   const swordSource = useLoader(
     GLTFLoader,
@@ -162,7 +165,7 @@ export function Character() {
       ]),
     );
     gear.sword.rotation.set(
-      ...((drawn ? [Math.PI, 0, 0] : [0, 0, Math.PI - 0.5]) as [
+      ...((drawn ? [Math.PI / 2, 0, 0] : [0, 0, Math.PI - 0.5]) as [
         number,
         number,
         number,
@@ -205,6 +208,12 @@ export function Character() {
       parts.rightArm.rotation.z = -0.1;
       parts.leftKnee.rotation.x = 1.2;
       parts.rightKnee.rotation.x = 1.2;
+    }
+    if (drawn && !attacking) {
+      root.current.updateMatrixWorld(true);
+      parts.rightWrist.getWorldQuaternion(gripRotation).invert();
+      uprightRotation.setFromAxisAngle(UP, game.yaw);
+      gear.sword.quaternion.copy(gripRotation).multiply(uprightRotation);
     }
     if (!drawn)
       parts.waist.rotation.z = game.moving

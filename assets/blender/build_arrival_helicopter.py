@@ -3,7 +3,7 @@ Run through Blender MCP in an isolated background process.
 """
 import bpy, math, os
 from mathutils import Vector
-BASE='/Users/jammyfu/works/AI/PersonalProject/TheLegendOfTrump'
+BASE=os.environ.get('TRUMP_PROJECT_DIR',os.path.abspath(os.path.join(os.path.dirname(__file__),'../..')))
 def build():
  old=bpy.context.window.scene
  scene=bpy.data.scenes.new('Trump_Arrival_Helicopter');bpy.context.window.scene=scene
@@ -74,8 +74,9 @@ def build():
  box('Sliding door panel',(0,0,0),(.08,1.7,3.05),green,door)
  box('Door glazing',(.05,0,.62),(.03,.9,.73),glass,door)
  box('Door handle',(.10,-.4,-.05),(.08,.25,.06),metal,door)
- for i in range(3):box('Boarding step',(2.08+i*.27,-.7,.9-i*.25),(.7,1.25,.10),metal)
- for side in [-1,1]:rod('Stair handrail',(side*.45+2.2,-1.32,.95),(side*.45+2.2,-1.32,2.25),.035,metal)
+ stairs=empty('ArrivalStairs',(1.9,-.7,.95),root)
+ for i in range(3):box('Boarding step',(.18+i*.27,0,-.05-i*.25),(.7,1.25,.10),metal,stairs)
+ for side in [-1,1]:rod('Stair handrail',(side*.45+.3,-.62,0),(side*.45+.3,-.62,1.3),.035,metal,stairs)
  ell('Nose radar',(0,-4.72,1.38),(.62,.7,.45),green)
  rod('Nose antenna',(0,-4.3,1.1),(0,-4.85,.6),.03,black)
  ell('Red anti collision beacon',(0,1.5,4.83),(.13,.13,.14),red)

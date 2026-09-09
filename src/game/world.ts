@@ -155,12 +155,21 @@ export const staticColliders: Collider[] = [
   box("office-west", "office", -9, 0, 0.5, 16, 8),
   box("office-east", "office", 9, 0, 0.5, 16, 8),
   box("office-front", "office", 0, 8.8, 18, 0.4, 8),
+  ...[-1, 1].flatMap((s) =>
+    [-5, 5].map((z) =>
+      box("bookcase-" + s + "-" + z, "office", s * 7.85, z, 1.2, 1.8, 3.6),
+    ),
+  ),
+  ...[-1, 1].flatMap((s) =>
+    [-6.8, 6.8].map((z) =>
+      circle("column-" + s + "-" + z, "office", s * 7.6, z, 0.45, 7.2),
+    ),
+  ),
   box("desk", "office", 0, -5, 6.2, 2.35, 2.2),
   box("chair", "office", 0, -6.3, 1.5, 0.5, 2.6),
   ...[-1, 1].flatMap((s) => [
     box("sofa-" + s, "office", s * 6, 1, 2, 3.7, 1.2, true),
     box("sofa-back-" + s, "office", s * 6.8, 1, 0.4, 3.7, 1.75),
-    circle("plant-" + s, "office", s * 7, -5, 0.55, 2.7),
     ...[-5, 12].flatMap((z, i) => [
       box(`bed-${s}-${i}`, "grounds", s * 13, z, 7, i ? 9 : 11, 0.37, true),
       ...[-1, 1].map((a) =>

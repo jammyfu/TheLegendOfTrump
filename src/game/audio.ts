@@ -3,6 +3,8 @@ let context: AudioContext | undefined;
 let enabled = true;
 export function setAudio(value: boolean) {
   enabled = value;
+  if (!value && context && rotor)
+    rotor.gain.gain.setTargetAtTime(0, context.currentTime, 0.03);
 }
 export function unlockAudio() {
   try {
@@ -103,3 +105,73 @@ export function playSound(event: SoundEvent) {
     };
   });
 }
+
+let rotor:
+  | {
+      gain: GainNode;
+      sources: (OscillatorNode | AudioBufferSourceNode)[];
+      nodes: AudioNode[];
+    }
+  | undefined;
+/** Continuous engine and blade-beat synthesis; fade with approach/departure. */
+export function rotorSound(remaining: number | null) {
+  if (!context) return;
+  const ctx = context;
+  const t = remaining === null ? 15 : 15 - remaining;
+  const level =
+    enabled && remaining !== null
+      ? 0.28 *
+        Math.min(1, 0.2 + t / 4) *
+        (t > 10 ? Math.max(0, 1 - (t - 10) / 4.5) : 1)
+      : 0;
+  if (!rotor && level > 0) {
+    const master = ctx.createGain(),
+      rumble = ctx.createOscillator(),
+      engine = ctx.createOscillator(),
+      blade = ctx.createOscillator(),
+      pulse = ctx.createGain(),
+      amplitude = ctx.createGain(),
+      filter = ctx.createBiquadFilter();
+    const buffer = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate),
+      d = buffer.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    const air = ctx.createBufferSource();
+    air.buffer = buffer;
+    air.loop = true;
+    master.gain.value = 0;
+    rumble.type = "triangle";
+    rumble.frequency.value = 82;
+    engine.type = "sawtooth";
+    engine.frequency.value = 123;
+    blade.frequency.value = 18;
+    pulse.gain.value = 0.18;
+    amplitude.gain.value = 0.25;
+    filter.type = "lowpass";
+    filter.frequency.value = 480;
+    filter.Q.value = 0.8;
+    rumble.connect(filter);
+    engine.connect(filter);
+    air.connect(filter);
+    filter.connect(amplitude);
+    blade.connect(pulse);
+    pulse.connect(amplitude.gain);
+    amplitude.connect(master);
+    master.connect(ctx.destination);
+    const sources = [rumble, engine, blade, air];
+    sources.forEach((s) => s.start());
+    rotor = {
+      gain: master,
+      sources,
+      nodes: [master, pulse, amplitude, filter],
+    };
+  }
+  rotor?.gain.gain.setTargetAtTime(level, ctx.currentTime, 0.08);
+}
+if (import.meta.hot)
+  import.meta.hot.dispose(() => {
+    rotor?.sources.forEach((s) => {
+      s.stop();
+      s.disconnect();
+    });
+    rotor?.nodes.forEach((n) => n.disconnect());
+  });

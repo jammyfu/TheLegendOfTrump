@@ -201,7 +201,15 @@ export default function App() {
                     <span>冒险用时</span>
                   </div>
                 </div>
-                <button className="primary" onClick={start}>
+                <button
+                  className="primary"
+                  onClick={() => {
+                    if (game.phase === "lost") {
+                      clearInput();
+                      game.retry();
+                    } else start();
+                  }}
+                >
                   再冒险一次 <span>↻</span>
                 </button>
                 <button

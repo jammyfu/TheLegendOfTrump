@@ -1,3 +1,4 @@
+import { Boss } from "./boss";
 import { INTRO_DURATION } from "./intro";
 import {
   loadCamera,
@@ -136,6 +137,14 @@ export class Simulation {
   items: Gem[] = [];
   pots: Pot[] = [];
   guards: Guard[] = [];
+  boss = new Boss();
+  get combatTargets() {
+    return this.zone === "office"
+      ? this.boss.active
+        ? [this.boss]
+        : []
+      : this.guards;
+  }
   crates: Pot[] = [];
   opened = new Set<string>();
   harvested = new Set<string>();
@@ -190,6 +199,7 @@ export class Simulation {
   }
   start() {
     this.phase = "playing";
+    this.boss = new Boss();
     this.zone = "grounds";
     this.x = 0;
     this.z = 15;
@@ -242,6 +252,29 @@ export class Simulation {
       this.introTime = 0;
       this.version++;
     }
+  }
+  retry() {
+    if (this.zone === "office" && this.boss.active) {
+      this.boss.reset();
+      this.hp = 3;
+      this.stamina = 100;
+      this.x = 0;
+      this.z = 6;
+      this.y = 0;
+      this.vy = 0;
+      this.grounded = true;
+      this.yaw = Math.PI;
+      this.phase = "playing";
+      this.invincible = 1;
+      this.cancelCombo();
+      this.cooldown = 0;
+      this.lockedTarget = null;
+      this.cameraYaw = 0;
+      this.cameraPitch = 0.35;
+      this.notify("再次挑战铁甲统领");
+      return;
+    }
+    this.start();
   }
   returnToTitle() {
     this.start();
@@ -297,7 +330,7 @@ export class Simulation {
       this.lockedTarget = null;
       return;
     }
-    const g = this.guards
+    const g = this.combatTargets
       .filter(
         (g) =>
           g.hp > 0 &&
@@ -426,6 +459,15 @@ export class Simulation {
         },
       );
     }
+    if (this.zone === "office" && this.boss.active && this.boss.hp > 0)
+      list.push({
+        id: "guard-100",
+        zone: "office",
+        x: this.boss.x,
+        z: this.boss.z,
+        radius: 0.8,
+        top: 4.3,
+      });
     return list;
   }
   visible(x: number, z: number, ignore = "") {
@@ -491,9 +533,20 @@ export class Simulation {
         this.cameraDistance = this.cameraSettings.distance;
         this.lockedTarget = null;
         this.events.push("door");
-        this.notify("走近书桌，签署冒险宣言");
+        if (this.boss.hp > 0) {
+          this.boss.reset();
+          this.hp = 3;
+          this.stamina = 100;
+          this.notify(
+            "铁甲统领 · 红色预警闪避，金色横扫可格挡，冲击波跳跃躲避",
+          );
+        } else this.notify("走近书桌，签署冒险宣言");
         break;
       case "exit":
+        if (this.boss.active && this.boss.hp > 0) {
+          this.notify("击败统领后大门才会打开");
+          return;
+        }
         this.zone = "grounds";
         this.x = 0;
         this.z = -10;
@@ -505,6 +558,10 @@ export class Simulation {
         this.events.push("door");
         break;
       case "desk":
+        if (this.boss.active && this.boss.hp > 0) {
+          this.notify("先击败铁甲统领");
+          return;
+        }
         this.phase = "dialogue";
         this.x = 0;
         this.z = -6;
@@ -588,13 +645,12 @@ export class Simulation {
     const spec = ATTACKS[stage];
     this.comboQueued = false;
     if (this.stamina < spec.cost) return;
-    const target = this.guards
+    const target = this.combatTargets
       .filter((g) => {
         const dx = g.x - this.x,
           dz = g.z - this.z,
           d = Math.hypot(dx, dz);
         return (
-          this.zone === "grounds" &&
           g.hp > 0 &&
           d < 3.6 &&
           d > 0.1 &&
@@ -639,7 +695,6 @@ export class Simulation {
     if (this.effects.length > 8) this.effects.shift();
   }
   strike() {
-    if (this.zone !== "grounds") return;
     const reachable = (x: number, z: number, id: string) => {
       const dx = x - this.x,
         dz = z - this.z,
@@ -652,6 +707,22 @@ export class Simulation {
         this.visible(x, z, id)
       );
     };
+    if (this.zone === "office") {
+      if (
+        reachable(this.boss.x, this.boss.z, "guard-100") &&
+        this.boss.hit(this.combo === 2)
+      ) {
+        this.impact(this.boss.x, this.boss.z, this.combo === 2);
+        this.hitStop = this.combo === 2 ? 0.1 : 0.06;
+        this.events.push(this.combo === 2 ? "heavy" : "hit");
+        if (!this.boss.hp) {
+          this.lockedTarget = null;
+          this.notify("铁甲统领已击败 · 前往书桌签署宣言");
+        }
+        this.version++;
+      }
+      return;
+    }
     for (const [list, prefix, reward] of [
       [this.pots, "pot-", 2],
       [this.crates, "crate-", 1],
@@ -707,6 +778,61 @@ export class Simulation {
       this.hitStop = Math.max(0, this.hitStop - dt);
       return;
     }
+    if (this.zone === "office") {
+      const move = this.boss.update(dt, this, this.colliders);
+      const boss = this.boss;
+      const dx = this.x - boss.x,
+        dz = this.z - boss.z,
+        d = Math.hypot(dx, dz);
+      const facing = dx * Math.sin(boss.yaw) + dz * Math.cos(boss.yaw);
+      const sight = this.visible(boss.x, boss.z, "guard-100");
+      const attackHit =
+        move === "sweep"
+          ? d < 3.8 && facing > 0 && this.y < 2
+          : move === "slam"
+            ? d < 3.1 && this.y < 1.5
+            : false;
+      const waveDistance = Math.hypot(this.x - boss.waveX, this.z - boss.waveZ);
+      const waveHit =
+        boss.wave >= 0 &&
+        !boss.waveHit &&
+        Math.abs(waveDistance - boss.wave) < 0.6 &&
+        this.y < 0.65;
+      if ((attackHit || waveHit) && sight && this.invincible <= 0) {
+        if (waveHit) boss.waveHit = true;
+        const toward =
+          (boss.x - this.x) * Math.sin(this.yaw) +
+          (boss.z - this.z) * Math.cos(this.yaw);
+        if (
+          move === "sweep" &&
+          input.guard &&
+          this.attackTime <= 0 &&
+          this.grounded &&
+          toward > 0 &&
+          this.stamina >= 22
+        ) {
+          this.stamina -= 22;
+          this.staminaDelay = 1;
+          this.events.push("block");
+          this.impact(this.x, this.z, false, true);
+          boss.stagger = 0.3;
+          this.notify("格挡成功 · 统领露出破绽");
+        } else {
+          this.hp--;
+          this.invincible = 1.15;
+          this.cancelCombo();
+          this.events.push("hurt");
+          this.impact(this.x, this.z, true);
+          this.notify(waveHit ? "跳跃越过冲击波！" : "留意预警，闪避重锤！");
+          if (this.hp <= 0) {
+            this.phase = "lost";
+            this.moving = false;
+            return;
+          }
+        }
+        this.version++;
+      }
+    }
     this.elapsed += dt;
     const wasAttacking = this.attackTime > 0;
     this.attackTime = Math.max(0, this.attackTime - dt);
@@ -741,7 +867,7 @@ export class Simulation {
       this.toastTime -= dt;
       if (this.toastTime <= 0) this.toast = "";
     }
-    const locked = this.guards.find(
+    const locked = this.combatTargets.find(
       (g) => g.id === this.lockedTarget && g.hp > 0,
     );
     if (locked && Math.hypot(locked.x - this.x, locked.z - this.z) < 15) {

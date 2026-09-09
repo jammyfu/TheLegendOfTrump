@@ -41,3 +41,18 @@ test("intro completes automatically without consuming movement input", () => {
   s.update(0.05, { x: 0, z: 0, sprint: false });
   assert.equal(s.phase, "playing");
 });
+
+test("boarding stairs deploy after the door starts opening and retract before departure", () => {
+  const at = (t: number) => introPose(INTRO_DURATION - t);
+  assert.equal(at(5.5).stairs, 0);
+  assert.equal(at(5.5).door, 0);
+  assert.ok(at(6).door > at(6).stairs);
+  assert.ok(at(6).stairs > 0);
+  assert.equal(at(6.5).stairs, 1);
+  assert.equal(at(6.5).door, 1);
+  assert.equal(at(6.5).visible, true);
+  assert.equal(at(9.5).stairs, 0);
+  assert.ok(at(9.5).door > 0);
+  assert.equal(at(10).door, 0);
+  assert.equal(at(11).stairs, 0);
+});

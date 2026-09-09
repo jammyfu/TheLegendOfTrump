@@ -8,7 +8,7 @@ const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 export function introPose(remaining: number) {
   const t = INTRO_DURATION - Math.max(0, remaining);
   const arrival = smooth(t / 5.5),
-    exit = smooth((t - 6) / 3),
+    exit = smooth((t - 6.5) / 2.5),
     departure = smooth((t - 10) / 5);
   const helicopter: [number, number, number] = [
     mix(-32, -8, arrival) - departure * 25,
@@ -17,7 +17,7 @@ export function introPose(remaining: number) {
   ];
   const hero: [number, number, number] = [
     mix(-5.55, 0, exit),
-    mix(0.9, 0, smooth((t - 6) / 0.9)),
+    mix(0.9, 0, smooth((t - 6.5) / 0.9)),
     mix(18.7, 15, exit),
   ];
   let camera: [number, number, number], target: [number, number, number];
@@ -43,8 +43,9 @@ export function introPose(remaining: number) {
     hero,
     camera,
     target,
-    door: smooth((t - 5.2) / 0.8),
-    walking: t >= 6 && t < 9,
-    visible: t >= 6,
+    door: smooth((t - 5.5) / 0.6) * (1 - smooth((t - 9.45) / 0.55)),
+    stairs: smooth((t - 5.85) / 0.6) * (1 - smooth((t - 9) / 0.45)),
+    walking: t >= 6.5 && t < 9,
+    visible: t >= 6.5,
   };
 }

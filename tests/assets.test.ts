@@ -99,6 +99,7 @@ test("arrival helicopter ships an isolated proportional hull and five-blade roto
     "ArrivalRotor",
     "ArrivalTailRotor",
     "ArrivalDoor",
+    "ArrivalStairs",
     "Sculpted boat hull",
     "Tapered tail boom",
   ])
@@ -107,4 +108,33 @@ test("arrival helicopter ships an isolated proportional hull and five-blade roto
   assert.ok(Math.abs(find("ArrivalRotor").translation[1] - 5.6) < 0.001);
   assert.ok(Math.abs(find("ArrivalTailRotor").translation[2]) > 11);
   assert.ok(!gltf.images?.length);
+});
+
+test("concept-derived enemies and arena export isolated models with articulated joints", () => {
+  for (const [file, root] of [
+    ["palace-sentinel", "SentinelRoot"],
+    ["iron-chancellor", "BossRoot"],
+    ["oval-arena", "OvalArenaRoot"],
+  ]) {
+    const bytes = readFileSync(
+      new URL(`../public/models/${file}.glb`, import.meta.url),
+    );
+    assert.ok(bytes.length < 1_000_000);
+    const gltf = JSON.parse(
+      bytes.toString("utf8", 20, 20 + bytes.readUInt32LE(12)),
+    );
+    assert.equal(gltf.scenes.length, 1);
+    assert.ok(gltf.nodes.some((n: { name: string }) => n.name === root));
+    if (file !== "oval-arena")
+      for (const suffix of [
+        "RightArm",
+        "RightElbow",
+        "RightHand",
+        "RightKnee",
+      ]) {
+        assert.ok(
+          gltf.nodes.some((n: { name: string }) => n.name.endsWith(suffix)),
+        );
+      }
+  }
 });

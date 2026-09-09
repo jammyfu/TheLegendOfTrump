@@ -42,6 +42,16 @@ test("desktop controls, back equipment, jump, block, attack and mouse camera", a
   await expect
     .poll(() => parents(page))
     .toEqual({ sword: "RightWristPivot", shield: "LeftWristPivot" });
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const sword = window.__scene!.getObjectByName("EquippedSword")!;
+        sword.updateWorldMatrix(true, false);
+        const e = sword.matrixWorld.elements;
+        return e[5] / Math.hypot(e[4], e[5], e[6]);
+      }),
+    )
+    .toBeGreaterThan(0.98);
   await page.screenshot({ path: "artifacts/adventure-shield-block.png" });
   await page.keyboard.up("KeyF");
   await page.keyboard.press("KeyJ");
@@ -131,6 +141,9 @@ test("interactive props, occlusion, secret chest and complete adventure", async 
   await expect
     .poll(() => page.evaluate(() => window.__game!.zone))
     .toBe("office");
+  await page.evaluate(() => {
+    window.__game!.boss.hp = 0;
+  }); // Isolate traversal; boss is covered below.
   await page.keyboard.down("KeyW");
   await expect
     .poll(() => page.evaluate(() => window.__game!.z), { timeout: 12000 })
@@ -224,6 +237,30 @@ test("mobile multitouch movement + sprint + camera, held block and release clean
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBeTruthy();
+  await page.evaluate(() => {
+    const g = window.__game!;
+    g.gems = 8;
+    g.x = 0;
+    g.z = -10.7;
+    g.interact();
+    g.x = 0;
+    g.z = 1.5;
+    g.yaw = Math.PI;
+    g.cameraYaw = 0.3;
+    g.boss.state = "recover";
+    g.boss.timer = 100;
+  });
+  await expect(page.getByLabel("Boss 战", { exact: true })).toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(() => !!window.__scene?.getObjectByName("BossRoot")),
+    )
+    .toBeTruthy();
+  await page.getByRole("button", { name: "挥剑", exact: true }).tap();
+  await expect
+    .poll(() => page.evaluate(() => window.__game!.boss.hp))
+    .toBeLessThan(18);
+  await page.screenshot({ path: "artifacts/oval-boss-mobile.png" });
   expect(errors).toEqual([]);
   await context.close();
 });
@@ -341,6 +378,25 @@ test("first left click attacks, camera settings persist and portrait view expand
 test("helicopter has proportional fuselage, working door and articulated rotors", async ({
   page,
 }) => {
+  await page.addInitScript(() => {
+    const probe: { oscillators: OscillatorNode[]; gains: GainNode[] } = {
+      oscillators: [],
+      gains: [],
+    };
+    (window as unknown as { audioProbe: typeof probe }).audioProbe = probe;
+    const oscillator = AudioContext.prototype.createOscillator;
+    const gain = AudioContext.prototype.createGain;
+    AudioContext.prototype.createOscillator = function () {
+      const node = oscillator.call(this);
+      probe.oscillators.push(node);
+      return node;
+    };
+    AudioContext.prototype.createGain = function () {
+      const node = gain.call(this);
+      probe.gains.push(node);
+      return node;
+    };
+  });
   await page.goto("/");
   await page.getByRole("button", { name: /开始冒险/ }).click();
   await expect
@@ -349,7 +405,7 @@ test("helicopter has proportional fuselage, working door and articulated rotors"
     )
     .toBeTruthy();
   await page.evaluate(() => {
-    window.__game!.introTime = 8.7;
+    window.__game!.introTime = 8.3;
     window.__game!.update = () => {};
   });
   await expect
@@ -370,6 +426,31 @@ test("helicopter has proportional fuselage, working door and articulated rotors"
     )
     .not.toBe(before);
   await page.waitForTimeout(500);
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => window.__scene!.getObjectByName("ArrivalStairs")?.scale.x,
+      ),
+    )
+    .toBe(1);
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const probe = (
+          window as unknown as {
+            audioProbe: { oscillators: OscillatorNode[]; gains: GainNode[] };
+          }
+        ).audioProbe;
+        return (
+          [18, 82, 123].every((f) =>
+            probe.oscillators.some(
+              (o) => o.frequency.value === f && o.context.state === "running",
+            ),
+          ) && probe.gains[0].gain.value > 0.1
+        );
+      }),
+    )
+    .toBeTruthy();
   await page.screenshot({ path: "artifacts/helicopter-arrival.png" });
   await page.evaluate(() => {
     window.__game!.introTime = 6.5;
@@ -381,6 +462,133 @@ test("helicopter has proportional fuselage, working door and articulated rotors"
       ),
     )
     .toBeLessThan(-0.7);
+  for (const remaining of [12, 5]) {
+    await page.evaluate((remaining) => {
+      window.__game!.introTime = remaining;
+    }, remaining);
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () => window.__scene!.getObjectByName("ArrivalStairs")!.visible,
+        ),
+      )
+      .toBe(false);
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () => window.__scene!.getObjectByName("ArrivalDoor")!.position.z,
+        ),
+      )
+      .toBeCloseTo(0.7);
+  }
   await page.getByRole("button", { name: "跳过片头 · E" }).click();
   await expect(page.getByLabel("体力", { exact: true })).toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          (window as unknown as { audioProbe: { gains: GainNode[] } })
+            .audioProbe.gains[0].gain.value,
+      ),
+    )
+    .toBeLessThan(0.001);
+});
+
+test("oval arena boss telegraphs, blocks, enrages and unlocks the desk after defeat", async ({
+  page,
+}) => {
+  test.setTimeout(120000);
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await start(page);
+  await page.evaluate(() => {
+    const g = window.__game!;
+    g.gems = 8;
+    g.x = 0;
+    g.z = -10.7;
+  });
+  await page.keyboard.press("KeyE");
+  await expect(page.getByLabel("Boss 战", { exact: true })).toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(() => !!window.__scene?.getObjectByName("OvalArenaRoot")),
+    )
+    .toBeTruthy();
+  await page.evaluate(() => {
+    const g = window.__game!;
+    g.x = 0;
+    g.z = 2.5;
+    g.yaw = Math.PI;
+    g.cameraYaw = 0.35;
+    g.boss.timer = 0;
+  });
+  await page.keyboard.down("KeyF");
+  await expect
+    .poll(() => page.evaluate(() => window.__game!.boss.state))
+    .toBe("windup");
+  await page.evaluate(() => {
+    window.__game!.hitStop = 100;
+  });
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const root = window.__scene?.getObjectByName("guard-100");
+        const body = window.__scene?.getObjectByName("BossBreastplate") as
+          import("three").Mesh | undefined;
+        return (
+          !!root?.visible &&
+          !!body &&
+          (!Array.isArray(body.material) || body.geometry.groups.length > 0)
+        );
+      }),
+    )
+    .toBeTruthy();
+  await page.screenshot({ path: "artifacts/oval-boss-arena.png" });
+  await page.evaluate(() => {
+    window.__game!.hitStop = 0;
+  });
+  await expect
+    .poll(() => page.evaluate(() => window.__game!.stamina))
+    .toBeLessThan(90);
+  expect(await page.evaluate(() => window.__game!.hp)).toBe(3);
+  await page.keyboard.up("KeyF");
+  // Repeat real attacks in controlled recovery poses; full AI timing and dodge
+  // behaviors are covered by the deterministic boss tests.
+  for (let hit = 0; hit < 18; hit++) {
+    const before = await page.evaluate(() => {
+      const g = window.__game!;
+      g.boss.x = 0;
+      g.boss.z = 0;
+      g.boss.state = "recover";
+      g.boss.timer = 5;
+      g.x = 0;
+      g.z = 2;
+      g.yaw = Math.PI;
+      g.stamina = 100;
+      return g.boss.hp;
+    });
+    if (before === 0) break;
+    await expect
+      .poll(() => page.evaluate(() => window.__game!.cooldown))
+      .toBe(0);
+    await page.keyboard.press("KeyJ");
+    await expect
+      .poll(() => page.evaluate(() => window.__game!.boss.hp), {
+        intervals: [30, 50, 80],
+      })
+      .toBeLessThan(before);
+    if (before === 10) await expect(page.getByText(/过载阶段/)).toBeVisible();
+  }
+  await expect.poll(() => page.evaluate(() => window.__game!.boss.hp)).toBe(0);
+  await expect(page.getByLabel("Boss 战", { exact: true })).toBeHidden();
+  await page.evaluate(() => {
+    const g = window.__game!;
+    g.x = 0;
+    g.z = -2;
+  });
+  await page.keyboard.press("KeyE");
+  await expect(
+    page.getByRole("heading", { name: "新的篇章，由你书写。" }),
+  ).toBeVisible();
+  expect(errors).toEqual([]);
 });

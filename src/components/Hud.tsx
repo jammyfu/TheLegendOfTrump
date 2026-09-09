@@ -104,7 +104,10 @@ export function Hud() {
         </div>
       </div>
       {(game.attackTime > 0 || game.comboWindow > 0) && (
-        <div className="combo-status" aria-label="连招状态">
+        <div
+          className={`combo-status ${game.zone === "office" ? "boss-combo" : ""}`}
+          aria-label="连招状态"
+        >
           <strong>
             {game.combo + 1} / 3 · {ATTACKS[game.combo].name}
           </strong>
@@ -115,6 +118,30 @@ export function Hud() {
                 ? "已衔接下一式"
                 : "再按攻击衔接"}
           </span>
+        </div>
+      )}
+      {game.zone === "office" && game.boss.active && game.boss.hp > 0 && (
+        <div className="boss-hud" aria-label="Boss 战">
+          <span>
+            铁甲统领 {game.boss.enraged ? "· 过载阶段" : "· 椭圆厅守护者"}
+          </span>
+          <meter
+            aria-label="Boss 生命值"
+            min={0}
+            max={game.boss.maxHp}
+            value={game.boss.hp}
+          />
+          <small>
+            {game.boss.state === "windup"
+              ? game.boss.move === "sweep"
+                ? "金色横扫 · 举盾格挡"
+                : game.boss.move === "slam"
+                  ? "重锤下砸 · 闪避离开红圈"
+                  : "冲击波 · 跳跃躲避"
+              : game.boss.state === "recover"
+                ? "收招破绽 · 进攻！"
+                : "Q 锁定 · 留意地面预警"}
+          </small>
         </div>
       )}
       <div className="gem-count" aria-label={`翡翠 ${game.gems} 枚`}>
@@ -141,7 +168,9 @@ export function Hud() {
       <div className="quest">
         <p>
           {game.zone === "office"
-            ? "走近书桌，签署冒险宣言"
+            ? game.boss.hp > 0
+              ? "击败铁甲统领，解锁书桌"
+              : "走近书桌，签署冒险宣言"
             : game.gems >= 8
               ? "大门已开启 · 进入白宫"
               : "探索南草坪，收集 8 枚翡翠"}
