@@ -6,13 +6,15 @@ import { CAMPS, LANDING } from "../game/expedition";
 import { game } from "../game/simulation";
 import { Box, Cylinder } from "./Primitives";
 import { Asset } from "./InteractiveProps";
+import { applyLegendMaterials, generatedNormalMap } from "../game/materials";
+import { generatedColorMaps } from "../game/colorTextures";
 function Camp({ camp }: { camp: (typeof CAMPS)[number] }) {
   const source = useLoader(
     GLTFLoader,
     import.meta.env.BASE_URL + "models/field-camp.glb",
   );
   const model = useMemo(() => {
-    const m = source.scene.clone(true);
+    const m = applyLegendMaterials(source.scene.clone(true));
     m.traverse((o) => {
       if (o instanceof Mesh) {
         o.castShadow = true;
@@ -79,6 +81,9 @@ export function Expedition() {
               <cylinderGeometry args={[0.24, 0.24, 0.075, 12]} />
               <meshStandardMaterial
                 color="#edbd4f"
+                normalMap={generatedNormalMap("gold")}
+                {...generatedColorMaps("gold")}
+                normalScale={[0.16, 0.16]}
                 metalness={0.6}
                 roughness={0.3}
                 emissive="#8c5915"
@@ -126,7 +131,12 @@ export function Expedition() {
         {[0, 1, 2, 3, 4, 5].map((i) => (
           <mesh key={i} position={[Math.sin(i) * 0.6, 0.14, Math.cos(i) * 0.6]}>
             <dodecahedronGeometry args={[0.23]} />
-            <meshStandardMaterial color="#7e8174" />
+            <meshStandardMaterial
+              color="#7e8174"
+              normalMap={generatedNormalMap("stone")}
+              {...generatedColorMaps("stone")}
+              normalScale={[0.4, 0.4]}
+            />
           </mesh>
         ))}
         <mesh position={[0, 0.45, 0]}>

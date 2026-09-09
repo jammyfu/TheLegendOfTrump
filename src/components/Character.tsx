@@ -20,9 +20,11 @@ import {
   swingProgress,
 } from "../game/combat";
 import { game } from "../game/simulation";
+import { applyLegendMaterials } from "../game/materials";
 const UP = new Vector3(0, 1, 0);
 function cloneGear(source: Group) {
   const clone = source.clone(true);
+  applyLegendMaterials(clone);
   clone.traverse((node) => {
     if (node instanceof Mesh)
       node.material = Array.isArray(node.material)
@@ -90,6 +92,7 @@ export function Character() {
   const gltf = useLoader(GLTFLoader, MODEL_URL);
   const model = useMemo(() => {
     const scene = gltf.scene.clone(true);
+    applyLegendMaterials(scene);
     scene.traverse((node) => {
       if (node instanceof Mesh) {
         node.castShadow = true;

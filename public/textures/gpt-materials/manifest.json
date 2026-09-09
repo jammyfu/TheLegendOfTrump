@@ -1,0 +1,26 @@
+{
+  "generator": "GPT Image",
+  "source": "source-atlas.png",
+  "tileSize": 256,
+  "surfaces": [
+    "grass",
+    "stone",
+    "paving",
+    "roof",
+    "wood",
+    "bark",
+    "leather",
+    "fabric",
+    "metal",
+    "gold",
+    "paint",
+    "rubber",
+    "leaf",
+    "skin",
+    "hair",
+    "glass"
+  ],
+  "colorSpace": "sRGB",
+  "roughness": "Derived from generated color luminance; linear data",
+  "normal": "Existing procedural normal maps retained"
+}

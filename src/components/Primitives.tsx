@@ -1,20 +1,41 @@
 import type { ThreeElements } from "@react-three/fiber";
+import { generatedColorMaps, texturedTint } from "../game/colorTextures";
+import { generatedNormalMap, type Surface } from "../game/materials";
+function surfaceFromColor(color: string): Surface {
+  const hex = color.replace("#", "");
+  const r = parseInt(hex.slice(0, 2), 16),
+    g = parseInt(hex.slice(2, 4), 16),
+    b = parseInt(hex.slice(4, 6), 16);
+  if (g > r * 1.08 && g > b * 1.1) return "leaf";
+  if (b > r * 1.1 && g > r) return "water";
+  if (r > g * 1.2 && g > b * 1.15 && r < 170) return "wood";
+  if (r < 85 && g < 90 && b < 90) return "metal";
+  return "stone";
+}
 type Props = {
   position?: [number, number, number];
   scale?: [number, number, number];
   rotation?: [number, number, number];
   color?: string;
+  surface?: Surface;
 };
 export function Box({
   position,
   scale = [1, 1, 1],
   rotation,
   color = "#e4dfce",
+  surface = surfaceFromColor(color),
 }: Props) {
   return (
     <mesh position={position} rotation={rotation} castShadow receiveShadow>
       <boxGeometry args={scale} />
-      <meshStandardMaterial color={color} roughness={0.92} />
+      <meshStandardMaterial
+        color={texturedTint(color, surface)}
+        roughness={0.92}
+        normalMap={generatedNormalMap(surface)}
+        {...generatedColorMaps(surface)}
+        normalScale={[0.3, 0.3]}
+      />
     </mesh>
   );
 }
@@ -24,6 +45,7 @@ export function Cylinder({
   top,
   rise = 1,
   color = "#ded8c4",
+  surface = surfaceFromColor(color),
   segments = 12,
   ...props
 }: Props & {
@@ -35,7 +57,14 @@ export function Cylinder({
   return (
     <mesh position={position} {...props} castShadow receiveShadow>
       <cylinderGeometry args={[top ?? radius, radius, rise, segments]} />
-      <meshStandardMaterial color={color} flatShading roughness={0.86} />
+      <meshStandardMaterial
+        color={texturedTint(color, surface)}
+        flatShading
+        roughness={0.86}
+        normalMap={generatedNormalMap(surface)}
+        {...generatedColorMaps(surface)}
+        normalScale={[0.3, 0.3]}
+      />
     </mesh>
   );
 }
@@ -68,6 +97,9 @@ export function Tree({
           <meshStandardMaterial
             color={["#506e3d", "#739346", "#88a354", "#668d45"][i]}
             flatShading
+            normalMap={generatedNormalMap("leaf")}
+            {...generatedColorMaps("leaf")}
+            normalScale={[0.25, 0.25]}
           />
         </mesh>
       ))}
@@ -91,22 +123,29 @@ export function Flag({
       />
       <mesh position={[0, 5.63, 0]}>
         <sphereGeometry args={[0.1, 8, 6]} />
-        <meshStandardMaterial color="#cfad5c" />
+        <meshStandardMaterial
+          color="#cfad5c"
+          normalMap={generatedNormalMap("gold")}
+          {...generatedColorMaps("gold")}
+          normalScale={[0.16, 0.16]}
+        />
       </mesh>
       <group position={[0.8, 4.7, 0]} rotation={[0, -0.2, -0.05]}>
-        <Box scale={[1.6, 1, 0.04]} color="#f5ead2" />
+        <Box scale={[1.6, 1, 0.04]} color="#f5ead2" surface="fabric" />
         {Array.from({ length: 7 }, (_, i) => (
           <Box
             key={i}
             position={[0, 0.43 - i * 0.142, 0.025]}
             scale={[1.6, 0.072, 0.025]}
             color="#a84139"
+            surface="fabric"
           />
         ))}
         <Box
           position={[-0.42, 0.22, 0.05]}
           scale={[0.76, 0.57, 0.04]}
           color="#253d68"
+          surface="fabric"
         />
         {Array.from({ length: 9 }, (_, i) => (
           <Box
@@ -118,6 +157,7 @@ export function Flag({
             ]}
             scale={[0.04, 0.04, 0.01]}
             color="#f5e7c0"
+            surface="fabric"
           />
         ))}
       </group>

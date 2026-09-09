@@ -1,0 +1,77 @@
+{
+  "size": 512,
+  "space": "tangent",
+  "convention": "OpenGL +Y",
+  "colorSpace": "NoColorSpace",
+  "seamless": true,
+  "textures": {
+    "metal": {
+      "file": "metal-normal.png",
+      "normalScale": 0.22
+    },
+    "gold": {
+      "file": "gold-normal.png",
+      "normalScale": 0.16
+    },
+    "paint": {
+      "file": "paint-normal.png",
+      "normalScale": 0.24
+    },
+    "glass": {
+      "file": "glass-normal.png",
+      "normalScale": 0.08
+    },
+    "water": {
+      "file": "water-normal.png",
+      "normalScale": 0.4
+    },
+    "stone": {
+      "file": "stone-normal.png",
+      "normalScale": 0.55
+    },
+    "paving": {
+      "file": "paving-normal.png",
+      "normalScale": 0.5
+    },
+    "roof": {
+      "file": "roof-normal.png",
+      "normalScale": 0.45
+    },
+    "wood": {
+      "file": "wood-normal.png",
+      "normalScale": 0.4
+    },
+    "bark": {
+      "file": "bark-normal.png",
+      "normalScale": 0.6
+    },
+    "leather": {
+      "file": "leather-normal.png",
+      "normalScale": 0.4
+    },
+    "fabric": {
+      "file": "fabric-normal.png",
+      "normalScale": 0.35
+    },
+    "grass": {
+      "file": "grass-normal.png",
+      "normalScale": 0.55
+    },
+    "leaf": {
+      "file": "leaf-normal.png",
+      "normalScale": 0.3
+    },
+    "skin": {
+      "file": "skin-normal.png",
+      "normalScale": 0.15
+    },
+    "hair": {
+      "file": "hair-normal.png",
+      "normalScale": 0.25
+    },
+    "rubber": {
+      "file": "rubber-normal.png",
+      "normalScale": 0.3
+    }
+  }
+}

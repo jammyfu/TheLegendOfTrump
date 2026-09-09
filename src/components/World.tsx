@@ -4,11 +4,13 @@ import { Landscape } from "./Landscape";
 import { Expedition } from "./Expedition";
 import { Estate } from "./Estate";
 import { OfficeScene } from "./OfficeScene";
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Group, CanvasTexture, RepeatWrapping, SRGBColorSpace } from "three";
+import { Group } from "three";
 import { Box, Cylinder, Tree, Flag } from "./Primitives";
 import { game } from "../game/simulation";
+import { generatedNormalMap } from "../game/materials";
+import { generatedColorMaps } from "../game/colorTextures";
 function Lamp({ x, z }: { x: number; z: number }) {
   return (
     <group position={[x, 0, z]}>
@@ -71,6 +73,7 @@ function Fountain() {
         rise={0.06}
         segments={32}
         color="#679c9d"
+        surface="water"
       />
       <Cylinder
         position={[0, 0.91, 0]}
@@ -93,6 +96,7 @@ function Fountain() {
         rise={0.03}
         segments={24}
         color="#8fbabd"
+        surface="water"
       />
       <Cylinder
         position={[0, 2.08, 0]}
@@ -102,7 +106,11 @@ function Fountain() {
       />
       <mesh position={[0, 2.55, 0]}>
         <sphereGeometry args={[0.2, 8, 8]} />
-        <meshStandardMaterial color="#c8e8df" />
+        <meshStandardMaterial
+          color="#c8e8df"
+          normalMap={generatedNormalMap("water")}
+          normalScale={[0.2, 0.2]}
+        />
       </mesh>
       <group ref={water}>
         {Array.from({ length: 16 }, (_, i) => {
@@ -115,6 +123,8 @@ function Fountain() {
               <cylinderGeometry args={[0.021, 0.06, 1.1, 5]} />
               <meshStandardMaterial
                 color="#bbe7dd"
+                normalMap={generatedNormalMap("water")}
+                normalScale={[0.2, 0.2]}
                 transparent
                 opacity={0.65}
               />
@@ -126,30 +136,16 @@ function Fountain() {
   );
 }
 function Ground() {
-  const texture = useMemo(() => {
-    const canvas = document.createElement("canvas");
-    canvas.width = 256;
-    canvas.height = 256;
-    const ctx = canvas.getContext("2d")!;
-    ctx.fillStyle = "#b8b8a8";
-    ctx.fillRect(0, 0, 256, 256);
-    for (let y = 0; y < 4; y++)
-      for (let x = 0; x < 4; x++) {
-        const n = (x * 17 + y * 13) % 19;
-        ctx.fillStyle = `rgb(${180 + n},${179 + n},${164 + n})`;
-        ctx.fillRect(x * 64 + 1, y * 64 + 1, 62, 62);
-      }
-    const t = new CanvasTexture(canvas);
-    t.wrapS = t.wrapT = RepeatWrapping;
-    t.repeat.set(12, 14);
-    t.colorSpace = SRGBColorSpace;
-    return t;
-  }, []);
   return (
     <>
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[280, 470]} />
-        <meshStandardMaterial color="#819663" />
+        <meshStandardMaterial
+          color="#cad5aa"
+          normalMap={generatedNormalMap("grass", 70, 117.5)}
+          {...generatedColorMaps("grass", 70, 117.5)}
+          normalScale={[0.4, 0.4]}
+        />
       </mesh>
       <mesh
         rotation={[-Math.PI / 2, 0, 0]}
@@ -157,7 +153,12 @@ function Ground() {
         receiveShadow
       >
         <planeGeometry args={[6, 43]} />
-        <meshStandardMaterial map={texture} roughness={1} />
+        <meshStandardMaterial
+          {...generatedColorMaps("paving", 12, 14)}
+          normalMap={generatedNormalMap("paving", 12, 14)}
+          normalScale={[0.4, 0.4]}
+          roughness={1}
+        />
       </mesh>
       {[-1, 1].map((s) => (
         <group key={s}>
@@ -176,13 +177,21 @@ function Ground() {
               {[-1, 1].map((a) => (
                 <Box
                   key={a}
-                  position={[s * 13 + a * 3, i ? 0.65 : GARDEN_HEDGE_HEIGHT / 2, z]}
+                  position={[
+                    s * 13 + a * 3,
+                    i ? 0.65 : GARDEN_HEDGE_HEIGHT / 2,
+                    z,
+                  ]}
                   scale={[0.65, i ? 0.75 : GARDEN_HEDGE_HEIGHT, i ? 8.5 : 10.5]}
                   color="#536b43"
                 />
               ))}
               <Box
-                position={[s * 13, i ? 0.65 : GARDEN_HEDGE_HEIGHT / 2, z + (i ? 4 : -5)]}
+                position={[
+                  s * 13,
+                  i ? 0.65 : GARDEN_HEDGE_HEIGHT / 2,
+                  z + (i ? 4 : -5),
+                ]}
                 scale={[6, i ? 0.75 : GARDEN_HEDGE_HEIGHT, 0.65]}
                 color="#536b43"
               />

@@ -5,7 +5,7 @@ import { useLoader, useFrame } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Group, Mesh, MeshStandardMaterial, type Material } from "three";
 import { game } from "../game/simulation";
-import { legendMaterial } from "../game/materials";
+import { legendMaterial, ensureNormalUVs } from "../game/materials";
 export function EnemyModel({
   id,
   boss = false,
@@ -33,6 +33,7 @@ export function EnemyModel({
     const m = source.scene.clone(true);
     m.traverse((n) => {
       if (n instanceof Mesh) {
+        ensureNormalUVs(n);
         n.castShadow = true;
         n.receiveShadow = true;
         const cloneMaterial = (v: Material) => {
