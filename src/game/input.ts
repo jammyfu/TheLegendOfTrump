@@ -2,9 +2,12 @@ import { game } from "./simulation";
 import { unlockAudio } from "./audio";
 export const keys = new Set<string>();
 export const joystick = { x: 0, z: 0 };
+const mouse = { guard: false };
 export const held = { sprint: false, guard: false };
 export function clearInput() {
   game.cancelCharge();
+  game.jumpBuffer = 0;
+  mouse.guard = false;
   keys.clear();
   joystick.x = 0;
   joystick.z = 0;
@@ -22,7 +25,7 @@ export function getInput() {
       (keys.has("KeyW") || keys.has("ArrowUp") ? 1 : 0) +
       joystick.z,
     sprint: held.sprint || keys.has("ShiftLeft") || keys.has("ShiftRight"),
-    guard: held.guard || keys.has("KeyF"),
+    guard: mouse.guard || held.guard || keys.has("KeyF"),
   };
 }
 export function releaseMouse() {
@@ -103,13 +106,14 @@ export function bindInput() {
       game.pressAttack();
       if (!document.pointerLockElement) requestMouseLook();
     }
-    if (e.button === 2) held.guard = true;
+    if (e.button === 2) { e.preventDefault(); mouse.guard = true; }
   };
   const mouseUp = (e: MouseEvent) => {
     if (e.button === 0) game.releaseAttack();
-    if (e.button === 2) held.guard = false;
+    if (e.button === 2) mouse.guard = false;
   };
   const mouseMove = (e: MouseEvent) => {
+    if (game.phase === "playing" && (document.pointerLockElement || e.target instanceof HTMLCanvasElement)) mouse.guard = !!(e.buttons & 2);
     if (
       game.phase === "playing" &&
       (document.pointerLockElement ||
@@ -124,7 +128,7 @@ export function bindInput() {
     }
   };
   const context = (e: MouseEvent) => {
-    if (e.target instanceof HTMLCanvasElement) e.preventDefault();
+    if (document.pointerLockElement || e.target instanceof HTMLCanvasElement || held.guard) e.preventDefault();
   };
   const lock = () => {
     if (!document.pointerLockElement) {

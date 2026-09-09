@@ -1,0 +1,280 @@
+/* Shared title-screen materials for every game menu and dialog. */
+.game .modal-shade {
+  background: radial-gradient(ellipse at center, #21150899, #090603ed);
+  backdrop-filter: blur(9px) saturate(0.65);
+  padding: max(18px, env(safe-area-inset-top)) 18px;
+  overflow-y: auto;
+}
+.game .menu-panel,
+.game .dialogue {
+  color: #e7d4a7;
+  font-family: "Noto Serif SC", Georgia, serif;
+  background-image:
+    linear-gradient(120deg, #140d08e8, #25190de8 50%, #100b07f5),
+    url("/title/background.png");
+  background-size: cover;
+  background-position: center;
+  border: 1px solid #ba9459;
+  border-radius: 2px;
+  box-shadow:
+    inset 0 0 0 5px #140d08,
+    inset 0 0 0 6px #b78d4140,
+    0 24px 80px #000b;
+  padding: 32px 34px;
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #9f7b43 #180f09;
+  animation: menu-reveal 0.3s ease-out both;
+}
+.game .menu-panel {
+  width: min(460px, 100%);
+  margin: auto;
+}
+.game .help-panel {
+  width: min(570px, 100%);
+}
+.game .menu-panel::before {
+  content: "";
+  display: block;
+  width: 116px;
+  height: 58px;
+  background: url("/title/wordmark.png") center / contain no-repeat;
+  margin: 0 auto 17px;
+  filter: drop-shadow(0 3px 5px #0009);
+  pointer-events: none;
+}
+.game .menu-panel .eyebrow,
+.game .dialogue .eyebrow {
+  color: #bda170;
+  font-family: Georgia, serif;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+}
+.game .menu-panel h2,
+.game .dialogue h2 {
+  color: #f1d58e;
+  font-weight: 700;
+  font-size: clamp(21px, 3vw, 28px);
+  letter-spacing: 0.07em;
+  line-height: 1.55;
+  margin: 13px 0 17px;
+  text-shadow:
+    0 2px 1px #69451b,
+    0 4px 14px #000;
+}
+.game .menu-panel h2::after,
+.game .dialogue h2::after {
+  content: "";
+  display: block;
+  height: 1px;
+  margin-top: 17px;
+  background: linear-gradient(90deg, transparent, #d6b36c99, transparent);
+}
+.game .menu-panel p,
+.game .dialogue p {
+  color: #c5b590;
+  line-height: 1.9;
+}
+.game :is(.menu-panel, .dialogue) :is(.primary, .secondary, .text-button) {
+  font-family: "Noto Serif SC", Georgia, serif;
+  position: relative;
+  min-height: 46px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  border-radius: 1px;
+  transition:
+    background-position 0.45s,
+    border-color 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s;
+}
+.game :is(.menu-panel, .dialogue) .primary {
+  color: #ffe7aa;
+  border: 1px solid #cfa65a;
+  background: linear-gradient(115deg, #382312, #76502788, #382312);
+  background-size: 220% 100%;
+  box-shadow:
+    inset 0 0 0 3px #160e0980,
+    0 4px 14px #0006;
+  text-shadow: 0 2px 3px #000;
+}
+.game :is(.menu-panel, .dialogue) .secondary {
+  color: #d7bd82;
+  border: 1px solid #9b7b444f;
+  background: #140e096b;
+}
+.game :is(.menu-panel, .dialogue) .text-button {
+  color: #b9a276;
+  margin-top: 12px;
+}
+.game
+  :is(.menu-panel, .dialogue)
+  :is(.primary, .secondary, .text-button):hover {
+  color: #fff2c6;
+  border-color: #f2d38a;
+  background-position: 100% 50%;
+  box-shadow:
+    inset 0 0 22px #bd893619,
+    0 0 16px #c99b4324;
+  transform: translateY(-1px);
+}
+.game :is(.menu-panel, .dialogue) button:active {
+  transform: translateY(1px);
+}
+.game :is(.menu-panel, .dialogue) :is(button, summary, input):focus-visible {
+  outline: 2px solid #f6d78a;
+  outline-offset: 3px;
+}
+.game .close-button {
+  top: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  color: #dbbd78;
+  background: #140e0977;
+  border: 1px solid #a683444d;
+  line-height: 1;
+  z-index: 1;
+}
+.game .help-panel dl {
+  margin: 20px 0;
+}
+.game .help-panel dl div {
+  border-bottom: 1px solid #be985326;
+  padding: 9px 0;
+  margin: 0;
+  gap: 12px;
+}
+.game .help-panel dd {
+  color: #d4c39e;
+  text-align: right;
+}
+.game :is(.menu-panel, .dialogue) kbd {
+  background: #160f09;
+  border: 1px solid #9a773d80;
+  border-bottom-width: 2px;
+  color: #edd69c;
+  padding: 3px 7px;
+  border-radius: 2px;
+  font-family: inherit;
+  font-size: 11px;
+}
+.game .help-panel .help-note {
+  padding: 13px;
+  background: #100b0766;
+  border-left: 2px solid #b28b48;
+}
+.game .camera-settings {
+  border: 1px solid #a17c3e70;
+  border-radius: 1px;
+  background: #110c087a;
+  padding: 14px;
+  color: #d0bd95;
+}
+.game .camera-settings summary {
+  color: #e6ca86;
+  padding: 4px 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+.game .camera-settings output {
+  color: #f4d48a;
+  font-family: Georgia, serif;
+}
+.game .camera-settings input {
+  accent-color: #d8ad55;
+}
+.game .camera-settings input[type="range"] {
+  height: 24px;
+  cursor: pointer;
+}
+.game .result-stats {
+  gap: 38px;
+  padding: 17px 0;
+  border-block: 1px solid #ba94473b;
+}
+.game .result-stats strong {
+  color: #f4d58b;
+  text-shadow: 0 2px 8px #000;
+  font-weight: 700;
+}
+.game .result-stats span {
+  color: #bda77c;
+}
+.game .result-panel > .crest {
+  filter: drop-shadow(0 0 12px #e4b95f55);
+  width: 44px;
+  height: 44px;
+}
+.game .dialogue {
+  width: min(650px, 92%);
+}
+.game .minimap,
+.game .toast,
+.game .interact-prompt {
+  background: linear-gradient(120deg, #20150fed, #110c08ed);
+  border: 1px solid #ba94596b;
+  color: #e6d1a2;
+  box-shadow:
+    inset 0 0 0 3px #ad833c15,
+    0 5px 20px #0005;
+}
+.game .map-heading,
+.game .map-caption {
+  color: #d9be80;
+}
+@keyframes menu-reveal {
+  from {
+    opacity: 0;
+    filter: brightness(0.7);
+  }
+  to {
+    opacity: 1;
+    filter: brightness(1);
+  }
+}
+@media (max-width: 600px) {
+  .game .menu-panel,
+  .game .dialogue {
+    padding: 25px 22px;
+  }
+  .game .menu-panel::before {
+    width: 96px;
+    height: 48px;
+    margin-bottom: 12px;
+  }
+  .game .help-panel dl div {
+    gap: 8px;
+    font-size: 11px;
+  }
+  .game .menu-panel h2,
+  .game .dialogue h2 {
+    font-size: 21px;
+  }
+}
+@media (max-height: 600px) {
+  .game .menu-panel::before {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .game .menu-panel,
+  .game .dialogue {
+    animation: none;
+  }
+  .game :is(.menu-panel, .dialogue) :is(.primary, .secondary, .text-button) {
+    transition: none;
+  }
+}
+
+.game .music-settings { text-align: left; }
+.game .music-options { display: flex; gap: 10px; }
+.game .music-options button { flex: 1; }
+.game .music-options [aria-pressed="true"] { background: #68502c; border-color: #e6c778; box-shadow: inset 0 0 14px #d1ad4f33; }
+.game .music-settings dl > div { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid #b99a4f33; font-size: 13px; }
+.game .music-settings dd { margin: 0; text-align: right; color: #e6c778; }
+.game .music-settings p { font-size: 12px; line-height: 1.7; }
+.game .music-settings a { color: #e6c778; }

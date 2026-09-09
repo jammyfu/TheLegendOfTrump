@@ -1,7 +1,9 @@
+import { MusicSettings } from "./components/MusicSettings";
 import { CameraSettings } from "./components/CameraSettings";
 import { Component, useEffect, useState, type ReactNode } from "react";
 import { Scene } from "./components/Scene";
 import { Hud } from "./components/Hud";
+import { TitleScreen } from "./components/TitleScreen";
 import { Crest } from "./components/Icons";
 import { game } from "./game/simulation";
 import { bindInput, clearInput } from "./game/input";
@@ -30,29 +32,36 @@ class SceneError extends Component<
 }
 export default function App() {
   const [, render] = useState(0);
+  const [settings, setSettings] = useState(false);
   const [help, setHelp] = useState(false),
     [sound, setSound] = useState(true);
   useEffect(() => {
     const unbind = bindInput();
+    const activateAudio = () => unlockAudio();
+    window.addEventListener("pointerdown", activateAudio, { once: true });
+    window.addEventListener("keydown", activateAudio, { once: true });
     const tick = setInterval(() => render((n) => n + 1), 80);
     return () => {
       unbind();
+      window.removeEventListener("pointerdown", activateAudio);
+      window.removeEventListener("keydown", activateAudio);
       clearInterval(tick);
     };
   }, []);
   useEffect(() => {
-    if (!help) return;
+    if (!help && !settings) return;
     clearInput();
     const block = (e: KeyboardEvent) => {
       e.stopImmediatePropagation();
       if (e.code === "Escape") {
         e.preventDefault();
         setHelp(false);
+        setSettings(false);
       }
     };
     window.addEventListener("keydown", block, true);
     return () => window.removeEventListener("keydown", block, true);
-  }, [help]);
+  }, [help, settings]);
   const start = () => {
     unlockAudio();
     clearInput();
@@ -64,43 +73,23 @@ export default function App() {
   };
   const title = game.phase === "title";
   return (
-    <main className={title ? "game title-mode" : "game"}>
+    <main
+      className={title ? "game title-mode" : "game"}
+      onDragStart={(event) => event.preventDefault()}
+    >
       <SceneError>
         <Scene />
       </SceneError>
       <div className="film-grain" />
       <div className="vignette" />
       {title ? (
-        <section className="reference-title" aria-label="游戏标题画面">
-          <h1 className="sr-only">TRUMP</h1>
-          <div className="reference-title-image">
-            <img
-              src={import.meta.env.BASE_URL + "title-screen.jpg"}
-              alt="The Legend of Trump：金色标题、蓝色盾牌与宝剑，深褐色古典纹理背景"
-            />
-            <button
-              className="reference-start"
-              aria-label="开始冒险"
-              onClick={start}
-            >
-              <span className="sr-only">PRESS START · 开始冒险</span>
-            </button>
-            <button className="reference-help" onClick={() => setHelp(true)}>
-              操作指南 · CONTROLS
-            </button>
-          </div>
-          <button
-            className="reference-audio small-button"
-            onClick={() => {
-              setSound(!sound);
-              setAudio(!sound);
-            }}
-            aria-label={sound ? "关闭音效" : "打开音效"}
-          >
-            {sound ? "♪" : "♩"}
-          </button>
-          <p className="reference-caption">REACT + THREE.JS · 可玩重制版</p>
-        </section>
+        <TitleScreen
+          onStart={start}
+          onHelp={() => setHelp(true)}
+          onSettings={() => setSettings(true)}
+          sound={sound}
+          onToggleSound={() => { setSound(!sound); setAudio(!sound); }}
+        />
       ) : (
         <>
           {game.phase === "intro" && (
@@ -120,6 +109,7 @@ export default function App() {
                 <h2>冒险暂停</h2>
                 <p>南草坪的风，依然为你而吹。</p>
                 <CameraSettings />
+                <button className="secondary" onClick={() => setSettings(true)}>配乐设置</button>
                 <button className="primary" onClick={resume}>
                   继续冒险 <span>→</span>
                 </button>
@@ -226,6 +216,16 @@ export default function App() {
           )}
         </>
       )}
+      {settings && (
+        <div className="modal-shade help-shade">
+          <section className="menu-panel" role="dialog" aria-modal="true" aria-label="配乐设置">
+            <span className="eyebrow">SOUND OF ADVENTURE</span>
+            <h2>配乐设置</h2>
+            <MusicSettings />
+            <button autoFocus className="primary" onClick={() => setSettings(false)}>完成</button>
+          </section>
+        </div>
+      )}
       {help && (
         <div className="modal-shade help-shade">
           <section className="menu-panel help-panel">
@@ -249,7 +249,7 @@ export default function App() {
                 ["左键 / J", "拔剑攻击"],
                 ["右键 / F", "举盾防御（按住）"],
                 ["Space / Shift", "跳跃 / 冲刺（按住）"],
-                ["Ctrl / K", "闪避"],
+                ["Ctrl / K", "翻滚（带短暂无敌）"],
                 ["E / Q", "互动 / 锁定目标"],
                 ["Esc / R", "暂停、释放鼠标 / 镜头复位"],
               ].map(([key, label]) => (
@@ -262,7 +262,7 @@ export default function App() {
               ))}
             </dl>
             <p className="help-note">
-              桌面左键直接攻击并启用鼠标视角，滚轮调整距离。暂停菜单可设置视野、距离与灵敏度。无法锁定时按住中键拖动。手机左摇杆移动、右半屏滑动视角，虚拟按钮支持同时按住防御或冲刺。剑盾不用时背在身后；冲刺、跳跃、攻击和格挡消耗体力。
+              桌面左键直接攻击并启用鼠标视角，滚轮调整距离。暂停菜单可设置视野、距离与灵敏度。无法锁定时按住中键拖动。手机左摇杆移动，推满自动冲刺；右半屏滑动视角，右侧四键为攻击、防御、跳跃、翻滚；顶部切换锁定，防御需按住。剑盾不用时背在身后；冲刺、翻滚、攻击和格挡消耗体力；普通跳跃不消耗体力。
             </p>
             <button className="primary" onClick={() => setHelp(false)}>
               明白了 <span>→</span>

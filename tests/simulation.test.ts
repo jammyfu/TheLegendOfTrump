@@ -190,13 +190,15 @@ test("guard telegraphs damage; directional block consumes stamina and dodge avoi
   tick(back, 0.12, { ...idle, guard: true });
   assert.equal(back.hp, 2);
 });
-test("stamina is bounded, depleted actions fail and recovery resumes after resting", () => {
+test("stamina is bounded, depleted combat actions fail while jumping stays available", () => {
   const g = quiet();
   g.stamina = 5;
   g.jump();
   g.dodge();
   g.attack();
-  assert.equal(g.vy, 0);
+  assert.ok(g.vy > 0);
+  assert.equal(g.dodgeTime, 0);
+  assert.equal(g.stamina, 5);
   assert.equal(g.attackTime, 0);
   tick(g, 2);
   assert.ok(g.stamina > 40);

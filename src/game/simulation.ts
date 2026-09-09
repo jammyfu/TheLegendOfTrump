@@ -105,6 +105,9 @@ export class Simulation {
   yaw = Math.PI;
   moving = false;
   grounded = true;
+  jumpBuffer = 0;
+  coyoteTime = 0;
+  lockObscuredTime = 0;
   hp = 3;
   gems = 0;
   stamina = 100;
@@ -215,6 +218,7 @@ export class Simulation {
     this.yaw = Math.PI;
     this.moving = false;
     this.grounded = true;
+    this.jumpBuffer = this.coyoteTime = this.lockObscuredTime = 0;
     this.hp = 3;
     this.gems = 0;
     this.stamina = 100;
@@ -319,7 +323,7 @@ export class Simulation {
             (this.cameraSettings.invertY ? -1 : 1),
       ),
     );
-    if (Math.abs(dx) > 2) this.lockedTarget = null;
+    // Mouse motion adjusts pitch without accidentally dropping target lock.
   }
   setCamera(settings: Partial<CameraSettings>) {
     this.cameraSettings = sanitizeCamera({
@@ -336,7 +340,7 @@ export class Simulation {
   }
 
   toggleLock() {
-    if (this.phase !== "playing" || this.zone !== "grounds") return;
+    if (this.phase !== "playing") return;
     if (this.lockedTarget !== null) {
       this.lockedTarget = null;
       return;
@@ -354,19 +358,18 @@ export class Simulation {
           Math.hypot(b.x - this.x, b.z - this.z),
       )[0];
     this.lockedTarget = g?.id ?? null;
-    this.notify(g ? "已锁定守卫 · Q 解除" : "附近没有可锁定的目标");
+    this.lockObscuredTime = 0;
+    this.notify(g ? "已锁定目标 · Q 解除" : "附近没有可锁定的目标");
   }
   jump() {
-    if (
-      this.phase !== "playing" ||
-      !this.grounded ||
-      this.stamina < 14 ||
-      this.dodgeTime > 0
-    )
-      return;
+    if (this.phase !== "playing") return;
+    this.jumpBuffer = 0.16;
+    this.tryJump();
+  }
+  private tryJump() {
+    if (this.jumpBuffer <= 0 || (!this.grounded && this.coyoteTime <= 0) || this.dodgeTime > 0) return;
+    this.jumpBuffer = this.coyoteTime = 0;
     this.cancelCharge();
-    this.stamina -= 14;
-    this.staminaDelay = 0.8;
     this.vy = 7.8;
     this.grounded = false;
     this.guarding = false;
@@ -715,10 +718,12 @@ export class Simulation {
       })
       .sort(
         (a, b) =>
-          Math.hypot(a.x - this.x, a.z - this.z) -
-          Math.hypot(b.x - this.x, b.z - this.z),
+          (a.id === this.lockedTarget ? -100 : Math.hypot(a.x - this.x, a.z - this.z)) -
+          (b.id === this.lockedTarget ? -100 : Math.hypot(b.x - this.x, b.z - this.z)),
       )[0];
     if (target) {
+      this.lockedTarget = target.id;
+      this.lockObscuredTime = 0;
       const angle = Math.atan2(target.x - this.x, target.z - this.z) - this.yaw;
       this.yaw += Math.max(
         -0.35,
@@ -748,7 +753,8 @@ export class Simulation {
   }
   impact(x: number, z: number, heavy = false, block = false) {
     this.impactTime = 0.2;
-    this.impactStrength = heavy ? 1 : block ? 0.35 : 0.55;
+    this.impactStrength = heavy ? 1 : block ? 0.5 : 0.65;
+    if (block) this.hitStop = Math.max(this.hitStop, 0.045);
     this.effects.push({ x, z, age: 0, heavy, block });
     if (this.effects.length > 8) this.effects.shift();
   }
@@ -773,7 +779,7 @@ export class Simulation {
         this.boss.hit(heavy)
       ) {
         this.impact(this.boss.x, this.boss.z, heavy);
-        this.hitStop = heavy ? 0.1 : 0.06;
+        this.hitStop = heavy ? 0.115 : 0.065;
         this.events.push(heavy ? "heavy" : "hit");
         if (!this.boss.hp) {
           this.lockedTarget = null;
@@ -806,7 +812,7 @@ export class Simulation {
         const distance = Math.hypot(g.x - this.x, g.z - this.z) || 1;
         g.knockX = ((g.x - this.x) / distance) * spec.push;
         g.knockZ = ((g.z - this.z) / distance) * spec.push;
-        this.hitStop = heavy ? 0.1 : 0.06;
+        this.hitStop = heavy ? 0.115 : 0.065;
         this.impact(g.x, g.z, heavy);
         g.windup = 0;
         g.cooldown = 0.8;
@@ -867,6 +873,9 @@ export class Simulation {
           move === "sweep" &&
           input.guard &&
           this.attackTime <= 0 &&
+          this.spinTime <= 0 &&
+          this.dodgeTime <= 0 &&
+          this.chargeTime <= 0 &&
           this.grounded &&
           toward > 0 &&
           this.stamina >= 22
@@ -893,6 +902,11 @@ export class Simulation {
         this.version++;
       }
     }
+    this.coyoteTime = this.grounded ? 0.1 : Math.max(0, this.coyoteTime - dt);
+    this.tryJump();
+    this.jumpBuffer = Math.max(0, this.jumpBuffer - dt);
+    // Held defense can cancel a normal swing after its active hit, never before.
+    if (input.guard && this.attackTime > 0 && !this.hitPending && this.spinTime <= 0) this.cancelCombo();
     this.elapsed += dt;
     if (this.attackHeld) {
       this.attackHoldTime += dt;
@@ -953,19 +967,15 @@ export class Simulation {
     const locked = this.combatTargets.find(
       (g) => g.id === this.lockedTarget && g.hp > 0,
     );
-    if (locked && Math.hypot(locked.x - this.x, locked.z - this.z) < 15) {
-      this.yaw = Math.atan2(locked.x - this.x, locked.z - this.z);
-      const yaw = Math.atan2(this.x - locked.x, this.z - locked.z);
-      this.cameraYaw =
-        this.zone === "office"
-          ? this.cameraYaw +
-            Math.atan2(
-              Math.sin(yaw - this.cameraYaw),
-              Math.cos(yaw - this.cameraYaw),
-            ) *
-              (1 - Math.exp(-dt * 8))
-          : yaw;
-    } else this.lockedTarget = null;
+    if (locked && Math.hypot(locked.x - this.x, locked.z - this.z) < 18) {
+      this.lockObscuredTime = this.visible(locked.x, locked.z, "guard-" + locked.id) ? 0 : this.lockObscuredTime + dt;
+      if (this.lockObscuredTime > 0.8) this.lockedTarget = null;
+      else {
+        this.yaw = Math.atan2(locked.x - this.x, locked.z - this.z);
+        const yaw = this.yaw - Math.PI;
+        this.cameraYaw += Math.atan2(Math.sin(yaw - this.cameraYaw), Math.cos(yaw - this.cameraYaw)) * (1 - Math.exp(-dt * 7));
+      }
+    } else { this.lockedTarget = null; this.lockObscuredTime = 0; }
     this.guarding =
       !!input.guard &&
       this.stamina > 0 &&
@@ -1052,6 +1062,7 @@ export class Simulation {
       this.grounded = true;
     } else this.grounded = false;
     this.y = Math.max(0, candidate);
+    this.tryJump();
     if (
       !this.sprinting &&
       !this.guarding &&

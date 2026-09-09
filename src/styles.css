@@ -11,6 +11,15 @@
 * {
   box-sizing: border-box;
 }
+.game,
+.game * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.game img {
+  -webkit-user-drag: none;
+}
 body {
   margin: 0;
 }
@@ -1765,4 +1774,12 @@ kbd {
   .boss-combo {
     top: 235px;
   }
+}
+
+@media (pointer: coarse) {
+  .adventure-buttons { width: 164px; height: 166px; }
+  .adventure-buttons .attack-button { right: 0; top: 48px; }
+  .adventure-buttons .guard-button { right: 67px; top: 0; }
+  .adventure-buttons .jump-button { right: 59px; bottom: 0; }
+  .adventure-buttons .dodge-button { left: 0; top: 62px; }
 }

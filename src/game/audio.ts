@@ -1,3 +1,4 @@
+import { musicEnabled, unlockMusic } from "./music";
 import type { SoundEvent } from "./simulation";
 let context: AudioContext | undefined;
 let enabled = true;
@@ -5,8 +6,10 @@ export function setAudio(value: boolean) {
   enabled = value;
   if (!value && context && rotor)
     rotor.gain.gain.setTargetAtTime(0, context.currentTime, 0.03);
+  musicEnabled(value);
 }
 export function unlockAudio() {
+  unlockMusic();
   try {
     context ??= new AudioContext();
     void context.resume();

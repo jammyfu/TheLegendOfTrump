@@ -93,7 +93,7 @@ export function Character() {
     root.current.rotation.y =
       game.yaw + (spinning ? Math.PI * 2 * spinProgress : 0);
     root.current.visible =
-      game.invincible <= 0 || Math.floor(game.invincible * 12) % 2 === 0;
+      game.dodgeTime > 0 || game.invincible <= 0 || Math.floor(game.invincible * 12) % 2 === 0;
     if (arrival) {
       root.current.position.set(...arrival.hero);
       root.current.visible = arrival.visible;
@@ -228,6 +228,14 @@ export function Character() {
     if (!drawn)
       parts.waist.rotation.x =
         game.dodgeTime > 0 ? 0.65 : game.sprinting ? 0.16 : 0;
+    if (game.dodgeTime > 0) {
+      const progress = 1 - game.dodgeTime / 0.38;
+      root.current.rotation.y = Math.atan2(game.dodgeX, game.dodgeZ);
+      parts.waist.rotation.x = Math.PI * 2 * progress;
+      parts.leftLeg.rotation.x = parts.rightLeg.rotation.x = -0.8;
+      parts.leftKnee.rotation.x = parts.rightKnee.rotation.x = 1.6;
+      parts.leftArm.rotation.x = parts.rightArm.rotation.x = -1.1;
+    }
     if (seated) {
       parts.leftLeg.rotation.x = -1.2;
       parts.rightLeg.rotation.x = -1.2;

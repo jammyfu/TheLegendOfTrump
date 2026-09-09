@@ -97,7 +97,7 @@ export function Hud() {
               : game.sprinting
                 ? "冲刺"
                 : game.dodgeTime > 0
-                  ? "闪避"
+                  ? "翻滚"
                   : "体力"}{" "}
             {Math.ceil(game.stamina)}
           </span>
@@ -173,6 +173,7 @@ export function Hud() {
         <strong>{String(game.gems).padStart(2, "0")}</strong>
       </div>
       <div className="adventure-menu">
+        <button aria-label="锁定目标" aria-pressed={game.lockedTarget !== null} onClick={() => game.toggleLock()}>◎ 锁定</button>
         <button className="mouse-look" onClick={requestMouseLook}>
           ⌖ {document.pointerLockElement ? "鼠标已锁定" : "启用鼠标视角"}
         </button>
@@ -223,7 +224,7 @@ export function Hud() {
         <span>右键 / F 防御</span>
         <span>Space 跳跃</span>
         <span>Shift 冲刺</span>
-        <span>Ctrl 闪避</span>
+        <span>Ctrl / K 翻滚</span>
         <span>E 互动 · Q 锁定</span>
       </div>
       <TouchControls />
@@ -243,11 +244,13 @@ function TouchControls() {
       x = (x / l) * 38;
       y = (y / l) * 38;
     }
-    joystick.x = x / 38;
-    joystick.z = y / 38;
+    held.sprint = l > 42;
+    joystick.x = l < 6 ? 0 : x / 38;
+    joystick.z = l < 6 ? 0 : y / 38;
     setKnob({ x, y });
   };
   const reset = () => {
+    held.sprint = false;
     joystick.x = 0;
     joystick.z = 0;
     setKnob({ x: 0, y: 0 });
@@ -315,19 +318,13 @@ function TouchControls() {
           </button>
           <button
             className="dodge-button"
-            aria-label="闪避"
+            aria-label="翻滚"
             onPointerDown={() => game.dodge(getInput())}
           >
-            ↝<small>闪避</small>
+            ↝<small>翻滚</small>
           </button>
-          <HoldButton action="sprint" label="冲刺" />
-          <button
-            className="lock-button"
-            aria-label="锁定目标"
-            onPointerDown={() => game.toggleLock()}
-          >
-            ◎<small>锁定</small>
-          </button>
+
+
         </div>
       </div>
     </>

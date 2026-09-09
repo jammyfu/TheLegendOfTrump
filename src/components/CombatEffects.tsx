@@ -15,13 +15,13 @@ export function CombatEffects() {
         const mesh = child as Mesh;
         const t = effect.age / 0.36,
           a = k * 2.39996;
-        const radius = t * (effect.heavy ? 2.3 : 1.5);
+        const radius = (1 - (1 - t) ** 3) * (effect.heavy ? 2.3 : 1.5);
         mesh.position.set(
           Math.cos(a) * radius,
           Math.sin(a * 1.7) * radius * 0.8 - t * t * 0.5,
           Math.sin(a) * radius,
         );
-        mesh.scale.setScalar((1 - t) * (effect.heavy ? 1.3 : 1));
+        mesh.scale.set(1 - t, (1 - t) * (effect.heavy ? 3.8 : 2.5), 1 - t);
         const material = mesh.material as MeshBasicMaterial;
         material.opacity = 1 - t;
         material.color.set(

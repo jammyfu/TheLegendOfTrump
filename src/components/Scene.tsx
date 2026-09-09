@@ -1,7 +1,10 @@
 import { EnemyModel } from "./EnemyModel";
+import { combatMusicHold } from "../game/combatMusic";
 import { CombatEffects } from "./CombatEffects";
+import { musicPhase } from "../game/music";
+import { AdventureSky } from "./AdventureSky";
 import { Arrival } from "./Arrival";
-import { introPose } from "../game/intro";
+import { INTRO_DURATION, introPose } from "../game/intro";
 import { Suspense, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import {
@@ -29,6 +32,7 @@ import { InteractiveProps } from "./InteractiveProps";
 const desired = new Vector3(),
   target = new Vector3();
 function Runtime() {
+  const tension = useRef(0);
   const previousZone = useRef(game.zone);
   const [zone, setZone] = useState(game.zone);
   const first = useRef(true);
@@ -39,6 +43,28 @@ function Runtime() {
       game.update(Math.min(remaining, 0.05), getInput());
     for (const event of game.events.splice(0)) playSound(event);
     rotorSound(game.phase === "intro" ? game.introTime : null);
+    const threat =
+      game.zone === "grounds" &&
+      game.phase === "playing" &&
+      game.guards.some(
+        (g) =>
+          g.hp > 0 &&
+          (g.windup > 0 ||
+            (Math.hypot(g.x - game.x, g.z - game.z) < 7 &&
+              game.visible(g.x, g.z, "guard-" + g.id))),
+      );
+    tension.current = combatMusicHold(
+      tension.current,
+      Math.min(delta, 0.2),
+      game.phase,
+      game.zone === "grounds",
+      threat,
+    );
+    musicPhase(
+      game.phase,
+      tension.current > 0,
+      INTRO_DURATION - game.introTime,
+    );
     if (previousZone.current !== game.zone) {
       previousZone.current = game.zone;
       setZone(game.zone);
@@ -160,7 +186,7 @@ function Runtime() {
       />
       <fog
         attach="fog"
-        args={[zone === "grounds" ? "#777aca" : "#d8c7a1", 40, 100]}
+        args={[zone === "grounds" ? "#bddef0" : "#d8c7a1", 40, 100]}
       />
       <ambientLight intensity={zone === "grounds" ? 0.8 : 1.1} />
       <hemisphereLight args={["#bac6ed", "#6b655c", 0.8]} />
@@ -178,6 +204,7 @@ function Runtime() {
       />
       {zone === "grounds" ? (
         <>
+          <AdventureSky />
           <Grounds />
           <Arrival />
         </>
