@@ -128,6 +128,9 @@ export class Simulation {
   coyoteTime = 0;
   lockObscuredTime = 0;
   lockRangeElapsed = 0;
+  mouseLookSuspended = false;
+  private directionHeld = false;
+  private lastInput: Input = { x: 0, z: 0, sprint: false };
   autoLockCooldown = 0;
   private autoLockScan = 0;
   hp = 3;
@@ -308,7 +311,7 @@ export class Simulation {
       this.cooldown > 0 ||
       this.dodgeTime > 0 ||
       this.arrows <= 0 ||
-      this.stamina < 10
+      this.stamina < 14
     )
       return;
     const power = Math.min(1, draw / 0.85),
@@ -331,9 +334,9 @@ export class Simulation {
       power,
     });
     this.arrows--;
-    this.stamina -= 10;
-    this.staminaDelay = 0.7;
-    this.cooldown = 0.48;
+    this.stamina -= 14;
+    this.staminaDelay = 0.9;
+    this.cooldown = 0.7;
     this.events.push("arrow");
   }
   private updateRanged(dt: number) {
@@ -395,14 +398,11 @@ export class Simulation {
           }
         } else if (target && a.owner === undefined) {
           if (target instanceof Boss) {
-            target.hit(
-              a.power >= 0.95 &&
-                (target.state === "recover" || this.summonTime > 0),
-            );
+            target.hit(false);
             if (!target.hp) this.bossDefeated();
           } else {
-            target.hp = Math.max(0, target.hp - (a.power >= 0.95 ? 2 : 1));
-            target.stun = target.stunDuration = a.power >= 0.95 ? 0.55 : 0.22;
+            target.hp = Math.max(0, target.hp - 1);
+            target.stun = target.stunDuration = a.power >= 0.95 ? 0.25 : 0.12;
             target.windup = 0;
             target.hitFlash = 0.14;
             target.cooldown = 0.9;
@@ -551,6 +551,8 @@ export class Simulation {
     this.jumpBuffer = this.coyoteTime = this.lockObscuredTime = 0;
     this.lockRangeElapsed = 0;
     this.autoLockCooldown = this.autoLockScan = 0;
+    this.directionHeld = this.mouseLookSuspended = false;
+    this.lastInput = { x: 0, z: 0, sprint: false };
     this.hp = 3;
     this.gems = 0;
     this.coins = 0;
@@ -723,6 +725,7 @@ export class Simulation {
     if (this.lockedTarget !== null) {
       this.lockedTarget = null;
       this.autoLockCooldown = 4;
+      this.mouseLookSuspended = true;
       return;
     }
     this.autoLockCooldown = 0;
@@ -743,8 +746,15 @@ export class Simulation {
     this.lockRangeElapsed = 0;
     this.notify(g ? "已锁定目标 · Q 解除" : "附近没有可锁定的目标");
   }
-  jump() {
+  jump(input: Input = this.lastInput) {
     if (this.phase !== "playing") return;
+    if (
+      Math.hypot(input.x, input.z) > 0.1 &&
+      (input.sprint || this.lockTarget)
+    ) {
+      this.dodge(input);
+      return;
+    }
     this.jumpBuffer = 0.16;
     this.tryJump();
   }
@@ -782,8 +792,11 @@ export class Simulation {
     this.stamina -= 24;
     this.staminaDelay = 1;
     this.cancelCombo();
-    this.dodgeTime = 0.38;
-    this.invincible = Math.max(this.invincible, 0.28);
+    this.dodgeTime = 0.55;
+    this.vy = 4.5;
+    this.grounded = false;
+    this.jumpBuffer = this.coyoteTime = 0;
+    this.invincible = Math.max(this.invincible, 0.22);
     this.guarding = false;
   }
   get colliders(): Collider[] {
@@ -1093,7 +1106,7 @@ export class Simulation {
       return;
     this.acquireAutoTarget(true);
     if (this.weapon === "bow") {
-      if (this.cooldown > 0 || this.stamina < 10) return;
+      if (this.cooldown > 0 || this.stamina < 14) return;
       if (this.arrows <= 0) {
         this.notify("箭矢用尽 · X 切回剑盾，击败卫兵拾取补给");
         return;
@@ -1507,6 +1520,11 @@ export class Simulation {
       this.attackTime <= 0 &&
       this.spinTime <= 0 &&
       this.chargeTime <= 0;
+    this.lastInput = input;
+    const directionPressed = Math.hypot(input.x, input.z) > 0.35;
+    if (directionPressed && !this.directionHeld && this.lockTarget)
+      this.dodge(input);
+    this.directionHeld = directionPressed;
     const length = Math.hypot(input.x, input.z),
       dx = input.x / Math.max(1, length),
       dz = input.z / Math.max(1, length),
@@ -1535,7 +1553,7 @@ export class Simulation {
       this.dodgeTime = Math.max(0, this.dodgeTime - dt);
       mx = this.dodgeX;
       mz = this.dodgeZ;
-      speed = 10;
+      speed = 8;
     }
     if (
       length > 0.1 &&

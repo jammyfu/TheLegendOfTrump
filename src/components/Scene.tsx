@@ -26,6 +26,7 @@ import { Character } from "./Character";
 import { Box, Cylinder } from "./Primitives";
 import {
   cameraBoom,
+  constrainCamera,
   indoorFrame,
   cameraObstacles,
   recoverBoom,
@@ -180,6 +181,25 @@ function RuntimeContent() {
         first.current ? 1 : 1 - Math.exp(-delta * 9),
       );
     else camera.position.copy(desired);
+    // Final safety pass includes the indoor shell and the moving aircraft.
+    // It runs after cinematic interpolation, not just on the intended endpoint.
+    if (game.phase !== "title") {
+      const volumes = game.colliders.filter((c) => !c.id.startsWith("guard-"));
+      if (game.phase === "intro") {
+        const p = introPose(game.introTime);
+        volumes.push({
+          id: "camera-aircraft",
+          zone: "grounds",
+          x: p.helicopter[0],
+          z: p.helicopter[2],
+          bottom: p.helicopter[1] - 0.6,
+          top: p.helicopter[1] + 8,
+          radius: 8.6,
+        });
+      }
+      const safe = constrainCamera(volumes, target, camera.position);
+      camera.position.set(safe.x, safe.y, safe.z);
+    }
     if (camera instanceof PerspectiveCamera) {
       const fov = cinematic
         ? 48

@@ -48,11 +48,11 @@ export function introPose(remaining: number) {
     target = [LANDING.x - 3, 2.3, LANDING.z - 2];
   } else {
     const q = smooth((t - 10) / 8),
-      a = mix(1.05, 0, q);
+      a = mix(-1.05, 0, q);
     camera = [
-      LANDING.heroX + Math.sin(a) * 8,
-      mix(4.7, 3.8016210114, q),
-      LANDING.heroZ + Math.cos(a) * 7.770703799,
+      mix(LANDING.x - 14, LANDING.heroX + Math.sin(a) * 8, q),
+      mix(8, 3.8016210114, q),
+      mix(LANDING.z + 16, LANDING.heroZ + Math.cos(a) * 7.770703799, q),
     ];
     target = [LANDING.heroX, 1.9, LANDING.heroZ];
   }

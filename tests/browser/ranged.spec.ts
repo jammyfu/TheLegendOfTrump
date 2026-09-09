@@ -51,7 +51,7 @@ test("chest bow, visible lock, drawn joints and real mouse shot", async ({
   await page.mouse.up();
   await expect
     .poll(() => page.evaluate(() => window.__game!.guards[0].hp))
-    .toBe(1);
+    .toBe(2);
   await expect.poll(() => page.evaluate(() => window.__game!.arrows)).toBe(15);
   expect(errors).toEqual([]);
 });

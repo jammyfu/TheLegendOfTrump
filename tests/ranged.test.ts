@@ -50,9 +50,9 @@ test("drawn arrow travels, deals charged damage once and consumes ammo/stamina",
   assert.equal(g.projectiles.length, 1);
   assert.equal(g.guards[0].hp, 3);
   tick(g, 0.35);
-  assert.equal(g.guards[0].hp, 1);
+  assert.equal(g.guards[0].hp, 2);
   tick(g, 0.3);
-  assert.equal(g.guards[0].hp, 1);
+  assert.equal(g.guards[0].hp, 2);
   assert.equal(g.projectiles.length, 0);
 });
 test("projectile sweep cannot tunnel through a thin wall or hit an enemy behind it", () => {

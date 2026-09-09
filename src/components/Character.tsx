@@ -160,14 +160,11 @@ export function Character() {
     // When a wall forces the camera inside the character, fade the body so it
     // cannot cover the view. Collision still determines the camera position.
     const distance = Math.hypot(
-      camera.position.x - game.x,
-      camera.position.y - game.y - 1.9,
-      camera.position.z - game.z,
+      camera.position.x - root.current.position.x,
+      camera.position.y - root.current.position.y - 1.9,
+      camera.position.z - root.current.position.z,
     );
-    let opacity =
-      seated || game.phase === "intro"
-        ? 1
-        : Math.max(0, Math.min(1, (distance - 0.8) / 1.8));
+    let opacity = seated ? 1 : Math.max(0, Math.min(1, (distance - 0.8) / 1.8));
     if (
       game.aiming &&
       game.lockTarget &&
@@ -336,7 +333,7 @@ export function Character() {
       parts.waist.rotation.x =
         game.dodgeTime > 0 ? 0.65 : game.sprinting ? 0.16 : 0;
     if (game.dodgeTime > 0) {
-      const progress = 1 - game.dodgeTime / 0.38;
+      const progress = 1 - game.dodgeTime / 0.55;
       root.current.rotation.y = Math.atan2(game.dodgeX, game.dodgeZ);
       parts.waist.rotation.x = Math.PI * 2 * progress;
       parts.leftLeg.rotation.x = parts.rightLeg.rotation.x = -0.8;
