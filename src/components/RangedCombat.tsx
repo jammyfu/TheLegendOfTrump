@@ -1,11 +1,14 @@
-import { useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { useMemo, useRef } from "react";
+import { useFrame, useLoader } from "@react-three/fiber";
 import { Group, Mesh, MeshBasicMaterial, Vector3 } from "three";
 import { game } from "../game/simulation";
 const projected = new Vector3(),
   forward = new Vector3(),
   up = new Vector3(0, 1, 0);
 export function RangedCombat() {
+  const dartSource = useLoader(GLTFLoader, import.meta.env.BASE_URL + "models/boss-dart.glb");
+  const darts = useMemo(() => Array.from({length:32},()=>dartSource.scene.clone(true)),[dartSource]);
   const arrows = useRef<Group>(null),
     portals = useRef<Group>(null),
     supplies = useRef<Group>(null);
@@ -16,7 +19,7 @@ export function RangedCombat() {
       reticle.hidden = !enemy || game.phase !== "playing";
       if (enemy) {
         projected
-          .set(enemy.x, enemy.id === 100 ? 2.6 : 1.6, enemy.z)
+          .set(enemy.x, enemy.id === 100 ? 2.6 : 1.6 * ("sizeMultiplier" in enemy ? enemy.sizeMultiplier ?? 1 : 1), enemy.z)
           .project(camera);
         reticle.hidden =
           projected.z > 1 ||
@@ -38,6 +41,9 @@ export function RangedCombat() {
       o.visible = !!a;
       if (a) {
         o.position.set(a.x, a.y, a.z);
+        o.children[0].visible = a.kind !== "dart";
+        o.children[1].visible = a.kind === "dart";
+        o.children[1].rotation.y = game.elapsed * 24;
         o.traverse((n) => {
           if (n instanceof Mesh && n.material instanceof MeshBasicMaterial)
             n.material.color.set(a.owner === undefined ? "#a2faff" : "#ff7351");
@@ -66,6 +72,7 @@ export function RangedCombat() {
       <group ref={arrows}>
         {Array.from({ length: 32 }, (_, i) => (
           <group key={i} visible={false} name={`arrow-${i}`}>
+            <group>
             <mesh>
               <cylinderGeometry args={[0.025, 0.025, 0.85, 5]} />
               <meshStandardMaterial color="#c5a377" />
@@ -86,6 +93,8 @@ export function RangedCombat() {
               <cylinderGeometry args={[0.017, 0.002, 0.6, 4]} />
               <meshBasicMaterial color="#a2faff" transparent opacity={0.55} />
             </mesh>
+            </group>
+            <primitive object={darts[i]} visible={false} />
           </group>
         ))}
       </group>

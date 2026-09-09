@@ -429,7 +429,7 @@ export function Scene() {
       }}
       dpr={resolution}
       camera={{ fov: 48, near: 0.1, far: 2400 }}
-      gl={{ antialias: true, powerPreference: "high-performance" }}
+      gl={{ antialias: true, powerPreference: "high-performance", logarithmicDepthBuffer: true }}
     >
       <AdaptiveResolution onChange={setResolution} />
       <Suspense fallback={null}>

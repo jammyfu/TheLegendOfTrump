@@ -8,12 +8,15 @@ function tick(g: Simulation, n: number) {
 function setup() {
   const g = new Simulation();
   g.start();
+  // This combat fixture represents equipment already collected.
+  g.swordUnlocked = g.shieldUnlocked = true;
+  g.weapon = "sword";
   g.x = 0;
   g.z = 12;
   g.bowUnlocked = true;
   g.arrows = 16;
   g.switchWeapon();
-  g.guards[1].hp = 0;
+  g.guards.slice(1).forEach((enemy) => (enemy.hp = 0));
   Object.assign(g.guards[0], {
     x: 0,
     z: 6,
@@ -27,8 +30,8 @@ function setup() {
 test("chests unlock bow once; weapon switch and fresh start reset inventory", () => {
   const g = new Simulation();
   g.start();
-  g.x = 17;
-  g.z = 7.7;
+  g.x = 6;
+  g.z = -8;
   g.interact();
   assert.equal(g.bowUnlocked, true);
   assert.equal(g.arrows, 16);
@@ -37,7 +40,7 @@ test("chests unlock bow once; weapon switch and fresh start reset inventory", ()
   g.switchWeapon();
   assert.equal(g.weapon, "bow");
   g.start();
-  assert.equal(g.weapon, "sword");
+  assert.equal(g.weapon, "none");
   assert.equal(g.bowUnlocked, false);
   assert.equal(g.arrows, 0);
 });

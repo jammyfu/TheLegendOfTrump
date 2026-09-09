@@ -1,10 +1,11 @@
-import { DEATH, deathPose } from "../game/enemyMotion";
-import { ENEMY_RULES } from "../game/expedition";
+import { DEATH, deathPose, enemyAttackPose } from "../game/enemyMotion";
+import { ENEMY_RULES, enemyScale } from "../game/expedition";
 import { useMemo, useRef } from "react";
 import { useLoader, useFrame } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Group, Mesh, MeshStandardMaterial, type Material } from "three";
 import { game } from "../game/simulation";
+import { legendMaterial } from "../game/materials";
 export function EnemyModel({
   id,
   boss = false,
@@ -16,6 +17,7 @@ export function EnemyModel({
   const ref = useRef<Group>(null),
     warning = useRef<Mesh>(null),
     wave = useRef<Mesh>(null);
+  const lastPosition = useRef({ x: 0, z: 0, ready: false });
   const source = useLoader(
     GLTFLoader,
     import.meta.env.BASE_URL +
@@ -34,7 +36,7 @@ export function EnemyModel({
         n.castShadow = true;
         n.receiveShadow = true;
         const cloneMaterial = (v: Material) => {
-          const a = v.clone();
+          const a = legendMaterial(v);
           if (a instanceof MeshStandardMaterial)
             a.userData.baseEmission = a.emissive.getHex();
           return a;
@@ -81,9 +83,10 @@ export function EnemyModel({
     const stunned = boss ? game.boss.stagger : guard!.stun;
     const flash = boss ? game.boss.flash : guard!.hitFlash;
     const windup = boss ? game.boss.state === "windup" : guard!.windup > 0;
+    const recovering = !boss && guard!.attackTime > 0;
     ref.current.visible = game.phase !== "intro" && (alive || g.defeatTime > 0);
     const death = deathPose(g.defeatTime, boss ? DEATH.boss : DEATH.enemy);
-    const size = boss ? 1 : ENEMY_RULES[kind].scale;
+    const size = boss ? 1 : enemyScale(guard!);
     model.scale.setScalar(size);
     ref.current.position.set(g.x, alive ? 0 : 0.45 * size * death.fall, g.z);
     const recoil = boss
@@ -96,23 +99,50 @@ export function EnemyModel({
       g.yaw,
       alive ? 0 : death.fall * 1.48,
     );
+    const moved =
+      lastPosition.current.ready &&
+      Math.hypot(g.x - lastPosition.current.x, g.z - lastPosition.current.z) >
+        0.0005;
+    lastPosition.current = { x: g.x, z: g.z, ready: true };
     const walk =
       alive &&
       game.phase === "playing" &&
       !windup &&
+      !recovering &&
       stunned === 0 &&
+      moved &&
       (!boss || game.boss.state === "chase")
-        ? Math.sin(game.elapsed * 8) * 0.22
+        ? Math.sin(game.elapsed * (kind === "brute" ? 7 : 9)) *
+          (kind === "brute" ? 0.25 : 0.32)
         : 0;
     for (const j of Object.values(joints)) j.rotation.set(0, 0, 0);
     joints.RightLeg.rotation.x = walk;
     joints.LeftLeg.rotation.x = -walk;
-    joints.RightKnee.rotation.x = Math.max(0, -walk);
-    joints.LeftKnee.rotation.x = Math.max(0, walk);
-    joints.RightArm.rotation.x = windup ? -1.8 : walk;
-    joints.RightElbow.rotation.x = windup ? -0.3 : 0;
-    joints.LeftArm.rotation.x = -0.4;
-    joints.LeftElbow.rotation.x = -0.35;
+    joints.RightKnee.rotation.x = Math.max(0, -walk) * 1.15;
+    joints.LeftKnee.rotation.x = Math.max(0, walk) * 1.15;
+    joints.RightArm.rotation.x = walk * 0.72 - 0.18;
+    joints.RightElbow.rotation.x = -0.2 - Math.max(0, walk) * 0.35;
+    joints.LeftArm.rotation.x = -walk * 0.72 - 0.26;
+    joints.LeftElbow.rotation.x = -0.3 - Math.max(0, -walk) * 0.35;
+    joints.Torso.rotation.y = walk * 0.16;
+    if (!boss && (windup || recovering)) {
+      const pose = enemyAttackPose(
+        kind,
+        guard!.windup,
+        ENEMY_RULES[kind].windup,
+        guard!.attackTime,
+      );
+      joints.Torso.rotation.set(...pose.torso);
+      joints.RightArm.rotation.set(...pose.rightArm);
+      joints.RightElbow.rotation.set(...pose.rightElbow);
+      joints.LeftArm.rotation.set(...pose.leftArm);
+      joints.LeftElbow.rotation.set(...pose.leftElbow);
+      joints.Weapon.rotation.set(...pose.weapon);
+      joints.RightLeg.rotation.x = kind === "brute" ? -0.18 : -0.1;
+      joints.LeftLeg.rotation.x = kind === "brute" ? 0.24 : 0.14;
+      joints.RightKnee.rotation.x = 0.2;
+      joints.LeftKnee.rotation.x = 0.12;
+    }
     if (boss && game.summonTime > 0) {
       joints.LeftArm.rotation.x = -2.4;
       joints.RightArm.rotation.x = -2.4;
@@ -123,7 +153,8 @@ export function EnemyModel({
     if (boss) {
       const b = game.boss;
       if (windup) {
-        joints.RightArm.rotation.x = b.move === "sweep" ? -1.3 : -2.3;
+        joints.RightArm.rotation.x =
+          b.move === "dart" ? -1.55 : b.move === "sweep" ? -1.3 : -2.3;
         joints.Torso.rotation.y = b.move === "sweep" ? -0.55 : 0;
       } else if (b.state === "recover") {
         const duration = b.enraged ? 0.85 : 1.2;
@@ -138,15 +169,8 @@ export function EnemyModel({
           b.move !== "sweep" ? 0.2 * strike * follow : 0;
       }
     }
-    joints.Weapon.rotation.x =
-      weaponPitch - joints.RightArm.rotation.x - joints.RightElbow.rotation.x;
+    if (boss) joints.Weapon.rotation.x = weaponPitch;
     if (!boss && kind === "archer") {
-      joints.LeftArm.rotation.x = windup ? -Math.PI / 2 : -0.4;
-      joints.LeftElbow.rotation.x = 0;
-      joints.LeftArm.rotation.y = -0.2;
-      joints.RightArm.rotation.x = windup ? -1.45 : walk;
-      joints.RightArm.rotation.y = windup ? -0.7 : 0;
-      joints.RightElbow.rotation.x = windup ? -1.3 : -0.25;
       const bow = model.getObjectByName("ArcherBow");
       if (bow) bow.rotation.x = -joints.LeftArm.rotation.x;
     }
@@ -182,8 +206,8 @@ export function EnemyModel({
           ? 3.8
           : 3.1
         : kind === "archer"
-          ? 1
-          : 2.1 * ENEMY_RULES[kind].scale;
+          ? 7.5
+          : 2.1 * enemyScale(guard!);
       warning.current.scale.set(r, r, 1);
       (warning.current.material as MeshStandardMaterial).color.set(
         boss && game.boss.move !== "sweep"
@@ -208,20 +232,37 @@ export function EnemyModel({
   return (
     <group ref={ref} name={`guard-${id}`}>
       <primitive object={model} />
-      <mesh
-        ref={warning}
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, 0.075, 0]}
-        visible={false}
-      >
-        <ringGeometry args={[0.87, 1, 48]} />
-        <meshBasicMaterial
-          color="#ff7040"
-          transparent
-          opacity={0.6}
-          depthWrite={false}
-        />
-      </mesh>
+      {boss ? (
+        <mesh
+          ref={warning}
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[0, 0.075, 0]}
+          visible={false}
+        >
+          <ringGeometry args={[0.87, 1, 48]} />
+          <meshBasicMaterial
+            color="#ff7040"
+            transparent
+            opacity={0.6}
+            depthWrite={false}
+          />
+        </mesh>
+      ) : (
+        <mesh
+          ref={warning}
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[0, 0.075, 0]}
+          visible={false}
+        >
+          <circleGeometry args={[1, 32, -Math.PI * 0.75, Math.PI * 0.5]} />
+          <meshBasicMaterial
+            color="#ff7040"
+            transparent
+            opacity={0.36}
+            depthWrite={false}
+          />
+        </mesh>
+      )}
       {boss && (
         <mesh ref={wave} rotation={[-Math.PI / 2, 0, 0]} visible={false}>
           <ringGeometry args={[0.92, 1, 64]} />

@@ -14,6 +14,9 @@ const idle = { x: 0, z: 0, sprint: false };
 function fresh() {
   const g = new Simulation();
   g.start();
+  // Combat scenarios begin after the two starting equipment pickups.
+  g.swordUnlocked = g.shieldUnlocked = true;
+  g.weapon = "sword";
   return g;
 }
 function tick(g: Simulation, t: number, guard = false) {
@@ -55,7 +58,7 @@ test("remote landing, extraction turn and playable spawn use one world location"
 });
 test("all enemy spawns and camp treasure have traversable approaches", () => {
   const g = fresh();
-  assert.equal(g.guards.length, 14);
+  assert.equal(g.guards.length, 18);
   for (const e of g.guards)
     assert.equal(
       occupied(
@@ -85,7 +88,7 @@ test("landing equipment is one-time, currency purchases are bounded and potions 
   g.x = 5;
   g.z = 176;
   g.interact();
-  assert.ok(g.bowUnlocked);
+  assert.equal(g.bowUnlocked, false);
   assert.equal(g.coins, 8);
   assert.equal(g.potions, 1);
   assert.equal(g.arrows, 12);

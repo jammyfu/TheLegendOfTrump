@@ -1,3 +1,4 @@
+import { GARDEN_HEDGE_HEIGHT } from "../game/world";
 import { batchStatic } from "../game/staticBatch";
 import { StaticBatch } from "./StaticBatch";
 import { useMemo, useRef, useLayoutEffect } from "react";
@@ -7,6 +8,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { game } from "../game/simulation";
 import { interactions, cratePositions } from "../game/world";
 import { Box, Cylinder } from "./Primitives";
+import { applyLegendMaterials } from "../game/materials";
 export function Asset({
   file,
   id,
@@ -23,6 +25,7 @@ export function Asset({
   const root = useRef<Group>(null);
   const model = useMemo(() => {
     const object = gltf.scene.clone(true);
+    applyLegendMaterials(object);
     object.traverse((n) => {
       if (n instanceof Mesh) {
         n.castShadow = true;
@@ -63,7 +66,10 @@ export function InteractiveProps() {
     GLTFLoader,
     import.meta.env.BASE_URL + "models/adventure-bow.glb",
   );
-  const treasure = useMemo(() => bowSource.scene.clone(true), [bowSource]);
+  const treasure = useMemo(() => {
+    const object = bowSource.scene.clone(true);
+    return applyLegendMaterials(object);
+  }, [bowSource]);
   const reward = useRef<Group>(null);
   const gate = useRef<Group>(null);
   const marker = useRef<Group>(null);
@@ -75,7 +81,8 @@ export function InteractiveProps() {
     }
     if (gate.current)
       gate.current.position.y +=
-        ((game.gateOpen ? -2.8 : 0) - gate.current.position.y) *
+        ((game.gateOpen ? -GARDEN_HEDGE_HEIGHT - 0.3 : 0) -
+          gate.current.position.y) *
         Math.min(1, dt * 5);
     const current = game.interaction;
     if (marker.current) {
@@ -85,7 +92,12 @@ export function InteractiveProps() {
   });
   return (
     <>
-      <group ref={reward} position={[17, 1.25, 6]} scale={0.65} visible={false}>
+      <group
+        ref={reward}
+        position={[6, 1.25, -10]}
+        scale={0.65}
+        visible={false}
+      >
         <primitive object={treasure} />
       </group>
       {interactions
@@ -126,7 +138,7 @@ export function InteractiveProps() {
       <group position={[-13, 0, 0.6]}>
         <group ref={gate}>
           <Box
-            position={[0, 1.4, 0]}
+            position={[0, GARDEN_HEDGE_HEIGHT - 0.4, 0]}
             scale={[6.5, 0.15, 0.3]}
             color="#b8a56d"
           />
@@ -138,9 +150,9 @@ export function InteractiveProps() {
           {Array.from({ length: 12 }, (_, i) => (
             <Cylinder
               key={i}
-              position={[-3 + i * 0.545, 1.2, 0]}
+              position={[-3 + i * 0.545, GARDEN_HEDGE_HEIGHT / 2, 0]}
               radius={0.065}
-              rise={2.4}
+              rise={GARDEN_HEDGE_HEIGHT}
               color="#46585a"
             />
           ))}
@@ -148,8 +160,8 @@ export function InteractiveProps() {
         {[-3.4, 3.4].map((x) => (
           <Box
             key={x}
-            position={[x, 1.3, 0]}
-            scale={[0.35, 2.6, 0.4]}
+            position={[x, (GARDEN_HEDGE_HEIGHT + 0.2) / 2, 0]}
+            scale={[0.35, GARDEN_HEDGE_HEIGHT + 0.2, 0.4]}
             color="#c8c4ad"
           />
         ))}
@@ -177,7 +189,7 @@ export function InteractiveProps() {
                   color="#384c43"
                 />
                 <Box
-                  position={[0, 1.4, 0]}
+                  position={[0, GARDEN_HEDGE_HEIGHT - 0.4, 0]}
                   scale={[0.08, 0.08, 2]}
                   color="#384c43"
                 />

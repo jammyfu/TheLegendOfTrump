@@ -11,7 +11,7 @@ import {
   getInput,
   requestMouseLook,
 } from "../game/input";
-import { Heart, GemIcon } from "./Icons";
+import { Heart, GemIcon, GameIcon } from "./Icons";
 export function Minimap() {
   const office = game.zone === "office";
   const wide =
@@ -20,7 +20,9 @@ export function Minimap() {
     <div className="minimap">
       <div className="map-heading">
         <span>{office ? "OVAL OFFICE" : "SOUTH LAWN"}</span>
-        <span>N ↑</span>
+        <span className="map-north">
+          N <GameIcon name="compass" />
+        </span>
       </div>
       <svg viewBox="0 0 160 170" aria-label={t("小地图")}>
         <rect
@@ -28,14 +30,20 @@ export function Minimap() {
           y="12"
           width="140"
           height="148"
-          rx="45"
-          fill="#294d45"
-          stroke="#718a6b"
+          rx="6"
+          fill="var(--ui-map-ground)"
+          stroke="var(--ui-gold-dim)"
         />
         {office ? (
           <>
-            <rect x="67" y="45" width="26" height="14" fill="#b09463" />
-            <circle cx="80" cy="86" r="32" fill="#344e5e" />
+            <rect
+              x="67"
+              y="45"
+              width="26"
+              height="14"
+              fill="var(--ui-gold-dim)"
+            />
+            <circle cx="80" cy="86" r="32" fill="var(--ui-navy)" />
           </>
         ) : wide ? (
           <>
@@ -93,14 +101,14 @@ export function Minimap() {
           </>
         ) : (
           <>
-            <path d="M24 16h112v22H24Z" fill="#bfc2a5" />
-            <path d="M70 34h20v114H70Z" fill="#7f947c" />
-            <path d="M22 87h116" stroke="#7f947c" strokeWidth="15" />
+            <path d="M24 16h112v22H24Z" fill="var(--ui-ivory)" />
+            <path d="M70 34h20v114H70Z" fill="var(--ui-map-path)" />
+            <path d="M22 87h116" stroke="var(--ui-map-path)" strokeWidth="15" />
             <circle
               cx="80"
               cy="91"
               r="17"
-              fill="#6d9a97"
+              fill="var(--ui-navy)"
               stroke="#b7b89a"
               strokeWidth="3"
             />
@@ -149,7 +157,7 @@ export function Hud() {
         hidden
         aria-label="锁定准星"
       >
-        <i />
+        <GameIcon name="lock" />
         <span>
           {game.lockTarget?.id === 100
             ? "铁甲统领"
@@ -162,17 +170,31 @@ export function Hud() {
       </div>
       {game.weapon === "bow" && !game.lockTarget && (
         <div className="bow-crosshair" aria-label="弓箭准星">
-          ＋
+          <GameIcon name="lock" />
         </div>
       )}
-      <div className="weapon-hud">
+      <div
+        className={`weapon-hud ${game.bowUnlocked ? "has-bow" : "no-bow"} ${game.weapon === "bow" ? "using-bow" : ""}`}
+      >
         <button aria-label="切换武器" onClick={() => game.switchWeapon()}>
-          {game.weapon === "bow" ? "➶ 冒险弓" : "⚔ 剑盾"} <kbd>X</kbd>
+          <GameIcon
+            name={
+              game.weapon === "bow"
+                ? "bow"
+                : game.swordUnlocked
+                  ? "sword"
+                  : game.shieldUnlocked
+                    ? "shield"
+                    : "book"
+            }
+          />
+          <span>{game.weaponLabel}</span> <kbd>X</kbd>
         </button>
-        <span>
+        <span className="ammunition">
+          <GameIcon name={game.bowUnlocked ? "quiver" : "book"} />
           {game.bowUnlocked
             ? `箭矢 ${game.arrows} / 30`
-            : "降落区宝箱 · 获取弓箭"}
+            : "白宫门口右侧宝箱 · 获取弓箭"}
         </span>
         {game.weapon === "bow" && (
           <>
@@ -276,7 +298,7 @@ export function Hud() {
                   ? t("金色横扫 · 举盾格挡")
                   : game.boss.move === "slam"
                     ? t("重锤下砸 · 闪避离开红圈")
-                    : t("冲击波 · 跳跃躲避")
+                    : game.boss.move === "dart" ? "飞镖预警 · 横移或举盾" : t("冲击波 · 跳跃躲避")
                 : game.boss.state === "recover"
                   ? t("收招破绽 · 进攻！")
                   : t("Q 锁定 · 留意地面预警")}
@@ -290,54 +312,83 @@ export function Hud() {
       <div className="adventure-menu">
         <button
           aria-label={t("锁定目标")}
+          data-tooltip={`${t("锁定目标")} · Q`}
           aria-pressed={game.lockedTarget !== null}
           onClick={() => game.toggleLock()}
         >
-          {t("◎ 锁定")}
+          <GameIcon name="lock" />
+          <span className="menu-action-label">
+            {t("◎ 锁定").replace("◎", "").trim()}
+          </span>
         </button>
         {game.lockedTarget !== null && (
-          <button aria-label="切换目标" onClick={() => game.cycleTarget()}>
-            ⇥ 换目标
+          <button
+            aria-label="切换目标"
+            data-tooltip="切换目标 · Tab"
+            onClick={() => game.cycleTarget()}
+          >
+            <GameIcon name="switch" />
+            <span className="menu-action-label">换目标</span>
           </button>
         )}
-        <button className="mouse-look" onClick={requestMouseLook}>
-          ⌖ {t("按住中键转动视角")}
+        <button
+          className="mouse-look"
+          data-tooltip={t("按住中键转动视角")}
+          aria-label={t("按住中键转动视角")}
+          aria-pressed={!!document.pointerLockElement}
+          onClick={requestMouseLook}
+        >
+          <GameIcon name="camera" />
+          <span className="menu-action-label">{t("按住中键转动视角")}</span>
         </button>
-        <button aria-label={t("切换地图")} onClick={() => setMapOpen(!mapOpen)}>
-          {t("地图")}
+        <button
+          aria-label={t("切换地图")}
+          data-tooltip={t("切换地图")}
+          aria-pressed={mapOpen}
+          onClick={() => setMapOpen(!mapOpen)}
+        >
+          <GameIcon name="map" />
+          <span className="menu-action-label">{t("地图")}</span>
         </button>
         <button
           aria-label={t("暂停游戏")}
+          data-tooltip={`${t("暂停游戏")} · Esc`}
           onClick={() => {
             game.pause();
             clearInput();
           }}
         >
-          Ⅱ
+          <GameIcon name="pause" />
         </button>
       </div>
       <div className="quest">
+        <GameIcon name="compass" />
         <p>
           {game.zone === "office"
             ? game.boss.hp > 0
               ? t("击败铁甲统领，解锁书桌")
               : t("走近书桌，签署冒险宣言")
-            : game.gems >= 8
-              ? t("大门已开启 · 进入白宫")
-              : t("探索南草坪，收集 8 枚翡翠")}
+            : !game.swordUnlocked || !game.shieldUnlocked
+              ? !game.swordUnlocked
+                ? "降落区左侧宝箱 · 取得冒险剑"
+                : "降落区右侧宝箱 · 取得盾牌"
+              : game.gems >= 8
+                ? t("大门已开启 · 进入白宫")
+                : t("探索南草坪，收集 8 枚翡翠")}
         </p>
       </div>
       {mapOpen && <Minimap />}
       {game.toast && (
         <div className="toast" role="status">
-          {t(game.toast)}
+          <GameIcon name="spark" />
+          <span>{t(game.toast)}</span>
         </div>
       )}
       {game.prompt && (
         <button className="interact-prompt" onClick={() => game.interact()}>
           <kbd>E</kbd>
           {t(game.prompt)}
-          <span>↵</span>
+          <GameIcon name="arrow" />
         </button>
       )}
       {game.lockedTarget !== null && (
@@ -417,12 +468,13 @@ function TouchControls() {
           onLostPointerCapture={reset}
         >
           <span style={{ transform: `translate(${knob.x}px,${knob.y}px)` }}>
-            ✦
+            <GameIcon name="compass" />
           </span>
         </div>
         <div className="adventure-buttons">
           <button
             className="attack-button"
+            disabled={game.weapon === "none"}
             aria-label={game.weapon === "bow" ? "射箭" : t("挥剑")}
             onPointerDown={(e) => {
               e.currentTarget.setPointerCapture(e.pointerId);
@@ -432,28 +484,40 @@ function TouchControls() {
             onPointerCancel={() => game.cancelCharge()}
             onLostPointerCapture={() => game.cancelCharge()}
           >
-            {game.weapon === "bow" ? "➶" : "⚔"}
+            <GameIcon name={game.weapon === "bow" ? "bow" : "sword"} />
             <small>
-              {game.weapon === "bow" ? "拉弓·射箭" : t("攻击·蓄力")}
+              {game.weapon === "none"
+                ? "尚无武器"
+                : game.weapon === "bow"
+                  ? "拉弓·射箭"
+                  : t("攻击·蓄力")}
             </small>
           </button>
           <HoldButton
             action="guard"
-            label={game.weapon === "bow" ? "精瞄" : t("防御")}
+            label={
+              game.weapon === "bow"
+                ? "精瞄"
+                : game.shieldUnlocked
+                  ? t("防御")
+                  : "尚无盾牌"
+            }
           />
           <button
             className="jump-button"
             aria-label={t("跳跃")}
             onPointerDown={() => game.jump()}
           >
-            ↑<small>{t("跳跃")}</small>
+            <GameIcon name="jump" />
+            <small>{t("跳跃")}</small>
           </button>
           <button
             className="dodge-button"
             aria-label={t("翻滚")}
             onPointerDown={() => game.dodge(getInput())}
           >
-            ↝<small>{t("翻滚")}</small>
+            <GameIcon name="roll" />
+            <small>{t("翻滚")}</small>
           </button>
         </div>
       </div>
@@ -473,6 +537,9 @@ function HoldButton({
   return (
     <button
       className={action + "-button"}
+      disabled={
+        action === "guard" && game.weapon !== "bow" && !game.shieldUnlocked
+      }
       aria-label={label}
       onPointerDown={(e) => {
         e.currentTarget.setPointerCapture(e.pointerId);
@@ -482,7 +549,15 @@ function HoldButton({
       onPointerCancel={reset}
       onLostPointerCapture={reset}
     >
-      {action === "guard" ? "◈" : "»"}
+      <GameIcon
+        name={
+          action === "guard"
+            ? game.weapon === "bow"
+              ? "lock"
+              : "shield"
+            : "arrow"
+        }
+      />
       <small>{label}</small>
     </button>
   );

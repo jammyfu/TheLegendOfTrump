@@ -1,3 +1,4 @@
+import { GARDEN_HEDGE_HEIGHT } from "../game/world";
 import { StaticBatch } from "./StaticBatch";
 import { Landscape } from "./Landscape";
 import { Expedition } from "./Expedition";
@@ -175,14 +176,14 @@ function Ground() {
               {[-1, 1].map((a) => (
                 <Box
                   key={a}
-                  position={[s * 13 + a * 3, 0.65, z]}
-                  scale={[0.65, 0.75, i ? 8.5 : 10.5]}
+                  position={[s * 13 + a * 3, i ? 0.65 : GARDEN_HEDGE_HEIGHT / 2, z]}
+                  scale={[0.65, i ? 0.75 : GARDEN_HEDGE_HEIGHT, i ? 8.5 : 10.5]}
                   color="#536b43"
                 />
               ))}
               <Box
-                position={[s * 13, 0.65, z + (i ? 4 : -5)]}
-                scale={[6, 0.75, 0.65]}
+                position={[s * 13, i ? 0.65 : GARDEN_HEDGE_HEIGHT / 2, z + (i ? 4 : -5)]}
+                scale={[6, i ? 0.75 : GARDEN_HEDGE_HEIGHT, 0.65]}
                 color="#536b43"
               />
               {Array.from({ length: 14 }, (_, j) => (

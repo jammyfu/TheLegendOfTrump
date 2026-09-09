@@ -1,7 +1,7 @@
 import { DEATH } from "./enemyMotion";
 import { moveAndSlide } from "./collision";
 import type { Collider } from "./world";
-export type BossMove = "sweep" | "slam" | "wave";
+export type BossMove = "sweep" | "slam" | "wave" | "dart";
 export class Boss {
   id = 100;
   x = 0;
@@ -21,6 +21,9 @@ export class Boss {
   waveX = 0;
   waveZ = 0;
   waveHit = false;
+  aimX = 0;
+  aimZ = 0;
+  aimY = 1.2;
   get enraged() {
     return this.hp > 0 && this.hp <= this.maxHp / 2;
   }
@@ -44,7 +47,7 @@ export class Boss {
   }
   update(
     dt: number,
-    player: { x: number; z: number },
+    player: { x: number; z: number; y?: number },
     colliders: Collider[],
   ): BossMove | null {
     this.flash = Math.max(0, this.flash - dt);
@@ -83,9 +86,10 @@ export class Boss {
       d = Math.hypot(dx, dz);
     if (d > 0.01) this.yaw = Math.atan2(dx, dz);
     if (!this.timer && d > 7) {
-      this.move = "wave";
+      this.move = this.sequence % 2 === 0 ? "dart" : "wave";
+      this.aimX = player.x; this.aimZ = player.z; this.aimY = (player.y ?? 0) + 1.2;
       this.state = "windup";
-      this.timer = 1.4;
+      this.timer = this.move === "dart" ? 1.1 : 1.4;
       this.sequence++;
       return null;
     }

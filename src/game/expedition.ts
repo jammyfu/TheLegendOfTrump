@@ -30,7 +30,7 @@ export const ENEMY_RULES = {
     reward: 18,
   },
 } satisfies Record<EnemyKind, object>;
-export const ENEMY_SPAWNS: { x: number; z: number; kind: EnemyKind }[] = [
+export const ENEMY_SPAWNS: { x: number; z: number; kind: EnemyKind; sizeMultiplier?: number; title?: string }[] = [
   { x: -8, z: 0, kind: "sentinel" },
   { x: 8, z: 0, kind: "sentinel" },
   { x: -8, z: 136, kind: "sentinel" },
@@ -45,6 +45,10 @@ export const ENEMY_SPAWNS: { x: number; z: number; kind: EnemyKind }[] = [
   { x: 70, z: 26, kind: "sentinel" },
   { x: -50, z: -88, kind: "brute" },
   { x: 51, z: -89, kind: "archer" },
+  { x: -5, z: -6, kind: "sentinel" },
+  { x: 5, z: -5, kind: "sentinel" },
+  { x: 18, z: -4, kind: "archer" },
+  { x: 0, z: -8, kind: "brute", sizeMultiplier: 1.5, title: "门前重甲队长" },
 ];
 export const CAMPS = [
   { id: "supply", x: 10, z: 162, safe: true },
@@ -54,6 +58,8 @@ export const CAMPS = [
   { id: "east-veterans", x: 65, z: 22, safe: false },
 ];
 export const FIELD_CHESTS = [
+  { id: "chest-sword", x: -3, z: 177 },
+  { id: "chest-shield", x: 3, z: 177 },
   { id: "chest-landing", x: 5, z: 174 },
   { id: "chest-patrol", x: -45, z: 122 },
   { id: "chest-archers", x: 39, z: 92 },
@@ -105,3 +111,7 @@ export const FIELD_CRATES = [
   [-48, -96],
   [48, -96],
 ];
+
+export function enemyScale(enemy: { kind: EnemyKind; sizeMultiplier?: number }) {
+  return ENEMY_RULES[enemy.kind].scale * (enemy.sizeMultiplier ?? 1);
+}

@@ -1,23 +1,27 @@
-import { useMemo, useRef } from "react";
+import { stabilizeFacadeMaterials } from "../game/facadeMaterials";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useLoader } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Mesh, Group } from "three";
 import { game } from "../game/simulation";
+import { applyLegendMaterials } from "../game/materials";
 export function Landscape() {
   const gltf = useLoader(
     GLTFLoader,
     import.meta.env.BASE_URL + "models/park-landscape.glb",
   );
-  const model = useMemo(() => {
+  const { model, facadeMaterials } = useMemo(() => {
     const m = gltf.scene.clone(true);
+    applyLegendMaterials(m);
     m.traverse((o) => {
       if (o instanceof Mesh) {
         o.receiveShadow = true;
         o.castShadow = !!o.parent?.name.startsWith("Garden");
       }
     });
-    return m;
+    return { model: m, facadeMaterials: stabilizeFacadeMaterials(m) };
   }, [gltf]);
+  useEffect(() => () => facadeMaterials.forEach((material) => material.dispose()), [facadeMaterials]);
   const birds = useRef<Group>(null);
   useFrame(() => {
     if (game.phase === "paused") return;

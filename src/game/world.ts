@@ -1,3 +1,4 @@
+export const GARDEN_HEDGE_HEIGHT = 3.6;
 import { landscapeColliders } from "./landscape";
 import { CAMPS, FIELD_CHESTS, FIELD_HERBS, FIELD_CRATES } from "./expedition";
 import { estateColliders } from "./estate";
@@ -40,9 +41,13 @@ export const interactions: Interaction[] = [
     zone: "grounds" as const,
     kind: "chest" as const,
     label:
-      p.id === "chest-landing"
-        ? "领取远征装备 · 冒险弓与回复药"
-        : "打开远征宝箱",
+      p.id === "chest-sword"
+        ? "取得冒险剑 · 解锁攻击"
+        : p.id === "chest-shield"
+          ? "取得盾牌 · 解锁格挡"
+          : p.id === "chest-landing"
+            ? "领取降落区补给 · 箭矢与回复药"
+            : "打开远征宝箱",
   })),
   ...FIELD_HERBS.map(([x, z], i) => ({
     id: `herb-field-${i}`,
@@ -119,10 +124,10 @@ export const interactions: Interaction[] = [
   {
     id: "chest-east",
     zone: "grounds",
-    x: 17,
-    z: 6,
+    x: 6,
+    z: -10,
     kind: "chest",
-    label: "打开旅行宝箱",
+    label: "取得冒险弓 · 白宫门前宝箱",
   },
   {
     id: "chest-garden",
@@ -260,7 +265,7 @@ export const staticColliders: Collider[] = [
           z,
           0.65,
           i ? 8.5 : 10.5,
-          1.025,
+          i ? 1.025 : GARDEN_HEDGE_HEIGHT,
         ),
       ),
       box(
@@ -270,7 +275,7 @@ export const staticColliders: Collider[] = [
         z + (i ? 4 : -5),
         6,
         0.65,
-        1.025,
+        i ? 1.025 : GARDEN_HEDGE_HEIGHT,
       ),
     ]),
     ...[3, 13].flatMap((z) => [
@@ -313,10 +318,10 @@ export const staticColliders: Collider[] = [
     ),
   ),
   box("sign", "grounds", -3, 18, 1.8, 0.23, 2.2),
-  box("chest-east", "grounds", 17, 6, 1.5, 1, 1.1),
+  box("chest-east", "grounds", 6, -10, 1.5, 1, 1.1),
   box("chest-garden", "grounds", -13, -5, 1.5, 1, 1.47),
-  box("gatepost-west", "grounds", -16.4, 0.6, 0.35, 0.4, 2.6),
-  box("gatepost-east", "grounds", -9.6, 0.6, 0.35, 0.4, 2.6),
+  box("gatepost-west", "grounds", -16.4, 0.6, 0.35, 0.4, GARDEN_HEDGE_HEIGHT + 0.2),
+  box("gatepost-east", "grounds", -9.6, 0.6, 0.35, 0.4, GARDEN_HEDGE_HEIGHT + 0.2),
   box("lever", "grounds", -7, 1, 0.85, 0.85, 0.9),
 ];
 export const gateCollider = box(
@@ -326,7 +331,7 @@ export const gateCollider = box(
   0.6,
   6.5,
   0.25,
-  2.5,
+  GARDEN_HEDGE_HEIGHT,
 );
 export const cratePositions: number[][] = [
   [-4, 9],
