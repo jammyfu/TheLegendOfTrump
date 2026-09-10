@@ -1,3 +1,6 @@
 # Public game pages and machine-readable project facts are intentionally crawlable.
 User-agent: *
 Allow: /
+
+Sitemap: https://jammyfu.github.io/TheLegendOfTrump/sitemap.xml
+
