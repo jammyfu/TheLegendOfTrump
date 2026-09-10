@@ -4,7 +4,7 @@
 
 A low-poly, third-person adventure built with **React 19, Three.js, React Three Fiber, TypeScript and Vite**. The characters, equipment and environments are independently rebuilt assets. This unofficial standalone project does not include the reference video or original game models.
 
-![Title screen](artifacts/title-fairies-desktop.png)
+![English desktop title screen](artifacts/readme-en-desktop.png)
 
 ## Run
 
@@ -21,14 +21,13 @@ The terminal prints the local URL. Deploy `dist/` as a static site; no backend i
 
 ## Play
 
-Collect eight gems, enter the White House, defeat the Iron Commander, then approach the desk to finish the chapter. Regular guards telegraph attacks; block from the front, roll away, or jump clear. The boss sweep, slam and shockwave are answered by blocking, rolling and jumping. It becomes faster and summons guards below half health.
+Collect eight gems, enter the White House, defeat the Iron Commander, then approach the desk to finish the chapter. Guards and the boss telegraph their attacks; guarding, rolling and jumping are the main answers.
 
-Chests grant sword-and-shield gear, a bow and arrows. Before finding a weapon, a low-damage, short-range unarmed combo of left jab, right cross and front kick remains available. Desktop and touch play also support a three-hit sword combo, charged spin, drawn shots, lock-on and stamina management. Pause and loss of focus freeze the simulation; progress lasts only for the current session.
+Chests provide sword-and-shield gear, a bow and arrows. Unarmed combat has a short combo and a charged heavy punch; holding after full charge drains stamina, as does guarding. A low-stamina block breaks guard and costs half a heart.
 
-Hold the unarmed attack to wind up a heavy punch. Once fully charged, continuing to hold gradually drains stamina; releasing delivers the stronger hit, knockback and hit-stop. Holding guard also drains stamina. Each successful block costs one fixed 40-point stamina section; if less than one section remains, the guard breaks, stamina empties and the hero loses half a heart, shown directly in the HUD.
+Play with keyboard and mouse or touch controls. Pause and loss of focus freeze the simulation; progress lasts only for the current session.
 
-![Equipment and movement](artifacts/adventure-equipment-back.png)
-![Oval Office boss battle](artifacts/oval-boss-arena.png)
+![English mobile title screen](artifacts/readme-en-mobile.png)
 
 | Action | Controls |
 | --- | --- |
