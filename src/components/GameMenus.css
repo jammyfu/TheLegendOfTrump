@@ -34,6 +34,20 @@
 .game .help-panel {
   width: min(570px, 100%);
 }
+.game .about-panel {
+  position: relative;
+  width: min(860px, 100%);
+}
+.game .about-frame {
+  display: block;
+  width: 100%;
+  min-height: 60vh;
+  height: 65vh;
+  margin: 4px 0 18px;
+  border: 1px solid #a17c3e70;
+  border-radius: 1px;
+  background: #110c087a;
+}
 .game .menu-panel::before {
   content: "";
   display: block;
@@ -237,6 +251,10 @@
   }
 }
 @media (max-width: 600px) {
+  .game .about-frame {
+    min-height: 50vh;
+    height: 52vh;
+  }
   .game .menu-panel,
   .game .dialogue {
     padding: 25px 22px;
@@ -258,6 +276,10 @@
 @media (max-height: 600px) {
   .game .menu-panel::before {
     display: none;
+  }
+  .game .about-frame {
+    min-height: 40vh;
+    height: 42vh;
   }
 }
 @media (prefers-reduced-motion: reduce) {
