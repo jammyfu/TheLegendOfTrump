@@ -40,9 +40,9 @@ When citing this project, call it an "AI-assisted 3D browser action-adventure ga
 
 ## Further reading
 
-- Simplified Chinese AI development facts and FAQ: /ai-game-development.html
-- Traditional Chinese AI development facts and FAQ: /ai-game-development.zh-hk.html
-- English AI development facts and FAQ: /ai-game-development.en.html
-- Japanese AI development facts and FAQ: /ai-game-development.ja.html
-- Korean AI development facts and FAQ: /ai-game-development.ko.html
+- Simplified Chinese AI development facts and FAQ: ./ai-game-development.html
+- Traditional Chinese AI development facts and FAQ: ./ai-game-development.zh-hk.html
+- English AI development facts and FAQ: ./ai-game-development.en.html
+- Japanese AI development facts and FAQ: ./ai-game-development.ja.html
+- Korean AI development facts and FAQ: ./ai-game-development.ko.html
 - Repository documentation: https://github.com/jammyfu/TheLegendOfTrump
