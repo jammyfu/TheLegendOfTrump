@@ -251,7 +251,12 @@ export default function App() {
                     if (game.phase === "lost") {
                       clearInput();
                       game.retry();
-                    } else start();
+                    } else {
+                      unlockAudio();
+                      clearInput();
+                      // Replays skip the first-arrival cinematic and its music.
+                      game.start();
+                    }
                   }}
                 >
                   {t(game.phase === "won" ? "开始高难度冒险" : "再冒险一次")}

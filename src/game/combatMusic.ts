@@ -20,5 +20,7 @@ export function combatMusicHold(
   return threat ? 5 : Math.max(0, previous - Math.max(0, delta));
 }
 export function musicTrack(phase: Phase, battle: boolean) {
+  if (phase === 'won') return 5;
+  if (phase === 'dying' || phase === 'lost') return 4;
   return phase === "title" ? 0 : phase === "intro" ? 3 : battle ? 2 : 1;
 }

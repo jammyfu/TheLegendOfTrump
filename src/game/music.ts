@@ -11,7 +11,7 @@ const originalTracks = [
   "boss.mp3",
   "arrival.mp3",
 ];
-const localTracks = ["title.mp3", "exploration.mp3", "boss.mp3", "arrival.wav"];
+const localTracks = ["title.mp3", "exploration.mp3", "boss.mp3", "arrival.wav", "defeat.m4a", "victory.m4a"];
 let source: MusicSource = "ocarina";
 try {
   if (localStorage.getItem("legend-music-source") === "suno")
@@ -68,6 +68,12 @@ function preloadFutureTracks() {
     preloadTimer = undefined;
     if (generation !== preloadGeneration || !queue.length) return;
     const index = queue.shift()!;
+    // A queued cue may have become active since warm-up began. Loading it
+    // again would reset playback (especially a first early defeat).
+    if (index === musicTrack(phase, battle)) {
+      preloadTimer = setTimeout(loadNext, 750);
+      return;
+    }
     const track = tracks[index];
     let settled = false;
     const settle = () => {
@@ -105,14 +111,14 @@ function startMusicInBackground(delay = 900) {
 function createTracks() {
   tracks = localTracks.map((name, i) => {
     const a = new Audio(
-      source === "ocarina"
+      source === "ocarina" && i < originalTracks.length
         ? import.meta.env.BASE_URL + `audio/ocarina/${originalTracks[i]}`
         : import.meta.env.BASE_URL + `audio/${name}`,
     );
     a.loop = i !== 3;
     a.preload = "none";
     a.volume = 0;
-    if (source === "ocarina")
+    if (source === "ocarina" && i < originalTracks.length)
       a.onerror = () => {
         a.onerror = null;
         notice = "原版曲目暂时无法加载，当前曲目已改用 Suno 配乐。";

@@ -1,5 +1,9 @@
 # Soundtrack notes
 
+`victory.m4a` is the selected original Suno cue **Golden Signature** ([source](https://suno.com/song/7bc99fe7-0ab8-4a0a-a33e-1656bdcac12e)). Both presets play it on victory, with background preloading; leaving victory stops and resets the cue.
+
+`defeat.m4a` is the selected original Suno cue **Fallen Standard** ([source](https://suno.com/song/e66783e1-b9df-4139-b43a-0922fd7cdde8)). Both music presets use it for dying/lost states; it continues into the failure menu and stops on retry. It warms up in the background, never blocking scene loading.
+
 `title.mp3`, `exploration.mp3`, `boss.mp3` and `arrival.wav` are bundled original generated instrumental tracks. They play locally after the first user gesture; the game crossfades between title, exploration and combat, and pauses audio with the game.
 
 ## Optional *The Legend of Zelda: Ocarina of Time* preset
