@@ -10,7 +10,8 @@
     "test": "node --import tsx --test tests/*.test.ts",
     "test:e2e": "playwright test",
     "format": "prettier --write src tests scripts *.ts *.json *.html README.md",
-    "assets:optimize": "node scripts/optimize-model.mjs"
+    "assets:optimize": "node scripts/optimize-model.mjs",
+    "assets:compress": "node scripts/compress-materials.mjs"
   },
   "dependencies": {
     "@react-three/fiber": "^9.3.0",
@@ -28,6 +29,7 @@
     "@types/three": "^0.180.0",
     "@vitejs/plugin-react": "^5.0.0",
     "prettier": "^3.9.6",
+    "sharp": "0.35.4",
     "tsx": "^4.20.0",
     "typescript": "~5.9.2",
     "vite": "^7.1.0"

@@ -42,18 +42,29 @@ export function Asset({
   const lever = useMemo(() => model.getObjectByName("HandlePivot"), [model]);
   useFrame((_, dt) => {
     if (!root.current) return;
+    const isEquipmentChest = id === "chest-sword" || id === "chest-shield";
+    const dropStartedAt = game.equipmentChestDrops.get(id);
     root.current.visible = id.startsWith("herb")
       ? !game.harvested.has(id)
       : id.startsWith("crate-")
         ? !game.crates[Number(id.split("-")[1])].broken
-        : true;
+        : isEquipmentChest
+          ? dropStartedAt !== undefined
+          : true;
+    if (isEquipmentChest && dropStartedAt !== undefined) {
+      const progress = Math.min(1, Math.max(0, (game.elapsed - dropStartedAt) / 0.8));
+      // Accelerate into the landing, then give the chest a small settle bounce.
+      root.current.position.y = position[1] + 13 * (1 - progress * progress) +
+        (progress >= 1 ? Math.max(0, Math.sin((game.elapsed - dropStartedAt - 0.8) * 13)) * 0.13 : 0);
+      root.current.rotation.y = (1 - progress) * (game.elapsed - dropStartedAt) * 5;
+    }
     if (lid)
       lid.rotation.x +=
         ((game.opened.has(id) ? -1.6 : 0) - lid.rotation.x) *
         Math.min(1, dt * 8);
     if (lever)
       lever.rotation.x +=
-        ((game.gateOpen ? -0.7 : 0.6) - lever.rotation.x) * Math.min(1, dt * 8);
+        (((id === "lever" ? game.gateOpen : game.equipmentSwitches.has(id)) ? -0.7 : 0.6) - lever.rotation.x) * Math.min(1, dt * 8);
   });
   return (
     <group ref={root} position={position}>
@@ -62,23 +73,9 @@ export function Asset({
   );
 }
 export function InteractiveProps() {
-  const bowSource = useLoader(
-    GLTFLoader,
-    import.meta.env.BASE_URL + "models/adventure-bow.glb",
-  );
-  const treasure = useMemo(() => {
-    const object = bowSource.scene.clone(true);
-    return applyLegendMaterials(object);
-  }, [bowSource]);
-  const reward = useRef<Group>(null);
   const gate = useRef<Group>(null);
   const marker = useRef<Group>(null);
   useFrame((_, dt) => {
-    if (reward.current) {
-      reward.current.visible = game.opened.has("chest-east");
-      reward.current.position.y = 1.25 + Math.sin(game.elapsed * 2) * 0.08;
-      reward.current.rotation.y = game.elapsed * 0.4;
-    }
     if (gate.current)
       gate.current.position.y +=
         ((game.gateOpen ? -GARDEN_HEDGE_HEIGHT - 0.3 : 0) -
@@ -86,20 +83,16 @@ export function InteractiveProps() {
         Math.min(1, dt * 5);
     const current = game.interaction;
     if (marker.current) {
-      marker.current.visible = !!current && game.phase === "playing";
+      // The signing desk has a dedicated overhead objective marker aimed at
+      // the declaration itself.  Leaving the normal floor ring enabled here
+      // made it look as though the player should interact with the desk base.
+      marker.current.visible =
+        !!current && current.kind !== "desk" && game.phase === "playing";
       if (current) marker.current.position.set(current.x, 0.42, current.z);
     }
   });
   return (
     <>
-      <group
-        ref={reward}
-        position={[6, 1.25, -10]}
-        scale={0.65}
-        visible={false}
-      >
-        <primitive object={treasure} />
-      </group>
       {interactions
         .filter((i) => ["chest", "lever", "herb"].includes(i.kind))
         .map((i) => (

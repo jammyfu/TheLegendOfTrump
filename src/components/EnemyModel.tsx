@@ -3,7 +3,9 @@ import { ENEMY_RULES, enemyScale } from "../game/expedition";
 import { useMemo, useRef } from "react";
 import { useLoader, useFrame } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { Group, Mesh, MeshStandardMaterial, type Material } from "three";
+import { Group, Mesh, MeshStandardMaterial, Vector3, type Material } from "three";
+import { BOSS_SLAM, hammerContactAngles } from "../game/bossHammer";
+import { bindBossHammer, poseBossWrist } from "../game/bossGrip";
 import { game } from "../game/simulation";
 import { legendMaterial, ensureNormalUVs } from "../game/materials";
 import { ensureSurfaceUVs } from "../game/surfaceUV";
@@ -17,9 +19,9 @@ export function EnemyModel({
 }) {
   const kind = game.activeGuards.find((g) => g.id === id)?.kind ?? "sentinel";
   const ref = useRef<Group>(null),
-    warning = useRef<Mesh>(null),
-    wave = useRef<Mesh>(null);
+    warning = useRef<Mesh>(null);
   const lastPosition = useRef({ x: 0, z: 0, ready: false });
+  const contactTarget = useMemo(() => new Vector3(), []);
   const source = useLoader(
     GLTFLoader,
     import.meta.env.BASE_URL +
@@ -33,6 +35,7 @@ export function EnemyModel({
   );
   const model = useMemo(() => {
     const m = source.scene.clone(true);
+    if (boss) bindBossHammer(m);
     m.traverse((n) => {
       if (n instanceof Mesh) {
         const original = Array.isArray(n.material) ? n.material[0] : n.material;
@@ -52,13 +55,14 @@ export function EnemyModel({
       }
     });
     return m;
-  }, [source]);
+  }, [source,boss]);
   const prefix = boss ? "Boss" : "Sentinel";
   const joints = useMemo(
     () =>
       Object.fromEntries(
         [
           "Weapon",
+          ...(boss ? ["RightHand"] : []),
           "Torso",
           "RightArm",
           "LeftArm",
@@ -117,8 +121,8 @@ export function EnemyModel({
       stunned === 0 &&
       moved &&
       (!boss || game.boss.state === "chase")
-        ? Math.sin(game.elapsed * (kind === "brute" ? 7 : 9)) *
-          (kind === "brute" ? 0.25 : 0.32)
+        ? Math.sin(game.elapsed * (boss && game.boss.pursuingSlam ? 13 * game.boss.boostSpeed : kind === "brute" ? 7 : 9)) *
+          (boss && game.boss.pursuingSlam ? .5 : kind === "brute" ? .25 : .32)
         : 0;
     for (const j of Object.values(joints)) j.rotation.set(0, 0, 0);
     joints.RightLeg.rotation.x = walk;
@@ -162,7 +166,7 @@ export function EnemyModel({
           b.move === "dart" ? -1.55 : b.move === "sweep" ? -1.3 : -2.3;
         joints.Torso.rotation.y = b.move === "sweep" ? -0.55 : 0;
       } else if (b.state === "recover") {
-        const duration = b.enraged ? 0.85 : 1.2;
+        const duration = b.recoveryDuration;
         const elapsed = Math.max(0, duration - b.timer);
         const follow = Math.max(0, 1 - elapsed / duration);
         const strike = Math.min(1, elapsed / 0.12);
@@ -174,7 +178,41 @@ export function EnemyModel({
           b.move !== "sweep" ? 0.2 * strike * follow : 0;
       }
     }
-    if (boss) joints.Weapon.rotation.x = weaponPitch;
+    if (boss) poseBossWrist(joints.RightHand,weaponPitch,.45);
+    if (boss && game.boss.pursuingSlam) {
+      joints.Torso.rotation.x = game.boss.boostTime > 1.2 ? .32 : .14 + (game.boss.boostSpeed - 1) * .2;
+      joints.RightArm.rotation.x = -1.45;
+      joints.RightElbow.rotation.x = -.65;
+      joints.LeftArm.rotation.x = -.65 - walk;
+    }
+    if (boss && game.boss.move === "slam" && (windup || game.boss.state === "recover")) {
+      const b = game.boss;
+      const elapsed = b.recoveryDuration - b.timer;
+      const settle = windup ? 0 : Math.max(0, Math.min(1, (elapsed - .16) / (b.recoveryDuration - .16)));
+      const rest = settle * settle * (3 - 2 * settle);
+      const strike = windup ? Math.max(0, 1 - b.timer / BOSS_SLAM.swing) ** 2 : 1;
+      const duration = b.enraged ? BOSS_SLAM.enragedWindup : BOSS_SLAM.windup;
+      const lift = windup ? Math.min(1, Math.max(0, (duration - b.timer) / .36)) : 1;
+      const raised = -.6 - 1.7 * lift * lift * (3 - 2 * lift);
+      joints.Torso.rotation.set(.18 * strike * (1 - rest), 0, 0);
+      ref.current.updateMatrixWorld(true);
+      contactTarget.set(b.slamX, .7, b.slamZ);
+      joints.RightArm.parent!.worldToLocal(contactTarget);
+      contactTarget.sub(joints.RightArm.position);
+      const contact = hammerContactAngles(contactTarget.y, contactTarget.z);
+      // The downstroke is completed at timer=0, exactly when damage and the
+      // ground burst fire. The extended hammer is part of the joint solve.
+      joints.RightArm.rotation.set((raised + (contact.shoulder - raised) * strike) * (1 - rest) - .18 * rest, 0, 0);
+      joints.RightElbow.rotation.set(contact.elbow * strike * (1 - rest) - .2 * rest, 0, 0);
+      poseBossWrist(joints.RightHand,
+        (-raised * (1 - strike) + Math.PI * strike) * (1 - rest),
+        .45 * (1 - strike * (1 - rest)));
+      joints.LeftArm.rotation.set(-1.3 * (1 - strike) * (1 - rest) - .4, 0, -.25 * strike);
+      joints.LeftElbow.rotation.x = -.75 * (1 - rest);
+      joints.RightLeg.rotation.x = -.15 * (1 - rest);
+      joints.LeftLeg.rotation.x = .2 * (1 - rest);
+      joints.RightKnee.rotation.x = joints.LeftKnee.rotation.x = .24 * strike * (1 - rest);
+    }
     if (!boss && kind === "archer") {
       const bow = model.getObjectByName("ArcherBow");
       if (bow) bow.rotation.x = -joints.LeftArm.rotation.x;
@@ -209,11 +247,13 @@ export function EnemyModel({
       const r = boss
         ? game.boss.move === "sweep"
           ? 3.8
-          : 3.1
+          : game.boss.move === "slam" ? BOSS_SLAM.radius : 3.1
         : kind === "archer"
           ? 7.5
           : 2.1 * enemyScale(guard!);
       warning.current.scale.set(r, r, 1);
+      warning.current.position.set(boss && game.boss.move === "slam" ? BOSS_SLAM.side : 0,
+        .2, boss && game.boss.move === "slam" ? BOSS_SLAM.forward : 0);
       (warning.current.material as MeshStandardMaterial).color.set(
         boss && game.boss.move !== "sweep"
           ? "#ff4534"
@@ -221,38 +261,18 @@ export function EnemyModel({
             ? "#ff8574"
             : "#ffc757",
       );
+      const material = warning.current.material as MeshStandardMaterial;
+      // A paced pulse makes enemy anticipation readable at a glance without
+      // adding a permanently bright decal beneath every hostile.
+      const pulse = 0.84 + Math.sin(game.elapsed * 15) * 0.16;
+      if (!boss || game.boss.move !== "slam") warning.current.scale.multiplyScalar(pulse);
+      material.opacity = boss ? 0.38 + pulse * 0.28 : 0.22 + pulse * 0.18;
     }
-    if (wave.current) {
-      wave.current.visible = boss && game.boss.wave >= 0;
-      const dx = game.boss.waveX - g.x,
-        dz = game.boss.waveZ - g.z;
-      wave.current.position.set(
-        dx * Math.cos(g.yaw) - dz * Math.sin(g.yaw),
-        0.16,
-        dx * Math.sin(g.yaw) + dz * Math.cos(g.yaw),
-      );
-      wave.current.scale.setScalar(Math.max(0.01, game.boss.wave));
-    }
-  });
+  }, -0.1); // Animate before world-space weapon trails sample the joints.
   return (
     <group ref={ref} name={`guard-${id}`}>
       <primitive object={model} />
-      {boss ? (
-        <mesh
-          ref={warning}
-          rotation={[-Math.PI / 2, 0, 0]}
-          position={[0, 0.075, 0]}
-          visible={false}
-        >
-          <ringGeometry args={[0.87, 1, 48]} />
-          <meshBasicMaterial
-            color="#ff7040"
-            transparent
-            opacity={0.6}
-            depthWrite={false}
-          />
-        </mesh>
-      ) : (
+      {!boss && (
         <mesh
           ref={warning}
           rotation={[-Math.PI / 2, 0, 0]}
@@ -264,17 +284,6 @@ export function EnemyModel({
             color="#ff7040"
             transparent
             opacity={0.36}
-            depthWrite={false}
-          />
-        </mesh>
-      )}
-      {boss && (
-        <mesh ref={wave} rotation={[-Math.PI / 2, 0, 0]} visible={false}>
-          <ringGeometry args={[0.92, 1, 64]} />
-          <meshBasicMaterial
-            color="#ff7c32"
-            transparent
-            opacity={0.8}
             depthWrite={false}
           />
         </mesh>

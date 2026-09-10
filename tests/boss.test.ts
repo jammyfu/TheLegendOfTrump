@@ -5,6 +5,9 @@ const idle = { x: 0, z: 0, sprint: false, guard: false };
 function enter() {
   const g = new Simulation();
   g.start();
+  // Combat scenarios begin after the two starting equipment pickups.
+  g.swordUnlocked = g.shieldUnlocked = true;
+  g.weapon = "sword";
   g.gems = 8;
   g.x = 0;
   g.z = -10.7;

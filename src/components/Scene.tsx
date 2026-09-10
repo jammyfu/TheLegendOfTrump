@@ -1,5 +1,10 @@
 import { AdaptiveResolution } from "./AdaptiveResolution";
+import { flushSync } from "react-dom";
+import { getZoneLoading, setZoneLoading } from "../game/zoneLoading";
 import { CameraOcclusion } from "./CameraOcclusion";
+import { SpeedLines } from "./SpeedLines";
+import { PickupPresentation } from "./PickupPresentation";
+import { pickupEnvelope } from "../game/pickup";
 import { LANDING } from "../game/expedition";
 import { RangedCombat } from "./RangedCombat";
 import { rayFraction } from "../game/collision";
@@ -10,8 +15,9 @@ import { musicPhase } from "../game/music";
 import { AdventureSky } from "./AdventureSky";
 import { Arrival } from "./Arrival";
 import { INTRO_DURATION, introPose } from "../game/intro";
-import { Suspense, useRef, useState, memo } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Suspense, useEffect, useRef, useState, useSyncExternalStore, memo } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { getLoadingState, subscribeLoading, markSceneReady } from "../game/loading";
 import {
   Group,
   Vector3,
@@ -20,8 +26,8 @@ import {
   PerspectiveCamera,
 } from "three";
 import { game } from "../game/simulation";
-import { getInput, releaseMouse } from "../game/input";
-import { playSound, rotorSound } from "../game/audio";
+import { getInput, releaseMouse, clearInput, updateMouseAim } from "../game/input";
+import { playSound, rotorSound, syncActionAudio } from "../game/audio";
 import { Grounds, Office } from "./World";
 import { Character } from "./Character";
 import { CharacterSun } from "./CharacterSun";
@@ -37,21 +43,40 @@ import {
 } from "../game/camera";
 import { cameraFraction } from "../game/collision";
 import { InteractiveProps } from "./InteractiveProps";
+import { mobileRenderProfile, renderProfile } from "../game/renderQuality";
 const desired = new Vector3(),
   target = new Vector3();
 const Runtime = memo(RuntimeContent);
 function RuntimeContent() {
+  const [reducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)'));
   const tension = useRef(0);
+  const aircraftAvoidance = useRef<{yaw:number|null}>({yaw:null});
   const previousZone = useRef(game.zone);
   const previousPhase = useRef(game.phase);
   const [zone, setZone] = useState(game.zone);
   const first = useRef(true);
+  useEffect(() => { first.current = true; }, [zone]);
   const boom = useRef(game.cameraDistance);
   const focus = useRef(new Vector3());
   useFrame(({ camera }, delta) => {
-    for (let remaining = Math.min(delta, 0.2); remaining > 0; remaining -= 0.05)
+    if (!getZoneLoading()) updateMouseAim(delta);
+    for (let remaining = getZoneLoading() ? 0 : Math.min(delta, 0.2); remaining > 0; remaining -= 0.05)
       game.update(Math.min(remaining, 0.05), getInput());
-    for (const event of game.events.splice(0)) playSound(event);
+    const events = game.events.splice(0);
+    for (const event of events) playSound(event);
+    if (mobileRenderProfile && !reducedMotion.matches && game.cameraSettings.shake &&
+        events.some(event => ["hurt", "hit", "heavy", "punchHit", "kickHit", "arrowHit", "block"].includes(event))) {
+      // One pulse per frame even when a sweep hits a group. Unsupported iOS
+      // browsers still receive the visual camera and damage overlay feedback.
+      const pulse = events.includes("hurt") ? Math.round(35 * game.hurtFeedback)
+        : events.includes("heavy") ? 28 : events.includes("block") ? 16
+        : game.weapon === "none" ? 10 : game.swordUpgraded ? 18 : 12;
+      try { navigator.vibrate?.(pulse); } catch { /* Optional device capability. */ }
+    }
+    syncActionAudio(game.phase !== "paused" && game.phase !== "title",
+      game.phase === "playing" && game.weapon === "bow" && game.attackHeld,
+      game.phase === "playing" && game.spinTime > 0,
+      game.phase === "playing" && game.chargeTime > 0);
     rotorSound(game.phase === "intro" ? game.introTime : null);
     const threat =
       game.zone === "grounds" &&
@@ -77,7 +102,11 @@ function RuntimeContent() {
     );
     if (previousZone.current !== game.zone) {
       previousZone.current = game.zone;
-      setZone(game.zone);
+      const destination = game.zone;
+      clearInput();
+      // Paint the DOM cover before mounting/compiling the destination scene.
+      flushSync(() => setZoneLoading(destination));
+      requestAnimationFrame(() => requestAnimationFrame(() => setZone(destination)));
       first.current = true;
     }
     if (previousPhase.current !== game.phase && game.phase === "playing")
@@ -90,38 +119,25 @@ function RuntimeContent() {
       const pose = introPose(game.introTime);
       desired.set(...pose.camera);
       target.set(...pose.target);
-      if (pose.t > INTRO_DURATION - 3) {
-        const q = Math.min(1, (pose.t - (INTRO_DURATION - 3)) / 3);
-        const d = game.cameraDistance,
-          yaw = game.cameraYaw,
-          pitch = game.cameraPitch;
-        desired.lerp(
-          new Vector3(
-            Math.sin(yaw) * Math.cos(pitch) * d,
-            1.9 + Math.sin(pitch) * d,
-            LANDING.heroZ + Math.cos(yaw) * Math.cos(pitch) * d,
-          ),
-          q * q * (3 - 2 * q),
-        );
-      }
     } else if (
       game.zone === "office" &&
       (game.phase === "dialogue" || game.phase === "won")
     ) {
-      desired.set(0, 3.2, -3.45);
-      target.set(0, 2.05, -10.85);
+      desired.set(0, 5.8, -12);
+      target.set(0, 3.8, -22.5);
     } else {
       const indoors = game.zone === "office";
+      const cameraLock = game.weapon === "bow" ? undefined : game.lockTarget;
       const frame = indoorFrame(
         game,
         game.cameraYaw,
         game.cameraPitch,
         game.cameraDistance,
-        game.lockTarget,
+        cameraLock,
       );
       target.set(game.x, game.y + (indoors ? 2.3 : 1.9), game.z);
       const obstacles = cameraObstacles(game.colliders);
-      if (indoors || game.lockTarget) {
+      if (indoors || cameraLock) {
         desired.set(frame.target.x, frame.target.y, frame.target.z);
         // Focus must stay on the player's side of furniture and walls, too.
         target.lerp(
@@ -136,8 +152,12 @@ function RuntimeContent() {
       // Keep the same smoothed focus through lock acquisition, target changes
       // and release, so losing a target never snaps back to the player.
       focus.current.lerp(target, first.current ? 1 : 1 - Math.exp(-delta * 7));
+      const nearAircraft = game.zone==='grounds' && Math.abs(game.x-LANDING.x)<13 && Math.abs(game.z-LANDING.z)<18;
+      // A lagging/shoulder-offset focus can slip into the hull even when the
+      // player is outside it, collapsing all outgoing obstruction rays.
+      if(nearAircraft) focus.current.set(game.x,game.y+1.9,game.z);
       target.copy(focus.current);
-      if (game.weapon === "bow" || game.lockTarget) {
+      if (!nearAircraft && (game.weapon === "bow" || game.lockTarget)) {
         target.x += Math.cos(game.cameraYaw) * 0.95;
         target.z -= Math.sin(game.cameraYaw) * 0.95;
       }
@@ -145,18 +165,19 @@ function RuntimeContent() {
         obstacles,
         target,
         game.cameraYaw,
-        game.weapon === "bow" && !game.lockTarget
+        game.weapon === "bow"
           ? game.cameraPitch
           : indoors
             ? frame.pitch
             : game.cameraPitch,
-        game.aiming && !game.lockTarget
+        game.aiming
           ? 6.5
           : indoors
             ? frame.distance
             : game.cameraDistance,
+        aircraftAvoidance.current,
       );
-      boom.current = first.current
+      boom.current = first.current || aircraftAvoidance.current.yaw!==null
         ? safe.distance
         : recoverBoom(boom.current, safe.distance, delta);
       desired.set(
@@ -172,13 +193,19 @@ function RuntimeContent() {
         cameraFraction(obstacles, target, desired),
       );
     }
+    if (game.phase === 'obtaining' && !reducedMotion.matches) {
+      const mix = pickupEnvelope(game.pickupTime);
+      desired.lerp(new Vector3(game.x+Math.sin(game.yaw+.25)*4.3,game.y+2.8,game.z+Math.cos(game.yaw+.25)*4.3),mix);
+      target.lerp(new Vector3(game.x,game.y+2.6,game.z),mix);
+    }
     if (game.phase !== "playing" && document.pointerLockElement) releaseMouse();
     const cinematic =
       game.phase === "title" ||
       game.phase === "intro" ||
+      game.phase === "obtaining" ||
       game.phase === "dialogue" ||
       game.phase === "won";
-    if (cinematic)
+    if (cinematic && game.phase !== 'intro')
       camera.position.lerp(
         desired,
         first.current ? 1 : 1 - Math.exp(-delta * 9),
@@ -187,7 +214,10 @@ function RuntimeContent() {
     // Final safety pass includes the indoor shell and the moving aircraft.
     // It runs after cinematic interpolation, not just on the intended endpoint.
     if (game.phase !== "title") {
-      const volumes = game.colliders.filter((c) => !c.id.startsWith("guard-"));
+      // Desk and chair use subject-aware fading instead of squeezing the camera
+      // into the player's back; physical actor collisions remain unchanged.
+      const volumes = game.colliders.filter((c) => !c.id.startsWith("guard-") &&
+        !(c.zone==='office'&&(c.id==='desk'||c.id==='chair')));
       if (game.phase === "intro") {
         const p = introPose(game.introTime);
         volumes.push({
@@ -207,7 +237,7 @@ function RuntimeContent() {
       const fov = cinematic
         ? 48
         : responsiveFov(
-            game.cameraSettings.fov + (game.zone === "office" ? 5 : 0),
+            (game.cameraSettings.fov + (game.zone === "office" ? 5 : 0)) * (game.aiming ? 0.65 : 1),
             camera.aspect,
           );
       if (camera.fov !== fov) {
@@ -217,7 +247,14 @@ function RuntimeContent() {
     }
     camera.lookAt(target);
     const aimDirection = new Vector3();
-    camera.getWorldDirection(aimDirection);
+    camera.updateMatrixWorld();
+    aimDirection.set(game.weapon === "bow" ? game.aimCursor.x : 0, game.weapon === "bow" ? game.aimCursor.y : 0, 0.5)
+      .unproject(camera).sub(camera.position).normalize();
+    const crosshair = document.getElementById("bow-crosshair");
+    if (crosshair) {
+      crosshair.style.left = `${(game.aimCursor.x + 1) * 50}%`;
+      crosshair.style.top = `${(1 - game.aimCursor.y) * 50}%`;
+    }
     const end = camera.position.clone().addScaledVector(aimDirection, 55);
     // Cast from the hero's depth so a faded wall behind the hero cannot pull
     // the aim point backward when the camera moves outside the room shell.
@@ -228,9 +265,16 @@ function RuntimeContent() {
       .clone()
       .addScaledVector(aimDirection, Math.max(0, heroDepth));
     let fraction = 1;
+    let aimedId = "";
     for (const c of game.colliders) {
       const t = rayFraction(c, aimStart, end);
-      if (t !== null) fraction = Math.min(fraction, t);
+      if (t !== null && t < fraction) { fraction = t; aimedId = c.id; }
+    }
+    game.aimOnTarget = game.combatTargets.some(e => e.hp > 0 && aimedId === "guard-" + e.id);
+    if (crosshair) {
+      const focus = game.attackHeld ? game.bowDraw / 0.85 : 0;
+      crosshair.style.setProperty("--aim-size", `${game.aimOnTarget ? 64 - focus * 42 : 100 - focus * 24}px`);
+      crosshair.dataset.aligned = String(game.aimOnTarget);
     }
     const aim = aimStart.lerp(end, fraction);
     game.aimPoint.x = aim.x;
@@ -243,13 +287,15 @@ function RuntimeContent() {
       !window.matchMedia("(prefers-reduced-motion: reduce)").matches
     ) {
       const strength = game.impactStrength * (game.impactTime / 0.2) ** 2;
-      camera.rotateX(Math.sin(game.impactTime * 95) * 0.008 * strength);
-      camera.rotateY(Math.sin(game.impactTime * 77) * 0.009 * strength);
+      camera.rotateX(Math.sin(game.impactTime * 95) * 0.016 * strength);
+      camera.rotateY(Math.sin(game.impactTime * 77) * 0.018 * strength);
+      camera.rotateZ(Math.sin(game.impactTime * 61) * 0.007 * strength);
     }
     first.current = false;
   }, -1);
   return (
     <>
+      <ZoneReady key={zone} zone={zone} />
       <color
         attach="background"
         args={[zone === "grounds" ? "#555de0" : "#d8c7a1"]}
@@ -264,7 +310,7 @@ function RuntimeContent() {
       />
       <ambientLight intensity={zone === "grounds" ? 0.8 : 1.1} />
       <hemisphereLight args={["#bac6ed", "#6b655c", 0.8]} />
-      <CharacterSun />
+      <CharacterSun zone={zone} />
       {zone === "grounds" ? (
         <>
           <AdventureSky />
@@ -281,8 +327,7 @@ function RuntimeContent() {
       {zone === "office" && (
         <>
           <EnemyModel id={100} boss />
-          <EnemyModel id={101} />
-          <EnemyModel id={102} />
+          {game.minions.map(g=><EnemyModel key={g.id} id={g.id}/>)}
         </>
       )}
       {zone === "grounds" && (
@@ -293,6 +338,8 @@ function RuntimeContent() {
       )}
       <DoorMarker />
       <CameraOcclusion />
+      <SpeedLines />
+      <PickupPresentation />
     </>
   );
 }
@@ -390,8 +437,14 @@ function DoorMarker() {
         (game.zone === "office" ? game.boss.hp <= 0 : game.gems >= 8);
       ref.current.position.set(
         0,
-        3.8 + Math.sin(clock.elapsedTime * 2) * 0.15,
-        game.zone === "office" ? -9.95 : -13.7,
+        // In the office, guide the player to the declaration on the desktop,
+        // not to the interaction point on the floor in front of the desk.
+        // The room is rendered at OFFICE_SCALE (2): declaration =
+        // (0, 2.2, -4.65) with the desk's -5.25 z offset.
+        game.zone === "office"
+          ? 5.05 + Math.sin(clock.elapsedTime * 2) * 0.15
+          : 3.8 + Math.sin(clock.elapsedTime * 2) * 0.15,
+        game.zone === "office" ? -19.8 : -13.7,
       );
       ref.current.rotation.y = clock.elapsedTime;
     }
@@ -409,11 +462,54 @@ function DoorMarker() {
     </group>
   );
 }
+/** Inside Suspense: report readiness only after the full scene's first render. */
+function ZoneReady({ zone }: { zone: "office" | "grounds" }) {
+  const committed = useRef(false);
+  const frames = useRef(0);
+  useEffect(() => {
+    committed.current = true;
+    return () => { committed.current = false; };
+  }, []);
+  useFrame(() => {
+    if (getZoneLoading() !== zone || !committed.current) return;
+    // Two completed render opportunities include texture upload and shaders.
+    if (++frames.current === 3) {
+      clearInput();
+      setZoneLoading(null);
+    }
+  });
+  return null;
+}
+
+function SceneReady() {
+  const invalidate = useThree((state) => state.invalidate);
+  const frame = useRef<number | null>(null);
+  useEffect(() => {
+    invalidate();
+    const unsubscribe = subscribeLoading(invalidate);
+    return () => {
+      unsubscribe();
+      if (frame.current !== null) cancelAnimationFrame(frame.current);
+      frame.current = null;
+    };
+  }, [invalidate]);
+  useFrame(() => {
+    if (frame.current === null && !getLoadingState().sceneReady) {
+      frame.current = requestAnimationFrame(() => {
+        frame.current = null;
+        markSceneReady();
+      });
+    }
+  });
+  return null;
+}
+
 export function Scene() {
-  const [resolution, setResolution] = useState(1);
+  const [resolution, setResolution] = useState(renderProfile.initialDpr);
+  const loading = useSyncExternalStore(subscribeLoading, getLoadingState);
   return (
     <Canvas
-      frameloop={game.phase === "title" ? "never" : "always"}
+      frameloop={game.phase === "title" ? (loading.sceneReady ? "never" : "demand") : "always"}
       shadows
       onCreated={({ scene, camera }) => {
         if (import.meta.env.DEV) {
@@ -422,12 +518,13 @@ export function Scene() {
         }
       }}
       dpr={resolution}
-      camera={{ fov: 48, near: 0.1, far: 2400 }}
-      gl={{ antialias: true, powerPreference: "high-performance", logarithmicDepthBuffer: true }}
+      camera={{ fov: 48, near: 0.1, far: renderProfile.cameraFar }}
+      gl={{ antialias: !mobileRenderProfile, powerPreference: "high-performance", logarithmicDepthBuffer: true }}
     >
       <AdaptiveResolution onChange={setResolution} />
       <Suspense fallback={null}>
         <Runtime />
+        <SceneReady />
       </Suspense>
     </Canvas>
   );

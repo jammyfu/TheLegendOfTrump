@@ -13,6 +13,9 @@ const idle = { x: 0, z: 0, sprint: false };
 function fresh() {
   const g = new Simulation();
   g.start();
+  // Combat scenarios begin after the two starting equipment pickups.
+  g.swordUnlocked = g.shieldUnlocked = true;
+  g.weapon = "sword";
   return g;
 }
 function tick(g: Simulation, seconds: number, input = idle) {
@@ -128,12 +131,13 @@ test("sword hit occurs after wind-up, obeys facing, wall occlusion and cooldown"
 });
 test("chest and herbs grant rewards only once; lever unlocks secret garden", () => {
   const g = quiet();
-  g.x = 17;
-  g.z = 7.7;
+  g.x = 6;
+  g.z = -8;
   g.interact();
   assert.equal(g.gems, 3);
   g.interact();
   assert.equal(g.gems, 3);
+  tick(g, 1.65);
   g.x = -7;
   g.z = 2.7;
   g.interact();
@@ -144,6 +148,7 @@ test("chest and herbs grant rewards only once; lever unlocks secret garden", () 
   g.y = 0.37;
   g.interact();
   assert.equal(g.gems, 8);
+  tick(g, 1.65);
   g.hp = 1;
   g.x = 18;
   g.z = 18.7;
@@ -226,6 +231,11 @@ test("door unlock and desk interaction still complete the adventure; restart res
   assert.equal(g.phase, "dialogue");
   g.interact();
   assert.equal(g.phase, "won");
+  g.x = 0;
+  g.z = 32;
+  g.interact();
+  assert.equal(g.zone, "grounds");
+  assert.equal(g.phase, "playing");
   g.start();
   assert.equal(g.gems, 0);
   assert.equal(g.gateOpen, false);
@@ -321,7 +331,7 @@ test("strikes interrupt enemy windup, stagger once per swing, then allow recover
   tick(g, 0.18);
   assert.equal(enemy.hp, 9);
   assert.equal(enemy.windup, 0);
-  assert.ok(enemy.stun > 0.4);
+  assert.ok(enemy.stun > 0.1 && enemy.stun <= 0.22);
   assert.ok(g.hitStop > 0);
   const attackTime = g.attackTime;
   g.update(0.01, idle);
@@ -350,7 +360,7 @@ test("finisher has stronger stagger, collision-limited knockback and visible def
   g.attack();
   tick(g, 0.3);
   assert.equal(enemy.hp, 0);
-  assert.ok(enemy.stun > 0.85);
+  assert.ok(enemy.stun > 0.3 && enemy.stun <= 0.4);
   assert.ok(enemy.defeatTime > 0);
   tick(g, 1);
   assert.ok(enemy.defeatTime > 0);
@@ -386,6 +396,8 @@ test("combat feedback fires on contact, ends quickly, and buffered swings link s
   assert.ok(g.events.includes("hit"));
   tick(g, 0.3);
   assert.equal(g.combo, 1);
+  // Isolate the player's fading effects from the now-faster enemy retaliation.
+  g.guards.forEach(enemy => { enemy.hp = 0; });
   tick(g, 1.2);
   assert.equal(g.effects.length, 0);
   assert.equal(g.impactTime, 0);

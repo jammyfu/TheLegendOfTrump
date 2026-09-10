@@ -217,7 +217,9 @@ export function cameraFraction(
 ) {
   let fraction = 1;
   for (const c of colliders) {
-    const t = rayFraction(c, from, to, 0.22);
+    // Aircraft gear/cabin proxies meet at tight corners. Keep the focus ray
+    // padding below the player's clearance; the final near-plane pass is wider.
+    const t = rayFraction(c, from, to, c.id.startsWith('helicopter-') ? .08 : .22);
     if (t !== null) fraction = Math.min(fraction, Math.max(0.025, t - 0.025));
   }
   return fraction;

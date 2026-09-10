@@ -1,13 +1,15 @@
 import { LANDING } from "./expedition";
 /** Shared deterministic timeline: rendering never changes the player's physics state. */
-export const INTRO_DURATION = 18;
+export const INTRO_DURATION = 11;
 const smooth = (v: number) => {
   const t = Math.max(0, Math.min(1, v));
   return t * t * (3 - 2 * t);
 };
 const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 export function introPose(remaining: number) {
-  const t = INTRO_DURATION - Math.max(0, remaining);
+  const elapsed = INTRO_DURATION - Math.max(0, remaining);
+  // Preserve landing/disembarkation and the short camera handoff.
+  const t = elapsed <= 9 ? elapsed : 9 + (elapsed - 9) * 4.5;
   const arrival = smooth(t / 5.5),
     exit = smooth((t - 6.5) / 2.5);
   // Nose points along local +Z. First approach northward, then yaw toward the pad.
@@ -24,16 +26,6 @@ export function introPose(remaining: number) {
     bank = 0;
     pitch = 0;
   }
-  // Close door -> vertical climb -> stationary 180-degree yaw -> accelerate south.
-  if (t > 10) {
-    const lift = smooth((t - 10) / 2),
-      turn = smooth((t - 11) / 2.5),
-      fly = smooth((t - 13.5) / 4.5);
-    helicopter = [LANDING.x, 0.1 + lift * 12 + fly * 36, LANDING.z + fly * 135];
-    heading = Math.PI * (1 + turn);
-    bank = Math.sin(turn * Math.PI) * 0.07;
-    pitch = Math.sin(fly * Math.PI) * 0.1;
-  }
   const hero: [number, number, number] = [
     mix(LANDING.x - 2.45, LANDING.heroX, exit),
     mix(0.9, 0, smooth((t - 6.5) / 0.9)),
@@ -43,22 +35,22 @@ export function introPose(remaining: number) {
   if (t < 5.5) {
     camera = [helicopter[0] - 14, helicopter[1] + 7, helicopter[2] + 20];
     target = [helicopter[0], helicopter[1] + 1.5, helicopter[2]];
-  } else if (t < 10) {
+  } else if (elapsed < 9) {
     camera = [LANDING.x - 14, 8, LANDING.z + 16];
     target = [LANDING.x - 3, 2.3, LANDING.z - 2];
   } else {
-    const q = smooth((t - 10) / 8),
-      a = mix(-1.05, 0, q);
+    // Deliberate fixed-shot cut: never orbit/blend through the rotor on handoff.
     camera = [
-      mix(LANDING.x - 14, LANDING.heroX + Math.sin(a) * 8, q),
-      mix(8, 3.8016210114, q),
-      mix(LANDING.z + 16, LANDING.heroZ + Math.cos(a) * 7.770703799, q),
+      LANDING.heroX,
+      3.8016210114,
+      LANDING.heroZ + 7.770703799,
     ];
     target = [LANDING.heroX, 1.9, LANDING.heroZ];
   }
   return {
     t,
     helicopter,
+    rotorSpeed: 1-smooth((elapsed-9)/2),
     heading,
     bank,
     pitch,

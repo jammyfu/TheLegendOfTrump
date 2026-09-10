@@ -1,7 +1,7 @@
 export type AerialAttack = "jumpSlash" | "flyingKick";
 export const AERIAL = {
-  jumpSlash: { duration: 0.64, hit: 0.24, cost: 14, damage: 1.5, range: 2.9, stun: 0.85, push: 3.2, stop: 0.09, impact: 0.9 },
-  flyingKick: { duration: 0.56, hit: 0.18, cost: 10, damage: 0.75, range: 2.3, stun: 0.6, push: 2.8, stop: 0.075, impact: 0.75 },
+  jumpSlash: { duration: 0.64, hit: 0.24, cost: 14, damage: 1.5, range: 2.9, stun: 0.38, push: 3.2, stop: 0.09, impact: 0.9 },
+  flyingKick: { duration: 0.56, hit: 0.18, cost: 10, damage: 0.4, range: 2.3, stun: 0.3, push: 2.8, stop: 0.075, impact: 0.75 },
 } as const;
 export function aerialPose(kind: AerialAttack, elapsed: number) {
   const spec = AERIAL[kind];

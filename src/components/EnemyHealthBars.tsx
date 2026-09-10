@@ -54,7 +54,6 @@ export function EnemyHealthBars() {
   return <>
     {game.guards.map((enemy) => <EnemyHealthBar key={enemy.id} id={enemy.id} />)}
     <EnemyHealthBar id={100} boss />
-    <EnemyHealthBar id={101} />
-    <EnemyHealthBar id={102} />
+    {game.minions.map(enemy=><EnemyHealthBar key={enemy.id} id={enemy.id}/>)}
   </>;
 }

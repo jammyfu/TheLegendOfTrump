@@ -5,11 +5,41 @@ import {
   followLockYaw,
   lockRangeTime,
 } from "../src/game/lockCamera";
-import { cutawayFade, obscuresSubject } from "../src/game/cutaway";
+import { cutawayFade, cutawaySide, obscuresSubject } from "../src/game/cutaway";
+import { readFileSync } from "node:fs";
 import { cameraObstacles, cameraBoom } from "../src/game/camera";
 import { Simulation } from "../src/game/simulation";
 
 const idle = { x: 0, z: 0, sprint: false };
+test("shipped room names keep their wall direction after Blender export and glTF sanitizing", () => {
+  const bytes = readFileSync(new URL('../public/models/oval-cutaway.glb', import.meta.url));
+  const gltf = JSON.parse(bytes.subarray(20, 20 + bytes.readUInt32LE(12)).toString());
+  const walls = gltf.nodes.filter((n: { name?: string }) => n.name?.startsWith('OfficeCutaway_'));
+  assert.equal(walls.length, 5);
+  for (const node of walls) {
+    const side = node.name.match(/^OfficeCutaway_([a-z]+)/)[1];
+    assert.equal(cutawaySide(node.name), side);
+    assert.equal(cutawaySide(node.name.replaceAll('.', '')), side);
+  }
+  assert.equal(cutawaySide('OfficeFurnishing001'), undefined);
+});
+
+test("rear windows fade behind the desk and restore when looking from inside the room", () => {
+  const rear = { min: { x: -35, y: 0, z: -32 }, max: { x: 35, y: 20, z: -30 } };
+  const hero = { x: 0, y: 1.65, z: -25 };
+  const side = cutawaySide('OfficeCutaway_back001');
+  for (const camera of [{x: 0, y: 5, z: -38}, {x: 7, y: 6, z: -31}]) {
+    assert.equal(obscuresSubject(rear, camera, hero, .55, side), true);
+  }
+  assert.equal(obscuresSubject(rear, {x: 0, y: 5, z: -12}, hero, .55, side), false);
+  const west = { min: {x: -36, y: 0, z: -32}, max: {x: -34, y: 20, z: 32} };
+  assert.equal(obscuresSubject(west, {x: -40, y: 5, z: -25},
+    {x: -31, y: 1.65, z: -25}, .55, cutawaySide('OfficeCutaway_west.001')), true);
+  const ceiling = {min: {x: -35, y: 19, z: -32}, max: {x: 35, y: 20, z: 32}};
+  assert.equal(obscuresSubject(ceiling, {x: 0, y: 24, z: -25}, hero,
+    .55, cutawaySide('OfficeCutaway_ceiling001')), true);
+});
+
 test("range tolerance recovers inside inner radius and releases after sustained retreat", () => {
   assert.equal(lockRangeTime(29, 0, 0.1), 0);
   assert.equal(lockRangeTime(31, 0, 0.1), 0.1);
@@ -67,6 +97,8 @@ test("occlusion does not release a living in-range target or let melee steal the
   nearby.hp = 4;
   nearby.x = -20;
   nearby.z = 13;
+  game.swordUnlocked = true;
+  game.weapon = "sword";
   game.attack();
   assert.equal(game.lockedTarget, enemy.id);
 });

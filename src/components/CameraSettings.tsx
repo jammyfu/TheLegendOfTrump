@@ -1,3 +1,4 @@
+import { GameIcon } from "./Icons";
 import { t } from "../game/i18n";
 import { useState } from "react";
 import { game } from "../game/simulation";
@@ -13,7 +14,10 @@ export function CameraSettings() {
   };
   return (
     <details className="camera-settings">
-      <summary>{t("视角与鼠标设置")}</summary>
+      <summary>
+        <GameIcon name="camera" />
+        {t("视角与鼠标设置")}
+      </summary>
       <label>
         {t("镜头距离")}
         <output>{settings.distance.toFixed(1)}</output>

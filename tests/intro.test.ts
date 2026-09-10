@@ -3,6 +3,30 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { INTRO_DURATION, introPose } from "../src/game/intro";
 import { Simulation } from "../src/game/simulation";
+test('disembarkation holds a fixed wide shot then cuts to a fixed rear shot',()=>{
+ const wide=introPose(INTRO_DURATION-5.5);
+ for(const elapsed of [6,7,8,8.99]){
+  const p=introPose(INTRO_DURATION-elapsed);
+  assert.deepEqual(p.camera,wide.camera);
+  assert.deepEqual(p.target,wide.target);
+ }
+ const rear=introPose(0);
+ for(const elapsed of [9,9.1,9.5,10,10.9]){
+  const p=introPose(INTRO_DURATION-elapsed);
+  assert.deepEqual(p.camera,rear.camera);
+  assert.deepEqual(p.target,rear.target);
+ }
+});
+test('helicopter remains parked and rotor stops after disembarkation',()=>{
+  for(const elapsed of [9,10,11,20]){
+    const p=introPose(INTRO_DURATION-elapsed);
+    assert.ok(Math.abs(p.helicopter[1]-.1)<1e-8);
+    assert.equal(p.helicopter[0],LANDING.x);assert.equal(p.helicopter[2],LANDING.z);
+    assert.equal(p.heading,Math.PI);
+  }
+  assert.equal(introPose(0).rotorSpeed,0);
+  assert.ok(introPose(INTRO_DURATION-9).rotorSpeed>introPose(INTRO_DURATION-10).rotorSpeed);
+});
 test("arrival hides hero until landing and finishes at playable spawn", () => {
   const flight = introPose(INTRO_DURATION);
   assert.equal(flight.visible, false);
@@ -53,7 +77,7 @@ test("boarding stairs deploy after the door starts opening and retract before de
   assert.equal(at(6.5).door, 1);
   assert.equal(at(6.5).visible, true);
   assert.equal(at(9.5).stairs, 0);
-  assert.ok(at(9.5).door > 0);
+  assert.ok(at(9.1).door > 0);
   assert.equal(at(10).door, 0);
   assert.equal(at(11).stairs, 0);
 });

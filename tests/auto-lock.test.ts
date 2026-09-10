@@ -5,6 +5,9 @@ const idle = { x: 0, z: 0, sprint: false };
 function setup() {
   const g = new Simulation();
   g.start();
+  // This combat fixture represents equipment already collected.
+  g.swordUnlocked = g.shieldUnlocked = true;
+  g.weapon = "sword";
   g.x = -20;
   g.z = 15;
   g.cameraYaw = 0;

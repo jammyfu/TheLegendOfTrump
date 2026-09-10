@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { mobileRenderProfile } from "../game/renderQuality";
 
 /** One title-only canvas: sprite motes, winged wisps and fading light trails. */
 export function TitleMagic() {
@@ -17,13 +18,13 @@ export function TitleMagic() {
       disposed = false;
     const pointer = { x: 0.5, y: 0.4 };
     const trails: { x: number; y: number }[][] = Array.from(
-      { length: 5 },
+      { length: mobileRenderProfile ? 2 : 5 },
       () => [],
     );
     const resize = () => {
       width = surface.clientWidth;
       height = surface.clientHeight;
-      const dpr = Math.min(devicePixelRatio, 1.5);
+      const dpr = mobileRenderProfile ? 0.75 : Math.min(devicePixelRatio, 1.5);
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -36,12 +37,18 @@ export function TitleMagic() {
     };
     const draw = (now: number) => {
       if (disposed) return;
+      // WeChat's browser pays heavily for additive canvas blending. The title
+      // remains animated on phones, but is intentionally capped near 30 FPS.
+      if (mobileRenderProfile && last && now - last < 33) {
+        frame = requestAnimationFrame(draw);
+        return;
+      }
       const dt = last ? Math.min(0.04, (now - last) / 1000) : 0;
       last = now;
       if (!reduced.matches) time += dt;
       ctx.clearRect(0, 0, width, height);
       ctx.globalCompositeOperation = "lighter";
-      const count = width < 600 ? 42 : 82;
+      const count = mobileRenderProfile ? 18 : width < 600 ? 42 : 82;
       for (let i = 0; i < count; i++) {
         const x =
           ((i * 0.61803398875 + Math.sin(time * 0.15 + i) * 0.016) % 1) * width;
@@ -56,7 +63,7 @@ export function TitleMagic() {
         ctx.arc(x, y, r, 0, Math.PI * 2);
         ctx.fill();
       }
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < trails.length; i++) {
         const a = time * (0.15 + i * 0.015) + i * Math.PI * 0.4;
         const x =
           width * (0.5 + Math.cos(a) * (0.31 + (i % 2) * 0.07)) +
@@ -68,7 +75,7 @@ export function TitleMagic() {
           color = cool ? "134,229,255" : "255,216,137";
         const trail = trails[i];
         trail.push({ x, y });
-        if (trail.length > 24) trail.shift();
+        if (trail.length > (mobileRenderProfile ? 10 : 24)) trail.shift();
         for (let j = 1; j < trail.length; j++) {
           ctx.strokeStyle = `rgba(${color},${(j / trail.length) * 0.25})`;
           ctx.lineWidth = 0.3 + (j / trail.length) * 1.3;
@@ -124,7 +131,7 @@ export function TitleMagic() {
       restart();
     });
     observer.observe(surface);
-    surface.addEventListener("pointermove", move);
+    if (!mobileRenderProfile) surface.addEventListener("pointermove", move);
     document.addEventListener("visibilitychange", restart);
     reduced.addEventListener("change", restart);
     resize();
@@ -133,7 +140,7 @@ export function TitleMagic() {
       disposed = true;
       cancelAnimationFrame(frame);
       observer.disconnect();
-      surface.removeEventListener("pointermove", move);
+      if (!mobileRenderProfile) surface.removeEventListener("pointermove", move);
       document.removeEventListener("visibilitychange", restart);
       reduced.removeEventListener("change", restart);
     };

@@ -1,0 +1,108 @@
+.game-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  overflow: hidden;
+  isolation: isolate;
+  color: #f5d995;
+  background: radial-gradient(
+    ellipse at 50% 75%,
+    #544025 0,
+    #211a12 42%,
+    #0d1116 85%
+  );
+}
+.game-loading::after {
+  content: "";
+  position: absolute;
+  inset: 20px;
+  border: 1px solid #d5b67935;
+  pointer-events: none;
+}
+.loading-estate {
+  position: absolute;
+  width: max(100%, 780px);
+  height: auto;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #be9a57;
+  opacity: 0.15;
+}
+.loading-content {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 22px;
+  padding: 30px;
+  text-align: center;
+}
+.game .loading-kicker {
+  font-family: var(--reading-font);
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  color: #c5ae7c;
+}
+.loading-crest {
+  color: #e4c17a;
+  font-size: 36px;
+  line-height: 1;
+}
+.game .loading-content strong {
+  font-family: var(--display-font);
+  font-size: clamp(24px, 3.6vw, 42px);
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+  color: #fff1c4;
+}
+.loading-status {
+  display: grid;
+  gap: 8px;
+}
+.game .loading-status :is(span, small) {
+  font-family: var(--reading-font);
+  font-size: 18px;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+}
+.game .loading-status small {
+  font-size: 15px;
+  color: #c2b08b;
+}
+.loading-track {
+  width: min(320px, 70vw);
+  height: 4px;
+  background: #fff0bb18;
+  overflow: hidden;
+}
+.loading-track i {
+  display: block;
+  width: 35%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, #ffe5a4, transparent);
+  animation: loading-scan 1.5s ease-in-out infinite;
+}
+.game-loading button {
+  padding: 12px 24px;
+  background: #48361e;
+  color: #fff1c4;
+  border: 1px solid #b99b57;
+  cursor: pointer;
+}
+@keyframes loading-scan {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(386%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loading-track i {
+    animation: none;
+    width: 100%;
+    opacity: 0.55;
+  }
+}

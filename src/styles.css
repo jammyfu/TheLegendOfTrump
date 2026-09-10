@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap");
 :root {
   font-family: "Noto Serif SC", Georgia, serif;
   color: #f0e9d5;
@@ -19,6 +18,16 @@
 }
 .game img {
   -webkit-user-drag: none;
+}
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  -webkit-touch-callout: none;
 }
 body {
   margin: 0;
@@ -581,7 +590,9 @@ kbd {
   margin: 0;
 }
 .help-note {
-  font-size: 10px !important;
+  /* The control overview is long, but it is still primary reading content. */
+  font-size: clamp(15px, 1.15vw, 18px) !important;
+  line-height: 1.85;
 }
 .help-shade {
   z-index: 10;
@@ -1789,7 +1800,28 @@ kbd {
 .target-reticle i {display:block; width:100%; height:100%; border:2px solid #fff3ac; border-radius:50%; outline:1px solid #152e39; outline-offset:4px; }
 .target-reticle i:after {content:'◆'; position:absolute; top:-18px; left:18px; font-size:12px;}
 .target-reticle span {position:absolute; top:62px; left:50%; transform:translateX(-50%); white-space:nowrap; font-size:12px; background:#152e39c9; padding:4px 8px; border-radius:4px;}
-.bow-crosshair {position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); color:#e5ffef; font-size:32px; text-shadow:0 1px 3px #123; pointer-events:none;z-index:14;}
+.bow-crosshair {position:fixed; left:50%; top:50%; width:34px; height:34px; transform:translate(-50%,-50%); pointer-events:none; z-index:14; filter:drop-shadow(0 1px 3px #3b0a0a);}
+.bow-crosshair::before,.bow-crosshair::after {content:""; position:absolute; left:1px; top:16px; width:32px; height:2px; border-radius:2px; background:#ff5349; box-shadow:0 0 7px #ff2f2599; animation:arrow-reticle-pulse .82s ease-in-out infinite alternate;}
+.bow-crosshair::before {transform:rotate(45deg)}
+.bow-crosshair::after {transform:rotate(-45deg)}
+.bow-crosshair i {position:absolute; inset:10px; border:1px solid #ffd1c8; border-radius:50%; opacity:.88; transform:scale(.76); animation:arrow-reticle-core .82s ease-in-out infinite alternate;}
+.bow-crosshair.precision::before,.bow-crosshair.precision::after {animation-duration:1.5s; background:#ffb15a;}
+.bow-crosshair.precision i {border-color:#fff0b4; animation-duration:1.5s;}
+@keyframes arrow-reticle-pulse {from{opacity:.72; transform:rotate(45deg) scale(.82)}to{opacity:1; transform:rotate(45deg) scale(1)}}
+@keyframes arrow-reticle-core {from{opacity:.4; transform:scale(.68)}to{opacity:1; transform:scale(1)}}
+.bow-crosshair::after {animation-name:arrow-reticle-pulse-reverse;}
+@keyframes arrow-reticle-pulse-reverse {from{opacity:.72; transform:rotate(-45deg) scale(.82)}to{opacity:1; transform:rotate(-45deg) scale(1)}}
+.bow-crosshair {width:var(--aim-size,100px);height:var(--aim-size,100px);transition:width .18s ease-out,height .18s ease-out;}
+.bow-crosshair::before,.bow-crosshair::after {left:0;top:calc(50% - 1px);width:100%;background:linear-gradient(90deg,#ff5349 0 23%,transparent 23% 77%,#ff5349 77%);animation:none;}
+.bow-crosshair::before {transform:rotate(45deg);}
+.bow-crosshair::after {transform:rotate(-45deg);}
+.bow-crosshair i {inset:0;border:1px dashed #ff756888;transform:none;animation:none;transition:border-color .18s;}
+.bow-crosshair[data-aligned="true"] i {border-color:#ffb49b;}
+.bow-crosshair.precision::before,.bow-crosshair.precision::after {background:linear-gradient(90deg,#ff5349 0 23%,transparent 23% 77%,#ff5349 77%);}
+@media(prefers-reduced-motion:reduce){.bow-crosshair{transition:none;}}
+canvas[data-aim-input="drag"] { cursor: none; }
+.bow-edge-turn { display:none; position:absolute; inset:-24px; transform:rotate(var(--pan-angle,0rad)); color:#ffe1a1; font:28px/1 Georgia,serif; text-align:right; align-items:center; justify-content:flex-end; }
+.bow-crosshair[data-pan="true"] .bow-edge-turn { display:flex; }
 .weapon-hud {position:fixed; left:30px; top:125px; display:grid; gap:5px; z-index:20; color:#eee5c8; font-size:12px;}
 .weapon-hud button {color:#fff0ba; border:1px solid #b7a06b88; background:#12252edb; border-radius:8px; padding:9px 12px; font:inherit; cursor:pointer;}
 .weapon-hud meter {width:150px;height:10px;}

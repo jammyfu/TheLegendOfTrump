@@ -1,8 +1,12 @@
 import { EndingReward } from "./components/EndingReward";
 import { t } from "./game/i18n";
+import { PICKUP_LABELS } from "./game/pickup";
+import './components/PickupPresentation.css';
+import { uiClickFeedback, uiPointerFeedback } from "./game/uiFeedback";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { getAudioSettings } from "./game/audioSettings";
-import { getLanguage, subscribeLanguage, setLanguage } from "./game/i18n";
+import { getLanguage, subscribeLanguage } from "./game/i18n";
+import { syncSeoMetadata } from "./game/seo";
 import {
   Component,
   useEffect,
@@ -13,7 +17,10 @@ import {
 import { Scene } from "./components/Scene";
 import { Hud } from "./components/Hud";
 import { TitleScreen } from "./components/TitleScreen";
-import { Crest } from "./components/Icons";
+import { GameLoading } from "./components/GameLoading";
+import { failLoading, getLoadingState } from "./game/loading";
+import { setZoneLoading } from "./game/zoneLoading";
+import { Crest, GameIcon } from "./components/Icons";
 import { game } from "./game/simulation";
 import { bindInput, clearInput } from "./game/input";
 import { setAudio, unlockAudio } from "./game/audio";
@@ -25,7 +32,14 @@ class SceneError extends Component<
   static getDerivedStateFromError() {
     return { failed: true };
   }
+  componentDidCatch(error: Error) {
+    setZoneLoading(null);
+    failLoading(error.message);
+  }
   render() {
+    // During startup GameLoading owns the error/retry UI. Avoid placing the
+    // legacy render-error layer over its button; retain it for runtime faults.
+    if (this.state.failed && getLoadingState().active) return null;
     return this.state.failed ? (
       <div className="render-error">
         <h2>{t("无法启动 3D 场景")}</h2>
@@ -46,9 +60,11 @@ export default function App() {
   const sound = getAudioSettings().enabled;
   const language = useSyncExternalStore(subscribeLanguage, getLanguage);
   useEffect(() => {
-    setLanguage(language);
+    document.documentElement.lang = language === "zh" ? "zh-CN" : language;
+    syncSeoMetadata(language);
   }, [language]);
   useEffect(() => {
+    game.launchDebug();
     const unbind = bindInput();
     const activateAudio = () => unlockAudio();
     window.addEventListener("pointerdown", activateAudio, { once: true });
@@ -88,8 +104,13 @@ export default function App() {
   return (
     <main
       className={title ? "game title-mode" : "game"}
+      onClick={(event) => uiClickFeedback(event.target, event.detail)}
+      onPointerDownCapture={(event) =>
+        uiPointerFeedback(event.target, event.button)
+      }
       onDragStart={(event) => event.preventDefault()}
     >
+      <GameLoading />
       <SceneError>
         <Scene />
       </SceneError>
@@ -114,11 +135,17 @@ export default function App() {
                 <strong>{t("华盛顿，哥伦比亚特区")}</strong>
               </div>
               <button onClick={() => game.skipIntro()}>
+                <GameIcon name="arrow" />
                 {t("跳过片头 · E")}
               </button>
             </div>
           )}
           {game.phase === "playing" && <Hud />}
+          {game.phase === 'obtaining' && <div className="pickup-caption">
+            <span>✦ ITEM ACQUIRED ✦</span>
+            <h2>{t(PICKUP_LABELS[game.pickupItem])}</h2>
+            <button onClick={()=>game.interact()}>{t('继续冒险')} · E</button>
+          </div>}
           {game.phase === "paused" && (
             <div className="modal-shade">
               <section className="menu-panel">
@@ -126,13 +153,15 @@ export default function App() {
                 <h2>{t("冒险暂停")}</h2>
                 <p>{t("南草坪的风，依然为你而吹。")}</p>
                 <button className="secondary" onClick={() => setSettings(true)}>
+                  <GameIcon name="settings" />
                   {t("设置")}
                 </button>
                 <button className="primary" onClick={resume}>
                   {t("继续冒险")}
-                  <span>→</span>
+                  <GameIcon name="arrow" />
                 </button>
                 <button className="secondary" onClick={() => setHelp(true)}>
+                  <GameIcon name="book" />
                   {t("操作指南")}
                 </button>
                 <button
@@ -141,6 +170,7 @@ export default function App() {
                     setAudio(!sound);
                   }}
                 >
+                  <GameIcon name={sound ? "sound" : "mute"} />
                   {t("音效：")}
                   {sound ? t("开启") : t("关闭")}
                 </button>
@@ -224,8 +254,8 @@ export default function App() {
                     } else start();
                   }}
                 >
-                  {t("再冒险一次")}
-                  <span>↻</span>
+                  {t(game.phase === "won" ? "开始高难度冒险" : "再冒险一次")}
+                  <GameIcon name="roll" />
                 </button>
                 <button
                   className="text-button"
@@ -270,7 +300,7 @@ export default function App() {
               aria-label={t("关闭指南")}
               onClick={() => setHelp(false)}
             >
-              ×
+              <GameIcon name="close" />
             </button>
             <span className="eyebrow">YOUR FIRST ADVENTURE</span>
             <h2>{t("准备好出发了吗？")}</h2>
@@ -286,7 +316,7 @@ export default function App() {
                 [t("左键 / J"), t("拔剑攻击")],
                 [t("右键 / F"), t("举盾防御（按住）")],
                 ["Space / Shift", t("跳跃 / 冲刺（按住）")],
-                ["Shift + 方向", t("组合翻滚；单按跳跃键则跳跃")],
+                ["Shift + 方向 + Space", t("组合翻滚；单按跳跃键则跳跃")],
                 ["E / Q", t("互动 / 锁定目标")],
                 ["Esc / R", t("暂停、释放鼠标 / 镜头复位")],
               ].map(([key, label]) => (
@@ -305,7 +335,7 @@ export default function App() {
             </p>
             <button className="primary" onClick={() => setHelp(false)}>
               {t("明白了")}
-              <span>→</span>
+              <GameIcon name="arrow" />
             </button>
           </section>
         </div>

@@ -2,7 +2,7 @@ export const GARDEN_HEDGE_HEIGHT = 3.6;
 /** The Oval Office is a ceremonial hall, scaled beyond exterior player space. */
 export const OFFICE_SCALE = 2;
 import { landscapeColliders } from "./landscape";
-import { CAMPS, FIELD_CHESTS, FIELD_HERBS, FIELD_CRATES } from "./expedition";
+import { CAMPS, FIELD_CHESTS, FIELD_HERBS, FIELD_CRATES, LANDING } from "./expedition";
 import { estateColliders } from "./estate";
 export type Zone = "grounds" | "office";
 export type Collider = {
@@ -38,15 +38,19 @@ export type Interaction = {
   label: string;
 };
 export const interactions: Interaction[] = [
+  { id: "lever-sword", zone: "grounds", kind: "lever", x: -48, z: 122, label: "启动剑冢机关" },
+  { id: "lever-shield", zone: "grounds", kind: "lever", x: 48, z: 92, label: "启动盾台机关" },
   ...FIELD_CHESTS.map((p) => ({
     ...p,
     zone: "grounds" as const,
     kind: "chest" as const,
     label:
+      p.id === "chest-wood-sword" ? "取得木剑" :
+      p.id === "chest-wood-shield" ? "取得木盾" :
       p.id === "chest-sword"
-        ? "取得冒险剑 · 解锁攻击"
+        ? "取得冒险剑 · 升级木剑"
         : p.id === "chest-shield"
-          ? "取得盾牌 · 解锁格挡"
+          ? "取得盾牌 · 升级木盾"
           : p.id === "chest-landing"
             ? "领取降落区补给 · 箭矢与回复药"
             : "打开远征宝箱",
@@ -212,6 +216,16 @@ const circle = (
   walkable = false,
 ): Collider => ({ id, zone, x, z, radius, top, walkable });
 export const staticColliders: Collider[] = [
+  // Parked aircraft faces PI: model +Z points south-to-north in world space.
+  // Compact proxies follow the cabin/nose taper; elevated tail retains headroom.
+  {...box('helicopter-cabin','grounds',LANDING.x,LANDING.z+.6,3.8,5.1,4.4),bottom:.9},
+  {...box('helicopter-nose','grounds',LANDING.x,LANDING.z-2.8,2.8,1.9,4.1),bottom:1.1},
+  {...box('helicopter-radar','grounds',LANDING.x,LANDING.z-4.35,1.35,1.25,3.45),bottom:1},
+  {...box('helicopter-rear','grounds',LANDING.x,LANDING.z+4.1,2.4,2,3.6),bottom:.95},
+  ...[-1,1].map(s=>box('helicopter-gear-'+s,'grounds',LANDING.x+s*2.05,LANDING.z+1.7,.85,3,2)),
+  {...box('helicopter-tail-low','grounds',LANDING.x,LANDING.z+5.65,1.15,3.1,3.55),bottom:2.25},
+  {...box('helicopter-tail-high','grounds',LANDING.x,LANDING.z+9.5,.8,4.7,3.9),bottom:2.95},
+  {...box('helicopter-tail-fin','grounds',LANDING.x,LANDING.z+11.5,.4,2.5,6.2),bottom:3.35},
   ...estateColliders,
   ...landscapeColliders,
   ...FIELD_CHESTS.map((p) => box(p.id, "grounds", p.x, p.z, 1.5, 1, 1.1)),
@@ -256,8 +270,8 @@ export const staticColliders: Collider[] = [
   ...[-1, 1].map((s) =>
     circle("indoor-flag-" + s, "office", s * 7.4825, -13.53, 0.72, 4.9),
   ),
-  box("desk", "office", 0, -10.25, 6.2, 2.35, 2.2),
-  box("chair", "office", 0, -11.55, 1.5, 0.5, 2.6),
+  box("desk", "office", 0, -10.25, 4.96, 1.88, 1.76),
+  box("chair", "office", 0, -11.55, 1.5, 0.5, 3),
   ...[-1, 1].flatMap((s) => [
     box("sofa-" + s, "office", s * 12.3, 2.05, 2, 3.7, 1.2, true),
     box("sofa-back-" + s, "office", s * 13.1, 2.05, 0.4, 3.7, 1.75),

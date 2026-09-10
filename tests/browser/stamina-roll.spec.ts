@@ -23,6 +23,8 @@ test("200 stamina and sprint-direction roll chords in both keyboard orders", asy
     .toBeGreaterThan(-19.5);
   expect(await page.evaluate(() => window.__game!.dodgeTime)).toBe(0);
   await page.keyboard.down("ShiftLeft");
+  expect(await page.evaluate(() => window.__game!.dodgeTime)).toBe(0);
+  await page.keyboard.press("Space");
   await expect
     .poll(() => page.evaluate(() => window.__game!.dodgeTime), {
       intervals: [20, 30, 50],
@@ -35,6 +37,8 @@ test("200 stamina and sprint-direction roll chords in both keyboard orders", asy
     .toBe(true);
   await page.keyboard.down("ShiftLeft");
   await page.keyboard.down("KeyA");
+  expect(await page.evaluate(() => window.__game!.dodgeTime)).toBe(0);
+  await page.keyboard.press("Space");
   await expect
     .poll(() => page.evaluate(() => window.__game!.dodgeTime), {
       intervals: [20, 30, 50],

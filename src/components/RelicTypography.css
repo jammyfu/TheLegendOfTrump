@@ -1,4 +1,15 @@
 @import "./HudLayout.css";
+@font-face { font-family: "Legend Reading SC"; src: url("../../public/fonts/legend-reading-sc.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Legend Reading JP"; src: url("../../public/fonts/legend-reading-jp.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Legend Reading HK"; src: url("../../public/fonts/legend-reading-hk.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Legend Reading KR"; src: url("../../public/fonts/legend-reading-kr.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face {
+  font-family: "Legend Reading";
+  src: url("../../assets/fonts/sources/CormorantGaramond.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+}
 @font-face {
   font-family: "Legend Relic Latin";
   src: url("../../public/fonts/legend-relic-latin.woff2") format("woff2");
@@ -21,44 +32,43 @@
   font-display: swap;
 }
 .game {
-  --game-font: "Legend Relic Latin", "Legend Relic SC", "Noto Serif SC", "Songti SC", Georgia, serif;
+  --game-font: var(--display-font);
+  --reading-font: "Legend Reading", "Legend Reading SC", "Legend Reading JP", "Legend Reading KR", "Songti SC", SimSun, serif;
+  --display-font: "Legend Relic Latin", "Legend Relic SC", "Legend Reading SC", "Legend Reading JP", "Legend Reading KR", serif;
   font-family: var(--game-font);
 }
 :lang(ja) .game {
-  --game-font: "Legend Relic Latin", "Legend Relic JP", "Legend Relic SC", "Yu Mincho", serif;
+  --reading-font: "Legend Reading", "Legend Reading JP", "Legend Reading SC", "Legend Reading KR", serif;
+  --display-font: "Legend Relic Latin", "Legend Relic JP", "Legend Reading JP", "Legend Reading SC", "Legend Reading KR", serif;
 }
 :lang(ko) .game {
-  --game-font: "Legend Relic Latin", "Noto Serif KR", "Batang", "Legend Relic SC", serif;
+  --reading-font: "Legend Reading", "Legend Reading KR", "Legend Reading SC", "Legend Reading JP", serif;
+  --display-font: "Legend Relic Latin", "Legend Relic KR", "Legend Reading KR", "Legend Reading SC", "Legend Reading JP", serif;
 }
-.game :is(button, input, select, option, label, output, kbd, p, span, small, strong, h1, h2, h3, dt, dd, summary, footer, .menu-panel, .dialogue) {
+.game :is(button, input, select, option, label, output, kbd, p, span, small, strong, h1, h2, h3, dt, dd, summary, footer, .living-title, .menu-panel, .dialogue) {
   font-family: var(--game-font);
-  font-synthesis: none;
+  font-synthesis: weight style;
 }
 .game :is(.lt-menu-label, .menu-panel h2, .dialogue h2, .intro-location strong) {
+  font-family: var(--display-font);
+  font-synthesis: none;
   color: #fff3c4;
   text-shadow: 0 1px 0 #ad9461, 0 3px 2px #0b1524, 0 0 12px #e6cf8c22;
   letter-spacing: .035em;
   font-weight: 700;
 }
-.game .lt-menu-label { font-size: clamp(36px, 4vw, 52px); line-height: 1.2; }
-.game .lt-controls .lt-menu-label { font-size: clamp(26px, 2.5vw, 32px); }
-.game :is(.menu-panel, .dialogue) h2 { font-size: clamp(28px, 3.5vw, 36px); line-height: 1.35; }
+.game .lt-menu-label { line-height: 1.2; }
+.game :is(.menu-panel, .dialogue) h2 { line-height: 1.35; }
 .game .settings-panel label, .game .music-settings dl { line-height: 1.65; }
 
 @font-face { font-family: "Legend Relic HK"; src: url("../../public/fonts/legend-relic-hk.woff2") format("woff2"); font-style: normal; font-weight: 400 900; font-display: swap; }
-:lang(zh-HK) .game { --game-font: "Legend Relic Latin", "Legend Relic HK", "Noto Serif HK", "Songti TC", serif; }
+:lang(zh-HK) .game {
+  --reading-font: "Legend Reading", "Legend Reading HK", "Legend Reading SC", "Legend Reading JP", "Legend Reading KR", serif;
+  --display-font: "Legend Relic Latin", "Legend Relic HK", "Legend Reading HK", "Legend Reading SC", "Legend Reading JP", "Legend Reading KR", serif;
+}
 
 /* Keep the larger menu labels inside narrow phone screens. */
 .game .lt-menu button { max-width: 100%; }
-@media (max-width: 600px) {
-  .game .lt-start { gap: 12px; padding-inline: 12px; }
-  .game .lt-menu-label { font-size: clamp(30px, 8vw, 38px); }
-  .game .lt-controls .lt-menu-label { font-size: 26px; }
-}
-@media (max-height: 500px) and (min-width: 601px) {
-  .game .lt-menu-label { font-size: 36px; }
-  .game .lt-controls .lt-menu-label { font-size: 26px; }
-}
 
 @font-face {
   font-family: "Legend Relic KR";
@@ -67,10 +77,10 @@
   font-weight: 400 900;
   font-display: swap;
 }
-.game { --game-font: "Legend Relic Latin", "Legend Relic SC", "Legend Relic JP", "Legend Relic HK", "Legend Relic KR", serif; }
-:lang(ja) .game { --game-font: "Legend Relic Latin", "Legend Relic JP", "Legend Relic SC", "Legend Relic HK", "Legend Relic KR", serif; }
-:lang(zh-HK) .game { --game-font: "Legend Relic Latin", "Legend Relic HK", "Legend Relic SC", "Legend Relic JP", "Legend Relic KR", serif; }
-:lang(ko) .game { --game-font: "Legend Relic Latin", "Legend Relic KR", "Legend Relic SC", "Legend Relic JP", "Legend Relic HK", serif; }
+/* UI labels retain the traced artwork; reading passages are overridden below. */
+.game :is(.lt-menu-label, .menu-panel h2, .dialogue h2, .intro-location strong) * {
+  font-family: inherit;
+}
 
 /* Readable display scale for the condensed ornamental glyphs. */
 .game .lt-overline {
@@ -86,26 +96,29 @@
 .game .lt-controls { opacity: .9; }
 .game .lt-footer button { min-height: 48px; gap: 12px; }
 .game .lt-footer button span { font-size: clamp(18px, 1.8vw, 24px); letter-spacing: .1em; }
-.game :is(.menu-panel, .dialogue) { font-size: 20px; }
+.game :is(.menu-panel, .dialogue) { --ui-size: 20px; font-size: var(--ui-size); }
 .game :is(.menu-panel, .dialogue) h2 { font-size: clamp(34px, 4vw, 44px); }
 .game :is(.menu-panel, .dialogue) :is(p, li, label, select, output, dt, dd) {
-  font-size: 20px;
+  font-size: var(--ui-size);
   line-height: 1.65;
 }
 .game :is(.menu-panel, .dialogue) :is(.primary, .secondary, .text-button) {
   font-family: var(--game-font);
-  font-size: 22px;
+  font-size: var(--ui-size);
   min-height: 54px;
   line-height: 1.4;
 }
 .game :is(.menu-panel, .dialogue) :is(small, .eyebrow, kbd) { font-size: 16px; }
-.game :is(.music-options, .camera-settings) button { font-size: 18px; }
+.game .music-options button { min-width: 0; }
+.game .setting-row select { min-width: 150px; line-height: 1.5; }
+.game .music-settings dd { overflow-wrap: anywhere; }
 @media (max-width: 600px) {
+  .game .lt-start { gap: 12px; padding-inline: 12px; }
+  .game :is(.menu-panel, .dialogue) { --ui-size: 18px; }
   .game .lt-overline { font-size: 15px; letter-spacing: .12em; }
   .game .lt-menu-label { font-size: clamp(36px, 10vw, 48px); }
   .game .lt-controls .lt-menu-label { font-size: 30px; }
   .game .lt-footer button span { font-size: 18px; }
-  .game :is(.menu-panel, .dialogue) :is(p, li, label, select, output, dt, dd) { font-size: 18px; }
   .game .setting-row { flex-wrap: wrap; gap: 10px; }
   .game .setting-row select { max-width: 100%; }
 }
@@ -118,17 +131,17 @@
   .game .lt-footer button span { font-size: 16px; }
 }
 .game :is(.menu-panel, .dialogue) summary,
-.game :is(.menu-panel, .dialogue) summary span { font-size: 20px; line-height: 1.5; }
+.game :is(.menu-panel, .dialogue) summary span { font-size: var(--ui-size); line-height: 1.5; }
 
 /* CJK uses uniform font cells; Latin-style tracking made Chinese look scattered. */
 :lang(zh) .game :is(button, p, li, label, select, output, dt, dd, span, small, strong, h2, h3, summary),
 :lang(ja) .game :is(button, p, li, label, select, output, dt, dd, span, small, strong, h2, h3, summary) {
   letter-spacing: normal;
   word-spacing: normal;
-  font-kerning: none;
+  font-kerning: auto;
 }
 .game .help-panel p.help-note {
-  font-size: 20px;
+  font-size: var(--ui-size);
   line-height: 1.9;
   letter-spacing: normal;
   word-spacing: normal;
@@ -136,6 +149,20 @@
   white-space: normal;
   overflow-wrap: break-word;
   padding: 16px 18px;
+}
+/* Paragraphs and dense instructions need continuous, unpierced serif outlines.
+   Include descendants so links, emphasis and key hints cannot revert to artwork. */
+.game :is(.menu-panel p, .dialogue p, .menu-panel li, .settings-panel > small, .adventure-controls, .hud-detail-panel),
+.game :is(.menu-panel p, .dialogue p, .menu-panel li, .settings-panel > small, .adventure-controls, .hud-detail-panel) * {
+  font-family: var(--reading-font);
+  font-synthesis: weight style;
+  letter-spacing: normal;
+  word-spacing: normal;
+  font-kerning: auto;
+}
+.game :is(.menu-panel p, .dialogue p, .menu-panel li) {
+  font-size: var(--ui-size);
+  line-height: 1.75;
 }
 @media (max-width: 600px) {
   .game .help-panel p.help-note { font-size: 18px; line-height: 1.85; padding: 14px; }

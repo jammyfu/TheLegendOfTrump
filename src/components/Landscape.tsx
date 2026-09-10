@@ -5,6 +5,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Mesh, Group } from "three";
 import { game } from "../game/simulation";
 import { applyLegendMaterials } from "../game/materials";
+import { mobileRenderProfile } from "../game/renderQuality";
 export function Landscape() {
   const gltf = useLoader(
     GLTFLoader,
@@ -15,8 +16,10 @@ export function Landscape() {
     applyLegendMaterials(m);
     m.traverse((o) => {
       if (o instanceof Mesh) {
-        o.receiveShadow = true;
-        o.castShadow = !!o.parent?.name.startsWith("Garden");
+        // The landscape is the largest draw surface. Mobile uses its baked
+        // materials without dynamic shadows; nearby actors still cast them.
+        o.receiveShadow = !mobileRenderProfile;
+        o.castShadow = !mobileRenderProfile && !!o.parent?.name.startsWith("Garden");
       }
     });
     return { model: m, facadeMaterials: stabilizeFacadeMaterials(m) };
@@ -41,7 +44,7 @@ export function Landscape() {
     <group name="landscape-and-city">
       <primitive object={model} />
       <group ref={birds} name="park-bird-flock">
-        {Array.from({ length: 8 }, (_, i) => (
+        {Array.from({ length: mobileRenderProfile ? 3 : 8 }, (_, i) => (
           <group key={i}>
             {[-1, 1].map((s) => (
               <mesh key={s} position={[s * 0.28, 0, 0]}>

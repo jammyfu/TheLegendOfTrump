@@ -1,12 +1,12 @@
 /** Shared timings keep joint poses and damage on the same timeline. */
 export const ATTACKS = [
-  { name: "下劈", duration: 0.46, hit: 0.15, cost: 8, stun: 0.56, push: 1.8 },
+  { name: "下劈", duration: 0.46, hit: 0.15, cost: 8, stun: 0.22, push: 1.8 },
   {
     name: "左 → 右横斩",
     duration: 0.5,
     hit: 0.19,
     cost: 9,
-    stun: 0.6,
+    stun: 0.26,
     push: 2.1,
   },
   {
@@ -14,7 +14,7 @@ export const ATTACKS = [
     duration: 0.66,
     hit: 0.27,
     cost: 12,
-    stun: 0.95,
+    stun: 0.4,
     push: 4.2,
   },
 ] as const;
@@ -79,7 +79,7 @@ const poses: [Pose, Pose][] = [
 export function attackPose(stage: number, elapsed: number): Pose {
   const spec = ATTACKS[stage],
     [windup, follow] = poses[[2, 1, 0][stage]];
-  const impactEnd = spec.hit + 0.08;
+  const impactEnd = spec.hit + 0.055;
   let a: Pose, b: Pose, t: number;
   if (elapsed < spec.hit - 0.055) {
     a = ready;
@@ -88,7 +88,7 @@ export function attackPose(stage: number, elapsed: number): Pose {
   } else if (elapsed < impactEnd) {
     a = windup;
     b = follow;
-    t = (elapsed - spec.hit + 0.055) / 0.135;
+    t = (elapsed - spec.hit + 0.055) / 0.11;
   } else {
     a = follow;
     b = ready;
@@ -118,7 +118,7 @@ export const SPIN = {
 export function swingProgress(stage: number, elapsed: number) {
   const t = Math.max(
     0,
-    Math.min(1, (elapsed - ATTACKS[stage].hit + 0.055) / 0.135),
+    Math.min(1, (elapsed - ATTACKS[stage].hit + 0.055) / 0.11),
   );
   return t * t * (3 - 2 * t);
 }

@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { game } from "../game/simulation";
+import { renderProfile } from "../game/renderQuality";
 /** Slow sustained frames lower only render resolution; HUD stays native resolution. */
 export function AdaptiveResolution({
   onChange,
@@ -32,7 +33,7 @@ export function AdaptiveResolution({
     s.stable = average < 0.018 ? s.stable + s.seconds : 0;
     let next = s.level;
     if (average > 0.027)
-      next = Math.max(0.7, Math.round((s.level - 0.15) * 100) / 100);
+      next = Math.max(renderProfile.minDpr, Math.round((s.level - 0.15) * 100) / 100);
     else if (s.stable > 8) {
       next = Math.min(1, Math.round((s.level + 0.15) * 100) / 100);
       s.stable = 0;

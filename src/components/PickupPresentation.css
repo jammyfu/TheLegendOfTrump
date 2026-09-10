@@ -1,0 +1,4 @@
+.pickup-caption { position:absolute; z-index:12; bottom:8%; left:50%; transform:translateX(-50%); text-align:center; color:#ffe5a1; padding:16px 36px; min-width:220px; background:linear-gradient(90deg,transparent,#18120be8 18%,#18120be8 82%,transparent); }
+.game .pickup-caption span { font-size:16px; letter-spacing:.16em; }
+.game .pickup-caption h2 { font-size:clamp(28px,4vw,42px); margin:8px 0; }
+.pickup-caption button { color:#e9d3a1; background:none; border:0; padding:8px 16px; cursor:pointer; }

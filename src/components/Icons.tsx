@@ -13,16 +13,34 @@ export function GemIcon() {
     </svg>
   );
 }
-export function Heart({ empty = false }: { empty?: boolean }) {
+export function Heart({
+  empty = false,
+  half = false,
+}: {
+  empty?: boolean;
+  half?: boolean;
+}) {
+  const filled = !empty && !half;
   return (
     <svg viewBox="0 0 24 22" aria-hidden="true">
       <path
         d="M12 20 2 11V4L6 1h4l2 3 2-3h4l4 3v7Z"
-        fill={empty ? "#344748" : "#dc272b"}
-        stroke={empty ? "#7d8980" : "#642020"}
+        fill={filled ? "#dc272b" : "#302924"}
+        stroke={filled ? "#642020" : "#967343"}
         strokeWidth="1.5"
       />
-      <path d="M5 5h4v3H5Z" fill={empty ? "transparent" : "#ff8c75"} />
+      {half && (
+        <g style={{ clipPath: "inset(0 50% 0 0)" }}>
+          <path
+            d="M12 20 2 11V4L6 1h4l2 3 2-3h4l4 3v7Z"
+            fill="#dc272b"
+            stroke="#642020"
+            strokeWidth="1.5"
+          />
+          <path d="M5 5h4v3H5Z" fill="#ff8c75" />
+        </g>
+      )}
+      {filled && <path d="M5 5h4v3H5Z" fill="#ff8c75" />}
     </svg>
   );
 }
@@ -31,13 +49,13 @@ export function Crest() {
     <svg className="crest" viewBox="0 0 100 110" fill="none" aria-hidden="true">
       <path
         d="m13 12 37-9 37 9v42c-1 22-20 42-37 51C31 94 14 74 13 54Z"
-        fill="#263e42"
+        fill="var(--ui-navy, #263e42)"
         stroke="#c3a56a"
         strokeWidth="2"
       />
       <path
         d="m20 18 30-7 30 7v35c-1 18-15 35-30 44-16-10-30-28-30-44Z"
-        stroke="#728875"
+        stroke="var(--ui-gold-dim, #967343)"
       />
       <path
         d="m50 21 6 14 15 2-12 10 4 15-13-8-13 8 4-15-12-10 15-2Z"
@@ -48,7 +66,6 @@ export function Crest() {
     </svg>
   );
 }
-
 import type { ReactNode } from "react";
 
 const glyphs = {
@@ -153,6 +170,12 @@ const glyphs = {
         fill="currentColor"
         fillOpacity=".25"
       />
+    </>
+  ),
+  fist: (
+    <>
+      <path d="M5 11V8l2-1 1 2V6l2-1 1 3V5l2-1 1 4V6l2-1 1 5 2 2-1 6-4 3H8l-4-4v-6Z" fill="currentColor" fillOpacity=".22" />
+      <path d="M5 11V8l2-1 1 2V6l2-1 1 3V5l2-1 1 4V6l2-1 1 5 2 2-1 6-4 3H8l-4-4v-6ZM8 12h8M8 15h7" />
     </>
   ),
   compass: (

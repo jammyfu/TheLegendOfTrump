@@ -2,7 +2,8 @@ import { ExpeditionHud } from "./ExpeditionHud";
 import "./CompactHud.css";
 import { ENEMY_RULES, CAMPS, FIELD_CHESTS } from "../game/expedition";
 import { t } from "../game/i18n";
-import { ATTACKS, SPIN } from "../game/combat";
+import { SPIN } from "../game/combat";
+import { HEAVY_PUNCH } from "../game/unarmed";
 import { useRef, useState } from "react";
 import { game } from "../game/simulation";
 import {
@@ -150,26 +151,33 @@ export function Hud() {
   return (
     <div className="hud-layout">
       <ExpeditionHud />
-      <div
-        id="lock-reticle"
-        className="target-reticle"
-        hidden
-        aria-label="锁定准星"
-      >
-        <GameIcon name="lock" />
-        <span>
-          {game.lockTarget?.id === 100
-            ? "铁甲统领"
-            : ENEMY_RULES[
-                game.activeGuards.find((g) => g.id === game.lockedTarget)
-                  ?.kind ?? "sentinel"
-              ].name}{" "}
-          · {game.lockTarget?.hp ?? 0}
-        </span>
-      </div>
-      {game.weapon === "bow" && !game.lockTarget && (
-        <div className="bow-crosshair" aria-label="弓箭准星">
+      {(
+        <div
+          id="lock-reticle"
+          className="target-reticle"
+          hidden
+          aria-label="当前锁定目标"
+        >
           <GameIcon name="lock" />
+          <span>
+            {game.lockTarget?.id === 100
+              ? "铁甲统领"
+              : ENEMY_RULES[
+                  game.activeGuards.find((g) => g.id === game.lockedTarget)
+                    ?.kind ?? "sentinel"
+                ].name}{" "}
+            · {game.lockTarget?.hp ?? 0}
+          </span>
+        </div>
+      )}
+      {game.weapon === "bow" && (
+        <div
+          id="bow-crosshair"
+          className={`bow-crosshair ${game.aiming ? "precision" : ""}`}
+          aria-label="红色箭矢瞄准准星"
+        >
+          <i aria-hidden="true" />
+          <span className="bow-edge-turn" aria-hidden="true">›</span>
         </div>
       )}
       <div
@@ -197,24 +205,14 @@ export function Hud() {
         </span>
         {game.weapon === "bow" && (
           <>
-            <meter
-              aria-label="拉弓力度"
-              min={0}
-              max={0.85}
-              value={game.bowDraw}
-            />
-            <small>
-              {game.bowDraw >= 0.85
-                ? "满弓 · 松开射击"
-                : "按住攻击拉弓 · 松开射击"}
-            </small>
+            <small>左右键按住拉弓，松开发射 · 右键放大精瞄 · Q 标记目标</small>
           </>
         )}
       </div>
       <div className="vital-hud">
         <div className="hearts" aria-label={t(`生命值 ${game.hp} / 3`)}>
           {[1, 2, 3].map((n) => (
-            <Heart key={n} empty={n > game.hp} />
+            <Heart key={n} empty={n > Math.ceil(game.hp)} half={game.hp === n - 0.5} />
           ))}
         </div>
         <div className="stamina">
@@ -239,11 +237,15 @@ export function Hud() {
       {(game.chargeTime > 0 || game.spinTime > 0) && (
         <div
           className={`combo-status ${game.zone === "office" ? "boss-combo" : ""}`}
-          aria-label={t("蓄力旋转斩")}
+          aria-label={t(game.weapon === "none" ? "蓄力重拳" : "蓄力旋转斩")}
         >
           <strong>
             {game.spinTime > 0
               ? t("旋风斩！")
+              : game.weapon === "none" && game.chargeTime >= HEAVY_PUNCH.charge
+                ? t("重拳已蓄满 · 持续消耗体力")
+                : game.weapon === "none"
+                  ? t("松开攻击 · 释放重拳")
               : game.chargeTime >= SPIN.minCharge
                 ? t("松开攻击 · 释放旋转斩")
                 : t("蓄力中…")}
@@ -251,32 +253,13 @@ export function Hud() {
           <meter
             aria-label={t("蓄力进度")}
             min={0}
-            max={SPIN.maxCharge}
+            max={game.weapon === "none" ? HEAVY_PUNCH.charge : SPIN.maxCharge}
             value={game.chargeTime}
             style={{ width: 180, height: 12, justifySelf: "center" }}
           />
-          <span>{t("长按左键 / J / 攻击 · 消耗 26 体力")}</span>
+          <span>{t(game.weapon === "none" ? "长按左键 / J / 攻击 · 满蓄后持续消耗体力" : "长按左键 / J / 攻击 · 消耗 26 体力")}</span>
         </div>
       )}
-      {(game.attackTime > 0 || game.comboWindow > 0) &&
-        game.chargeTime <= 0 &&
-        game.spinTime <= 0 && (
-          <div
-            className={`combo-status ${game.zone === "office" ? "boss-combo" : ""}`}
-            aria-label={t("连招状态")}
-          >
-            <strong>
-              {game.combo + 1} / 3 · {t(ATTACKS[game.combo].name)}
-            </strong>
-            <span>
-              {game.combo === 2
-                ? t("终结技")
-                : game.comboQueued
-                  ? t("已衔接下一式")
-                  : t("再按攻击衔接")}
-            </span>
-          </div>
-        )}
       {game.zone === "office" && game.boss.active && game.boss.hp > 0 && (
         <div className="boss-hud" aria-label={t("Boss 战")}>
           <span>
@@ -292,15 +275,18 @@ export function Hud() {
           <small>
             {game.summonTime > 0
               ? `召唤援军 · ${game.summonTime.toFixed(1)} 秒 · 可趁机攻击`
+              : game.boss.pursuingSlam ? "重锤追击 · 留意落点，准备侧向闪避"
               : game.boss.state === "windup"
                 ? game.boss.move === "sweep"
                   ? t("金色横扫 · 举盾格挡")
                   : game.boss.move === "slam"
-                    ? t("重锤下砸 · 闪避离开红圈")
+                    ? "重锤下砸 · 命中会眩晕，离开红圈"
                     : game.boss.move === "dart" ? "飞镖预警 · 横移或举盾" : t("冲击波 · 跳跃躲避")
                 : game.boss.state === "recover"
                   ? t("收招破绽 · 进攻！")
-                  : t("Q 锁定 · 留意地面预警")}
+                  : game.weapon === "bow"
+                    ? "按住拉弓 · 对准时准星收缩 · 松开发射"
+                    : t("Q 锁定 · 留意地面预警")}
           </small>
         </div>
       )}
@@ -308,8 +294,9 @@ export function Hud() {
         <GemIcon />
         <strong>{String(game.gems).padStart(2, "0")}</strong>
       </div>
+      <div className="hud-tools">
       <div className="adventure-menu">
-        <button
+        {<button
           aria-label={t("锁定目标")}
           data-tooltip={`${t("锁定目标")} · Q`}
           aria-pressed={game.lockedTarget !== null}
@@ -319,7 +306,7 @@ export function Hud() {
           <span className="menu-action-label">
             {t("◎ 锁定").replace("◎", "").trim()}
           </span>
-        </button>
+        </button>}
         {game.lockedTarget !== null && (
           <button
             aria-label="切换目标"
@@ -360,8 +347,11 @@ export function Hud() {
           <GameIcon name="pause" />
         </button>
       </div>
-      <details className="hud-disclosure quest-disclosure">
+      <div className="hud-disclosures">
+      <details name="hud-panels" className="hud-disclosure quest-disclosure" onToggle={clearInput}>
         <summary aria-label="查看任务" title="查看任务"><GameIcon name="compass" /></summary>
+      <div className="hud-detail-panel" role="region" aria-label="当前任务">
+      <div className="hud-detail-heading"><strong>当前任务</strong><button aria-label="关闭任务" onClick={e => { e.currentTarget.closest('details')!.open = false; }}><GameIcon name="close" /></button></div>
       <div className="quest">
         <GameIcon name="compass" />
         <p>
@@ -379,7 +369,35 @@ export function Hud() {
         </p>
       </div>
       {!game.bowUnlocked && <p>白宫门口右侧宝箱 · 获取弓箭</p>}
+      </div>
       </details>
+      <details name="hud-panels" className="hud-disclosure controls-disclosure" onToggle={clearInput}>
+        <summary aria-label="查看操作帮助" title="查看操作帮助">?</summary>
+      <div className="hud-detail-panel" role="region" aria-label="操作帮助">
+      <div className="hud-detail-heading"><strong>操作帮助</strong><button aria-label="关闭操作帮助" onClick={e => { e.currentTarget.closest('details')!.open = false; }}><GameIcon name="close" /></button></div>
+      <div className="hud-help-desktop">
+        <span>{t("WASD 移动")}</span>
+        <span>{t("中键按住 视角")}</span>
+        <span>{t("左键 / J 攻击 · 长按蓄力 · X 切换武器")}</span>
+        <span>{game.weapon === "bow" ? "左右键按住拉弓 · 松开发射 · 右键放大精瞄" : t("右键 / F 防御")}</span>
+        <span>{t("Space 跳跃")}</span>
+        <span>{t("Shift 冲刺")}</span>
+        <span>跑动 + 攻击：飞刺（体力＞60）· 跑动 + 防御：盾撞（体力＞70）</span>
+        <span>Shift + 方向 + Space 翻滚</span>
+        <span>{t("E 互动 · Q 锁定")}</span>
+      </div>
+      <div className="hud-help-mobile">
+        <p><strong>移动与视角</strong>左侧摇杆移动，推满自动跑动；在右侧空白区域拖动调整视角。</p>
+        <p><strong>攻击与防御</strong>点攻击出招，长按蓄力；按住防御举盾，松开结束。</p>
+        <p><strong>跳跃与翻滚</strong>点跳跃原地起跳；点翻滚直接闪避，有摇杆方向时按该方向翻滚，无方向时随机翻滚。</p>
+        <p><strong>组合技能</strong>摇杆推满跑动，再点攻击发动飞刺（体力＞60），点防御发动盾撞（体力＞70）；不足时使用普通动作。</p>
+        <p><strong>弓箭与瞄准</strong>取得弓箭后点武器图标切换；拖动右半屏瞄准，按住攻击拉弓，松开发射。按住精瞄放大微调，此时不能移动；远处目标需要抬高准星。</p>
+        <p><strong>互动与恢复</strong>靠近物品后点互动提示；受伤时点回复药补血。右上角可锁定、换目标、查看地图和暂停。</p>
+      </div>
+      </div>
+      </details>
+      </div>
+      </div>
       {mapOpen && <Minimap />}
       {game.toast && (
         <div className="toast" role="status">
@@ -394,22 +412,9 @@ export function Hud() {
           <GameIcon name="arrow" />
         </button>
       )}
-      {game.lockedTarget !== null && (
+      {game.weapon !== "bow" && game.lockedTarget !== null && (
         <div className="lock-label">{t("◆ 目标锁定 · Tab 切换 · Q 解除")}</div>
       )}
-      <details className="hud-disclosure controls-disclosure">
-        <summary aria-label="查看操作帮助" title="查看操作帮助">?</summary>
-      <div className="adventure-controls">
-        <span>{t("WASD 移动")}</span>
-        <span>{t("中键按住 视角")}</span>
-        <span>{t("左键 / J 攻击 · 长按蓄力 · X 切换武器")}</span>
-        <span>{t("右键 / F 防御 / 精瞄")}</span>
-        <span>{t("Space 跳跃")}</span>
-        <span>{t("Shift 冲刺")}</span>
-        <span>{t("Shift + 方向 翻滚")}</span>
-        <span>{t("E 互动 · Q 锁定")}</span>
-      </div>
-      </details>
       <TouchControls />
     </div>
   );
@@ -480,8 +485,8 @@ function TouchControls() {
         <div className="adventure-buttons">
           <button
             className="attack-button"
-            disabled={game.weapon === "none"}
-            aria-label={game.weapon === "bow" ? "射箭" : t("挥剑")}
+            disabled={!game.canMobileAttack}
+            aria-label={game.weapon === "bow" ? "射箭" : game.weapon === "none" ? t("拳脚攻击") : t("挥剑")}
             onPointerDown={(e) => {
               e.currentTarget.setPointerCapture(e.pointerId);
               game.pressAttack();
@@ -490,12 +495,12 @@ function TouchControls() {
             onPointerCancel={() => game.cancelCharge()}
             onLostPointerCapture={() => game.cancelCharge()}
           >
-            <GameIcon name={game.weapon === "bow" ? "bow" : "sword"} />
+            <GameIcon name={game.weapon === "bow" ? "bow" : game.weapon === "none" ? "fist" : "sword"} />
             <small>
               {game.weapon === "none"
-                ? "尚无武器"
+                ? t("拳脚攻击")
                 : game.weapon === "bow"
-                  ? "拉弓·射箭"
+                  ? "射击"
                   : t("攻击·蓄力")}
             </small>
           </button>
@@ -512,15 +517,16 @@ function TouchControls() {
           <button
             className="jump-button"
             aria-label={t("跳跃")}
-            onPointerDown={() => game.jump()}
+            onPointerDown={() => game.jump(getInput())}
           >
             <GameIcon name="jump" />
             <small>{t("跳跃")}</small>
           </button>
           <button
             className="dodge-button"
+            disabled={!game.canMobileDodge}
             aria-label={t("翻滚")}
-            onPointerDown={() => game.dodge(getInput())}
+            onPointerDown={() => game.dodge(getInput(), true)}
           >
             <GameIcon name="roll" />
             <small>{t("翻滚")}</small>
@@ -543,9 +549,7 @@ function HoldButton({
   return (
     <button
       className={action + "-button"}
-      disabled={
-        action === "guard" && game.weapon !== "bow" && !game.shieldUnlocked
-      }
+      disabled={action === "guard" && !game.canMobileGuard}
       aria-label={label}
       onPointerDown={(e) => {
         e.currentTarget.setPointerCapture(e.pointerId);

@@ -1,0 +1,45 @@
+/* Keep mobile exploration clear; combat and nearby interactions stay available. */
+@media (pointer: coarse), (max-width: 600px) {
+  .game .hud-layout > :is(.quest, .gem-count, .combo-status),
+  .game .hud-layout .lock-label,
+  .game .hud-layout .field-coins,
+  .game .hud-layout .field-route,
+  .game .hud-layout .stamina span,
+  .game .hud-layout kbd,
+  .game .hud-layout .weapon-hud.no-bow,
+  .game .hud-layout .weapon-hud:not(.using-bow) .ammunition,
+  .game .hud-layout .weapon-hud small,
+  .game .hud-layout .expedition-hud button:disabled {
+    display: none;
+  }
+  .game .hud-layout .weapon-hud button {
+    font-size: 15px;
+    padding: 6px 10px;
+  }
+  .game .hud-layout .weapon-hud .ammunition {
+    font-size: 14px;
+    padding: 2px 6px;
+  }
+  .game .hud-layout .toast {
+    font-size: 15px;
+    padding: 6px 10px;
+    line-height: 1.35;
+  }
+  .game .hud-layout .toast > .game-icon,
+  .game .hud-layout .interact-prompt > .game-icon {
+    display: none;
+  }
+  .game .hud-layout .boss-hud {
+    padding: 5px 8px;
+  }
+  .game .hud-layout .boss-hud > span {
+    font-size: 16px;
+  }
+  .game .hud-layout .boss-hud small {
+    font-size: 13px;
+  }
+  .game .hud-layout .interact-prompt {
+    font-size: 15px;
+    line-height: 1.3;
+  }
+}

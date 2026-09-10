@@ -2,6 +2,12 @@ type Point = { x: number; y: number; z: number };
 export type CutawayBounds = { min: Point; max: Point };
 export type CutawaySide = "east" | "west" | "front" | "back" | "ceiling";
 
+/** Blender appends .001; GLTFLoader may sanitize that to 001. */
+export function cutawaySide(name: string): CutawaySide | undefined {
+  return /^OfficeCutaway_(east|west|front|back|ceiling)(?:[._]?\d+)*$/.exec(name)?.[1] as
+    CutawaySide | undefined;
+}
+
 /** Expanded segment/box test accounts for shoulders and the camera near plane. */
 export function obscuresSubject(
   bounds: CutawayBounds,

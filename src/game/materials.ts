@@ -50,7 +50,7 @@ export function generatedNormalMap(
   const cached = normalMaps.get(key);
   if (cached) return cached;
   const texture = new TextureLoader().load(
-    import.meta.env.BASE_URL + `textures/normals/${surface}-normal.png`,
+    import.meta.env.BASE_URL + `textures/runtime/${surface}-normal.webp`,
   );
   texture.name = `Legend_${surface}_normal`;
   texture.colorSpace = NoColorSpace;

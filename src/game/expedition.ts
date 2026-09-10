@@ -9,6 +9,8 @@ export const ENEMY_RULES = {
     scale: 1.22,
     range: 18,
     windup: 0.65,
+    stunScale: 1,
+    defenseChance: 0,
     reward: 8,
   },
   archer: {
@@ -18,6 +20,8 @@ export const ENEMY_RULES = {
     scale: 1.15,
     range: 28,
     windup: 0.95,
+    stunScale: 0.78,
+    defenseChance: 0,
     reward: 10,
   },
   brute: {
@@ -27,6 +31,9 @@ export const ENEMY_RULES = {
     scale: 1.3,
     range: 20,
     windup: 1.05,
+    // Heavy armor can absorb light hits and recover its footing quickly.
+    stunScale: 0.42,
+    defenseChance: 0.28,
     reward: 18,
   },
 } satisfies Record<EnemyKind, object>;
@@ -49,6 +56,8 @@ export const ENEMY_SPAWNS: { x: number; z: number; kind: EnemyKind; sizeMultipli
   { x: 5, z: -5, kind: "sentinel" },
   { x: 18, z: -4, kind: "archer" },
   { x: 0, z: -8, kind: "brute", sizeMultiplier: 1.5, title: "门前重甲队长" },
+  { x: -42, z: 118, kind: "brute", sizeMultiplier: 1.5, title: "西营剑冢守护者" },
+  { x: 41, z: 88, kind: "brute", sizeMultiplier: 1.7, title: "东营盾台守护者" },
 ];
 export const CAMPS = [
   { id: "supply", x: 10, z: 162, safe: true },
@@ -58,8 +67,10 @@ export const CAMPS = [
   { id: "east-veterans", x: 65, z: 22, safe: false },
 ];
 export const FIELD_CHESTS = [
-  { id: "chest-sword", x: -3, z: 177 },
-  { id: "chest-shield", x: 3, z: 177 },
+  { id: "chest-wood-sword", x: -3, z: 177 },
+  { id: "chest-wood-shield", x: 3, z: 177 },
+  { id: "chest-sword", x: -48, z: 116 },
+  { id: "chest-shield", x: 48, z: 86 },
   { id: "chest-landing", x: 5, z: 174 },
   { id: "chest-patrol", x: -45, z: 122 },
   { id: "chest-archers", x: 39, z: 92 },

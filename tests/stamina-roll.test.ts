@@ -24,18 +24,22 @@ test("stamina doubles across start, regeneration and boss retry", () => {
   g.retry();
   assert.equal(g.stamina, 200);
 });
-test("both input orders trigger one roll; holding or ordinary locked movement does not", () => {
+test("both sprint-direction input orders require jump to roll", () => {
   for (const first of [idle, { ...idle, x: 1 }, { ...idle, sprint: true }]) {
     const g = fresh();
     g.update(0.05, first);
     assert.equal(g.dodgeTime, 0);
     const chord = { x: 1, z: 0, sprint: true };
     g.update(0.05, chord);
+    assert.equal(g.dodgeTime, 0);
+    g.jump(chord);
     assert.ok(g.dodgeTime > 0);
     tick(g, 20, chord);
     assert.equal(g.dodgeTime, 0);
     g.update(0.05, { ...idle, x: 1 });
     g.update(0.05, chord);
+    assert.equal(g.dodgeTime, 0);
+    g.jump(chord);
     assert.ok(g.dodgeTime > 0);
   }
   const g = fresh();

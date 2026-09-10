@@ -53,6 +53,7 @@ export function cameraObstacles(colliders: Collider[]) {
   return colliders.filter(
     (c) =>
       !c.id.startsWith("guard-") &&
+      !(c.zone === 'office' && (c.id === 'desk' || c.id === 'chair')) &&
       !(c.zone === "office" && /^office-(back|front|west|east)$/.test(c.id)),
   );
 }
@@ -62,19 +63,44 @@ export function cameraBoom(
   yaw: number,
   pitch: number,
   distance: number,
+  avoidance?: { yaw: number | null },
 ) {
-  const point = (p: number) => ({
-    x: target.x + Math.sin(yaw) * Math.cos(p) * distance,
+  const point = (p: number, angle=yaw) => ({
+    x: target.x + Math.sin(angle) * Math.cos(p) * distance,
     y: target.y + Math.sin(p) * distance,
-    z: target.z + Math.cos(yaw) * Math.cos(p) * distance,
+    z: target.z + Math.cos(angle) * Math.cos(p) * distance,
   });
-  let best = point(pitch),
-    fraction = cameraFraction(colliders, target, best);
+  const aircraft=colliders.find(c=>c.id==='helicopter-cabin');
+  const nearAircraft=aircraft && Math.abs(target.x-aircraft.x)<13 && Math.abs(target.z-aircraft.z)<18;
+  const safetyVolumes=nearAircraft ? colliders.filter(c=>
+    Math.abs(c.x-target.x)<(c.radius??(c.w??0)/2)+distance+1 &&
+    Math.abs(c.z-target.z)<(c.radius??(c.d??0)/2)+distance+1) : colliders;
+  const clearance=(candidate:typeof target)=>{
+    const f=cameraFraction(colliders,target,candidate);
+    if(!nearAircraft)return f;
+    const endpoint={x:target.x+(candidate.x-target.x)*f,y:target.y+(candidate.y-target.y)*f,z:target.z+(candidate.z-target.z)*f};
+    // Score the SAME near-plane safety pass that Runtime applies. A thin ray
+    // alone can clear the roof/door while the camera volume still clips it.
+    const final=constrainCamera(safetyVolumes,target,endpoint);
+    return Math.min(f,Math.hypot(final.x-target.x,final.y-target.y,final.z-target.z)/distance);
+  };
+  let best = point(pitch), fraction = clearance(best);
+  if(nearAircraft && (fraction*distance<3.5 || (avoidance?.yaw!==null && avoidance?.yaw!==undefined && fraction*distance<5.5))){
+    const outward=Math.atan2(target.x-aircraft.x,target.z-aircraft.z);
+    // Retain a safe side until the requested orbit is clearly free again.
+    // Body-relative candidates do not flip left/right with tiny mouse changes.
+    for(const angle of [avoidance?.yaw,outward,outward-.45,outward+.45]){
+      if(angle===null||angle===undefined)continue;
+      const candidate=point(Math.max(.35,pitch),angle);
+      const f=clearance(candidate);
+      if(f*distance>=4){best=candidate;fraction=f;if(avoidance)avoidance.yaw=angle;break;}
+    }
+  } else if(avoidance) avoidance.yaw=null;
   // Lift over low furniture before forcing a very close camera. Walls still win.
   if (fraction * distance < 4) {
     for (const extra of [0.25, 0.5]) {
       const candidate = point(Math.min(1.1, pitch + extra));
-      const f = cameraFraction(colliders, target, candidate);
+      const f = clearance(candidate);
       if (f > fraction + 0.08) {
         best = candidate;
         fraction = f;

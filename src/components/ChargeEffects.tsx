@@ -3,6 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { AdditiveBlending, Group, Mesh, MeshBasicMaterial } from "three";
 import { game } from "../game/simulation";
 import { SPIN } from "../game/combat";
+import { HEAVY_PUNCH } from "../game/unarmed";
 
 /** Pooled charge motes and a two-layer radial blade trail. */
 export function ChargeEffects() {
@@ -10,7 +11,8 @@ export function ChargeEffects() {
   useFrame(() => {
     if (!root.current) return;
     const spinning = game.spinTime > 0;
-    const charge = game.chargeTime / SPIN.maxCharge;
+    const heavyPunch = game.weapon === "none";
+    const charge = game.chargeTime / (heavyPunch ? HEAVY_PUNCH.charge : SPIN.maxCharge);
     const t = 1 - game.spinTime / SPIN.duration;
     root.current.visible = game.phase === "playing" && (charge > 0 || spinning);
     root.current.position.set(game.x, game.y, game.z);
@@ -31,7 +33,9 @@ export function ChargeEffects() {
         );
         material.opacity = spinning ? (1 - t) * 0.7 : 0.15 + charge * 0.4;
         material.color.set(
-          game.chargeTime >= SPIN.minCharge || spinning ? "#ffd76b" : "#5de3ff",
+          game.chargeTime >= (heavyPunch ? HEAVY_PUNCH.charge : SPIN.minCharge) || spinning
+            ? heavyPunch ? "#ff8a5b" : "#ffd76b"
+            : "#5de3ff",
         );
       } else {
         const a = ((i - 2) * Math.PI) / 6 + game.elapsed * 4;

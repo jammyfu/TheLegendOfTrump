@@ -21,7 +21,7 @@ function load(surface: Surface, kind: "color" | "roughness", x: number, y: numbe
   const key = `${surface}:${kind}:${x}:${y}`;
   let texture = cache.get(key);
   if (!texture) {
-    texture = new TextureLoader().load(`${import.meta.env.BASE_URL}textures/bright-materials/${surface}-${kind}.${kind === "color" ? "webp" : "png"}`);
+    texture = new TextureLoader().load(`${import.meta.env.BASE_URL}textures/runtime/${surface}-${kind}.webp`);
     texture.name = `GPTImage_${surface}_${kind}`;
     texture.colorSpace = kind === "color" ? SRGBColorSpace : NoColorSpace;
     texture.wrapS = texture.wrapT = RepeatWrapping;

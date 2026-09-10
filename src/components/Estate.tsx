@@ -5,6 +5,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Mesh } from "three";
 import { Flag } from "./Primitives";
 import { applyLegendMaterials } from "../game/materials";
+import { mobileRenderProfile } from "../game/renderQuality";
 export function Estate() {
   const source = useLoader(
     GLTFLoader,
@@ -15,8 +16,8 @@ export function Estate() {
     applyLegendMaterials(m);
     m.traverse((n) => {
       if (n instanceof Mesh) {
-        n.receiveShadow = true;
-        n.castShadow = !!n.parent?.name.match(/Mansion|Wing/);
+        n.receiveShadow = !mobileRenderProfile;
+        n.castShadow = !mobileRenderProfile && !!n.parent?.name.match(/Mansion|Wing/);
       }
     });
     return { model: m, facadeMaterials: stabilizeFacadeMaterials(m) };

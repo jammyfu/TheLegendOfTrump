@@ -1,0 +1,816 @@
+/* Final shared skin: the title's aged gold, walnut and heraldic enamel.
+   Layout/interaction rules remain in their owning components. */
+.game {
+  min-height: 0;
+  --ui-icon-size: clamp(18px, calc(14px + 0.45vw), 30px);
+  --ui-control-size: clamp(40px, calc(28px + 1vw), 64px);
+  --ui-heart-size: clamp(24px, 1.9vw, 38px);
+  --ui-ink: #160f0b;
+  --ui-walnut: #302117;
+  --ui-navy: #263747;
+  --ui-ivory: #f0dfb7;
+  --ui-muted: #c0ad88;
+  --ui-gold: #d9b56d;
+  --ui-gold-bright: #ffe5a5;
+  --ui-gold-dim: #967343;
+  --ui-line: #b68d4e80;
+  --ui-map-ground: #29382c;
+  --ui-map-path: #968565;
+  --ui-panel: linear-gradient(135deg, #33251af0, #18110df2 68%);
+  --ui-button: linear-gradient(145deg, #473524e8, #21180feb);
+  --ui-inset: inset 0 0 0 3px #130d0899, inset 0 0 0 4px #d9b56d20;
+  --ui-shadow: 0 4px 14px #08050366;
+  color: var(--ui-ivory);
+}
+.game .game-icon {
+  display: inline-block;
+  width: var(--icon-size, var(--ui-icon-size));
+  height: var(--icon-size, var(--ui-icon-size));
+  flex: 0 0 auto;
+  color: inherit;
+  vertical-align: middle;
+  filter: drop-shadow(0 1px 0 #120b08b3);
+  pointer-events: none;
+}
+.game button {
+  touch-action: manipulation;
+  transition:
+    color 0.16s,
+    background-color 0.16s,
+    border-color 0.16s,
+    box-shadow 0.16s;
+}
+.game button:hover {
+  filter: none;
+}
+.game :is(button, a, summary, input, select):focus-visible {
+  outline: 2px solid var(--ui-gold-bright);
+  outline-offset: 3px;
+}
+.game button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.game
+  :is(
+    .adventure-menu button,
+    .weapon-hud button,
+    .intro-overlay > button,
+    .close-button
+  ) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  color: var(--ui-ivory);
+  background: var(--ui-button);
+  border: 1px solid var(--ui-line);
+  border-radius: 2px;
+  box-shadow: var(--ui-inset), var(--ui-shadow);
+  text-shadow: 0 1px 2px var(--ui-ink);
+}
+.game
+  :is(
+    .adventure-menu button,
+    .weapon-hud button,
+    .intro-overlay > button
+  ):hover {
+  color: var(--ui-gold-bright);
+  border-color: var(--ui-gold);
+  background: linear-gradient(135deg, #5d452b, #302116);
+}
+.game :is(.adventure-menu button, .music-options button)[aria-pressed="true"] {
+  color: var(--ui-gold-bright);
+  border-color: var(--ui-gold);
+  background: linear-gradient(135deg, #415261, #24313c);
+  box-shadow:
+    var(--ui-inset),
+    0 0 10px #d9b56d26;
+}
+.game :is(.adventure-menu button, .weapon-hud button):active {
+  box-shadow: inset 0 2px 8px #0008;
+}
+.game .adventure-menu {
+  gap: 6px;
+}
+.game .adventure-menu button {
+  position: relative;
+}
+.game .adventure-menu button[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 9px);
+  right: 0;
+  width: max-content;
+  max-width: 210px;
+  padding: 8px 12px;
+  background: var(--ui-panel);
+  color: var(--ui-ivory);
+  border: 1px solid var(--ui-gold-dim);
+  box-shadow: var(--ui-inset), var(--ui-shadow);
+  font-size: 10px;
+  line-height: 1.6;
+  opacity: 0;
+  transform: translateY(-3px);
+  pointer-events: none;
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
+}
+.game .adventure-menu button[data-tooltip]:is(:hover, :focus-visible)::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+.game .adventure-menu button {
+  min-width: var(--ui-control-size);
+  min-height: var(--ui-control-size);
+  padding: 9px 11px;
+}
+.game .adventure-menu .mouse-look {
+  width: var(--ui-control-size);
+}
+.game .mouse-look .menu-action-label {
+  display: none;
+}
+.game .weapon-hud {
+  gap: 7px;
+  color: var(--ui-ivory);
+}
+.game .weapon-hud button {
+  justify-content: flex-start;
+}
+.game .weapon-hud button > kbd {
+  margin-left: auto;
+}
+.game .weapon-hud small {
+  color: var(--ui-ivory);
+  text-shadow:
+    0 1px 2px #100b08,
+    0 2px 4px #100b08;
+}
+.game .ammunition {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ui-ivory);
+  font-size: 10px;
+  width: fit-content;
+  padding: 4px 7px;
+  background: #160f0bd9;
+  border-left: 1px solid var(--ui-gold-dim);
+}
+.game .ammunition .game-icon {
+  --icon-size: calc(var(--ui-icon-size) * 0.72);
+}
+.game kbd,
+.game :is(.menu-panel, .dialogue) kbd {
+  color: var(--ui-gold-bright);
+  background: #19120dd9;
+  border: 1px solid var(--ui-line);
+  border-bottom: 2px solid var(--ui-gold-dim);
+  border-radius: 2px;
+  padding: 3px 6px;
+  font: 600 10px var(--game-font);
+}
+.game
+  :is(.quest, .toast, .interact-prompt, .target-reticle span, .combo-status) {
+  background: var(--ui-panel);
+  color: var(--ui-ivory);
+  border: 1px solid var(--ui-line);
+  border-radius: 2px;
+  box-shadow: var(--ui-inset), var(--ui-shadow);
+  text-shadow: 0 1px 3px #100b08;
+}
+.game .quest {
+  gap: 10px;
+  min-height: 40px;
+  padding: 10px 14px;
+  border-inline-color: var(--ui-gold-dim);
+  max-width: 350px;
+}
+.game .quest > .game-icon {
+  --icon-size: calc(var(--ui-icon-size) * 0.92);
+  color: var(--ui-gold);
+}
+.game .quest p {
+  white-space: normal;
+  text-align: left;
+  line-height: 1.6;
+  letter-spacing: 0.035em;
+}
+.game .toast {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  line-height: 1.7;
+}
+.game .toast > .game-icon {
+  --icon-size: calc(var(--ui-icon-size) * 0.72);
+  color: var(--ui-gold);
+}
+.game .interact-prompt {
+  min-height: 46px;
+  max-width: calc(100% - 32px);
+  white-space: normal;
+  line-height: 1.6;
+}
+.game .interact-prompt > .game-icon {
+  color: var(--ui-gold);
+  margin-left: 7px;
+}
+.game .interact-prompt:hover {
+  border-color: var(--ui-gold-bright);
+  color: var(--ui-gold-bright);
+}
+.game .combo-status {
+  padding: 10px 20px;
+  border-inline-color: transparent;
+}
+.game .combo-status strong {
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  color: var(--ui-gold-bright);
+}
+.game .combo-status span {
+  font-size: 11px;
+  color: var(--ui-muted);
+}
+.game .stamina {
+  width: 128px;
+}
+.game .stamina span {
+  color: var(--ui-ivory);
+  font: 10px var(--game-font);
+  font-variant-numeric: tabular-nums;
+}
+.game meter {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid var(--ui-gold-dim);
+  background: var(--ui-ink);
+  border-radius: 1px;
+  overflow: hidden;
+  --meter-fill: linear-gradient(90deg, #a98036, #eed48d);
+}
+.game meter::-webkit-meter-bar {
+  background: var(--ui-ink);
+  border: 0;
+  border-radius: 0;
+}
+.game meter::-webkit-meter-optimum-value {
+  background: var(--meter-fill);
+  border-radius: 0;
+  box-shadow: inset 0 1px 0 #fff5;
+}
+.game meter::-moz-meter-bar {
+  background: var(--meter-fill);
+}
+.game .stamina meter {
+  height: 8px;
+  --meter-fill: linear-gradient(90deg, #527749, #b4d580);
+}
+.game .boss-hud {
+  color: var(--ui-ivory);
+  gap: 7px;
+}
+.game .boss-hud > span {
+  font-size: 15px;
+  letter-spacing: 0.08em;
+}
+.game .boss-hud > span::before,
+.game .boss-hud > span::after {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  transform: rotate(45deg);
+  background: var(--ui-gold);
+  margin: 0 10px 3px;
+}
+.game .boss-hud meter {
+  height: 11px;
+  --meter-fill: linear-gradient(90deg, #792b33, #d27058);
+}
+.game .boss-hud small {
+  color: var(--ui-ivory);
+  font-size: 11px;
+}
+.game .minimap {
+  background: var(--ui-panel);
+  border: 1px solid var(--ui-line);
+  border-radius: 2px;
+  padding: 9px 5px 10px;
+  box-shadow: var(--ui-inset), var(--ui-shadow);
+  filter: none;
+  width: 148px;
+}
+.game .map-heading {
+  display: flex;
+  color: var(--ui-muted);
+  font: 8px var(--game-font);
+  letter-spacing: 0.09em;
+}
+.game .map-north {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.game .map-heading .game-icon {
+  --icon-size: calc(var(--ui-icon-size) * 0.6);
+}
+.game .minimap > svg {
+  height: auto;
+  opacity: 1;
+}
+.game .minimap > svg > rect:first-child {
+  fill: var(--ui-map-ground);
+  stroke: var(--ui-gold-dim);
+  stroke-width: 1;
+}
+.game .map-caption {
+  display: block;
+  color: var(--ui-ivory);
+  letter-spacing: 0.1em;
+  font-size: 9px;
+  margin: 0;
+}
+.game .gem-count {
+  color: var(--ui-ivory);
+  gap: 8px;
+}
+.game .gem-count strong {
+  font-style: normal;
+  font-size: 28px;
+  text-shadow: 0 2px 0 var(--ui-ink);
+}
+.game .target-reticle {
+  color: var(--ui-gold-bright);
+  filter: drop-shadow(0 2px 1px #1a100d);
+}
+.game .target-reticle > .game-icon {
+  width: 100%;
+  height: 100%;
+  stroke-width: 1;
+}
+.game .target-reticle span {
+  top: calc(100% + 6px);
+  font-size: 10px;
+  padding: 5px 10px;
+}
+.game .bow-crosshair {
+  color: var(--ui-gold-bright);
+}
+.game .bow-crosshair .game-icon {
+  --icon-size: clamp(24px, 2.7vmin, 42px);
+  stroke-width: 1.2;
+}
+.game .adventure-controls {
+  color: var(--ui-ivory);
+  font-size: 11px;
+  text-shadow:
+    0 1px 2px #100b08,
+    0 2px 5px #100b08;
+  gap: 14px;
+  flex-wrap: wrap;
+  line-height: 1.6;
+}
+.game .adventure-controls > span + span::before {
+  content: "";
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  background: var(--ui-gold-dim);
+  transform: rotate(45deg);
+  margin-right: 14px;
+  vertical-align: middle;
+}
+.game .look-pad span {
+  color: var(--ui-muted);
+  font: 10px var(--game-font);
+}
+
+/* Menus use the same frame and control materials as the in-game HUD. */
+.game :is(.menu-panel, .dialogue, .render-error) {
+  background: var(--ui-panel);
+  color: var(--ui-ivory);
+  border-color: var(--ui-gold-dim);
+  box-shadow:
+    var(--ui-inset),
+    0 20px 65px #0009;
+}
+.game :is(.menu-panel, .dialogue) :is(h2, .eyebrow) {
+  color: var(--ui-gold);
+}
+.game :is(.menu-panel, .dialogue) p {
+  color: var(--ui-muted);
+}
+.game :is(.menu-panel, .dialogue) :is(.primary, .secondary, .text-button) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  letter-spacing: 0.07em;
+}
+.game :is(.menu-panel, .dialogue) .primary {
+  background: linear-gradient(135deg, #6a4b28, #382519);
+  border-color: var(--ui-gold);
+  color: var(--ui-gold-bright);
+  box-shadow: var(--ui-inset), var(--ui-shadow);
+}
+.game :is(.menu-panel, .dialogue) .primary > :is(.game-icon, kbd):last-child {
+  margin-left: auto;
+}
+.game :is(.menu-panel, .dialogue) .secondary {
+  color: var(--ui-ivory);
+  background: var(--ui-button);
+  border-color: var(--ui-line);
+}
+.game :is(.menu-panel, .dialogue) .text-button {
+  color: var(--ui-muted);
+}
+.game :is(.menu-panel, .dialogue) button:hover {
+  color: var(--ui-gold-bright);
+  border-color: var(--ui-gold);
+}
+.game .camera-settings {
+  background: #120d0966;
+  border-color: var(--ui-line);
+  color: var(--ui-muted);
+}
+.game .camera-settings summary {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--ui-ivory);
+  list-style: none;
+}
+.game .camera-settings summary::-webkit-details-marker {
+  display: none;
+}
+.game .camera-settings summary::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-right: 1px solid var(--ui-gold);
+  border-bottom: 1px solid var(--ui-gold);
+  transform: rotate(45deg);
+  margin-left: auto;
+  transition: transform 0.2s;
+}
+.game .camera-settings[open] summary::after {
+  transform: rotate(225deg);
+}
+.game .setting-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+.game .setting-row select {
+  color: var(--ui-ivory);
+  background: var(--ui-ink);
+  border-color: var(--ui-line);
+  min-height: 44px;
+}
+.game .setting-row select option {
+  background: var(--ui-ink);
+}
+.game input[type="range"] {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  height: 28px;
+  accent-color: var(--ui-gold);
+}
+.game input[type="range"]::-webkit-slider-runnable-track {
+  height: 5px;
+  border: 1px solid var(--ui-gold-dim);
+  background: var(--ui-ink);
+  border-radius: 0;
+}
+.game input[type="range"]::-moz-range-track {
+  height: 4px;
+  border: 1px solid var(--ui-gold-dim);
+  background: var(--ui-ink);
+  border-radius: 0;
+}
+.game input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  margin-top: -6px;
+  border: 2px solid var(--ui-ink);
+  outline: 1px solid var(--ui-gold);
+  background: var(--ui-gold);
+  transform: rotate(45deg);
+  border-radius: 1px;
+  cursor: ew-resize;
+}
+.game input[type="range"]::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border: 2px solid var(--ui-ink);
+  outline: 1px solid var(--ui-gold);
+  background: var(--ui-gold);
+  transform: rotate(45deg);
+  border-radius: 1px;
+  cursor: ew-resize;
+}
+.game input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-grid;
+  place-content: center;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  background: var(--ui-ink);
+  border: 1px solid var(--ui-gold-dim);
+  border-radius: 1px;
+  cursor: pointer;
+}
+.game input[type="checkbox"]::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  transform: rotate(45deg) scale(0);
+  background: var(--ui-gold-bright);
+}
+.game input[type="checkbox"]:checked {
+  border-color: var(--ui-gold);
+  background: var(--ui-navy);
+}
+.game input[type="checkbox"]:checked::after {
+  transform: rotate(45deg);
+}
+.game .lt-footer button {
+  color: var(--ui-gold);
+}
+.game .lt-footer button:hover {
+  color: var(--ui-gold-bright);
+}
+.game .lt-footer .game-icon {
+  --icon-size: calc(var(--ui-icon-size) * 1.15);
+}
+.game .lt-start .lt-diamond {
+  --icon-size: calc(var(--ui-icon-size) * 0.65);
+}
+.game .close-button {
+  padding: 8px;
+}
+.game .render-error {
+  padding: 28px;
+}
+.game .render-error .primary {
+  background: var(--ui-button);
+  border: 1px solid var(--ui-gold);
+  color: var(--ui-ivory);
+}
+
+@media (max-width: 1100px) and (pointer: fine) {
+  .game .adventure-menu .menu-action-label {
+    display: none;
+  }
+  .game .adventure-menu button {
+    width: var(--ui-control-size);
+    padding: 8px;
+  }
+  .game .quest {
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: min(320px, calc(100vw - 520px));
+  }
+  .game .quest p {
+    font-size: 11px;
+  }
+  .game .adventure-controls {
+    font-size: 9px;
+    gap: 8px;
+  }
+  .game .adventure-controls > span + span::before {
+    margin-right: 8px;
+  }
+}
+@media (max-width: 760px) and (pointer: fine) {
+  .game .quest {
+    top: 98px;
+    left: 24px;
+    transform: none;
+    max-width: 250px;
+  }
+  .game .weapon-hud {
+    top: 163px;
+  }
+}
+@media (pointer: coarse) {
+  .game {
+    --ui-icon-size: clamp(20px, 4.8vmin, 28px);
+    --ui-control-size: clamp(44px, 7vmin, 60px);
+    --ui-touch-size: clamp(50px, 7vmin, 64px);
+    --ui-heart-size: clamp(22px, 5.6vmin, 32px);
+  }
+  .game .adventure-buttons {
+    width: calc(var(--ui-touch-size) * 3.22);
+    height: calc(var(--ui-touch-size) * 3.26);
+  }
+  .game .adventure-buttons button {
+    width: var(--ui-touch-size);
+    height: var(--ui-touch-size);
+  }
+  .game .adventure-buttons .attack-button {
+    width: calc(var(--ui-touch-size) * 1.3);
+    height: calc(var(--ui-touch-size) * 1.3);
+    top: calc(var(--ui-touch-size) * 0.94);
+  }
+  .game .adventure-buttons .guard-button {
+    right: calc(var(--ui-touch-size) * 1.31);
+  }
+  .game .adventure-buttons .jump-button {
+    right: calc(var(--ui-touch-size) * 1.16);
+  }
+  .game .adventure-buttons .dodge-button {
+    top: calc(var(--ui-touch-size) * 1.22);
+  }
+  .game .adventure-touch .joystick {
+    width: clamp(100px, 16vmin, 144px);
+    height: clamp(100px, 16vmin, 144px);
+  }
+
+  .game .adventure-menu button[data-tooltip]::after {
+    display: none;
+  }
+  .game .adventure-menu .mouse-look {
+    display: none;
+  }
+  .game .adventure-menu {
+    gap: 5px;
+  }
+  .game .adventure-menu button {
+    min-width: var(--ui-control-size);
+    min-height: var(--ui-control-size);
+    padding: 9px;
+  }
+  .game .adventure-menu .menu-action-label {
+    display: none;
+  }
+  .game .adventure-controls {
+    display: none;
+  }
+  .game .stamina {
+    width: clamp(84px, calc(100vw - 232px), 128px);
+  }
+  .game .quest {
+    top: 91px;
+    max-width: calc(100% - 36px);
+    min-height: 36px;
+    padding: 8px 12px;
+  }
+  .game .quest p {
+    font-size: 10px;
+  }
+  .game .adventure-buttons button {
+    border: 1px solid var(--ui-gold-dim);
+    background: var(--ui-button);
+    color: var(--ui-ivory);
+    box-shadow:
+      inset 0 0 0 3px #120d0870,
+      inset 0 0 0 4px #d9b56d33,
+      0 3px 9px #0006;
+    touch-action: none;
+  }
+  .game .adventure-buttons button:active {
+    color: var(--ui-gold-bright);
+    border-color: var(--ui-gold-bright);
+    background: var(--ui-navy);
+  }
+  .game .adventure-buttons button:disabled {
+    color: #8a8173;
+    border-color: #746a5d;
+    background: #332e28;
+    box-shadow: inset 0 0 0 3px #16131199;
+    opacity: .76;
+    filter: grayscale(1);
+  }
+  .game .adventure-buttons .attack-button {
+    background: linear-gradient(145deg, #836032ee, #483017ef);
+    border-color: var(--ui-gold);
+  }
+  .game .adventure-buttons .game-icon {
+    --icon-size: calc(var(--ui-touch-size) * 0.47);
+  }
+  .game .adventure-buttons .attack-button .game-icon {
+    --icon-size: calc(var(--ui-touch-size) * 0.59);
+  }
+  .game .adventure-buttons button small {
+    font-size: clamp(8px, 1.15vmin, 11px);
+    letter-spacing: 0.03em;
+  }
+  .game .adventure-touch .joystick {
+    border: 1px solid var(--ui-line);
+    background: radial-gradient(circle, #34251aa6 48%, #130d0866 50%);
+    box-shadow: inset 0 0 0 6px #d9b56d0f;
+    touch-action: none;
+  }
+  .game .adventure-touch .joystick > span {
+    display: grid;
+    place-items: center;
+    background: var(--ui-button);
+    color: var(--ui-gold);
+    border: 1px solid var(--ui-gold-dim);
+    box-shadow: var(--ui-inset), var(--ui-shadow);
+  }
+  .game .adventure-touch .joystick .game-icon {
+    --icon-size: clamp(26px, 4vmin, 40px);
+  }
+  .game .minimap {
+    width: 105px;
+    padding: 7px 4px;
+  }
+  .game .map-heading {
+    font-size: 6px;
+    letter-spacing: 0;
+  }
+  .game .map-caption {
+    font-size: 8px;
+    letter-spacing: 0.03em;
+  }
+  .game .target-reticle span {
+    top: calc(100% + 6px);
+  }
+  .game .boss-hud > span {
+    font-size: 12px;
+  }
+  .game .boss-hud small {
+    font-size: 10px;
+  }
+  .game .interact-prompt {
+    gap: 8px;
+    padding: 9px 12px;
+  }
+  .game .toast {
+    gap: 7px;
+    padding: 10px 13px;
+    top: 142px;
+    bottom: auto;
+  }
+  .game:has(.boss-hud) .toast {
+    top: 225px;
+  }
+}
+@media (max-height: 520px) and (pointer: coarse) {
+  .game {
+    --ui-touch-size: 44px;
+  }
+  .game .adventure-buttons {
+    transform: none;
+  }
+  .game .quest {
+    top: 82px;
+    max-width: 210px;
+  }
+  .game .minimap {
+    width: 80px;
+  }
+  .game .map-heading,
+  .game .map-caption {
+    display: none;
+  }
+  .game .boss-hud > span {
+    font-size: 11px;
+  }
+  .game .toast {
+    top: 22px;
+    bottom: auto;
+    max-width: calc(100% - 420px);
+  }
+  .game:has(.boss-hud) .toast {
+    top: 22px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .game *,
+  .game *::before,
+  .game *::after {
+    transition: none !important;
+  }
+}
+
+/* SVG stays sharp at high DPI; status icons share the same fluid scale. */
+.game .hearts svg {
+  width: var(--ui-heart-size);
+  height: auto;
+}
+.game .gem-count > svg {
+  width: var(--ui-icon-size);
+  height: calc(var(--ui-icon-size) * 1.35);
+}
+.game .target-reticle {
+  width: clamp(40px, 4vmin, 64px);
+  height: clamp(40px, 4vmin, 64px);
+}
+.game .result-panel > .crest {
+  width: clamp(44px, 5vmin, 68px);
+  height: auto;
+}

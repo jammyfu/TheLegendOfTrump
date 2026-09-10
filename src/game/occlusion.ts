@@ -13,6 +13,17 @@ export function meshBlocksView(mesh: Mesh, bounds: Box3, camera: Vector3, subjec
   meshRay.far = distance - 0.1;
   return meshRay.intersectObject(mesh, false).length > 0;
 }
+
+const actorSample=new Vector3();
+/** Sample the lower body as well as the head, and both face directions:
+ * single-sided desk panels otherwise disappear from a ray cast from behind. */
+export function meshObscuresActor(mesh:Mesh,bounds:Box3,camera:Vector3,actor:{x:number;y:number;z:number},height=2.85){
+  for(const level of [.2,.55,.85])for(const side of [-.35,0,.35]){
+    actorSample.set(actor.x+side,actor.y+height*level,actor.z);
+    if(meshBlocksView(mesh,bounds,camera,actorSample)||meshBlocksView(mesh,bounds,actorSample,camera))return true;
+  }
+  return false;
+}
 /** Low landscaping, seats and ground surfaces never participate in camera fading. */
 export function canFadeForCamera(mesh: Mesh) {
   if (typeof mesh.userData.cameraFade === "boolean") return mesh.userData.cameraFade;

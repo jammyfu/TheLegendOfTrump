@@ -77,6 +77,8 @@ test("unlock stops residual mouse motion; sprint-direction combat roll and sprin
   await page.keyboard.down("KeyD");
   expect(await page.evaluate(() => window.__game!.dodgeTime)).toBe(0);
   await page.keyboard.down("ShiftLeft");
+  expect(await page.evaluate(() => window.__game!.dodgeTime)).toBe(0);
+  await page.keyboard.press("Space");
   await expect.poll(() => page.evaluate(() => window.__game!.dodgeTime), { intervals: [20, 30, 50] }).toBeGreaterThan(0);
   await page.screenshot({ path: "artifacts/directional-air-roll.png" });
   await page.keyboard.up("KeyD");

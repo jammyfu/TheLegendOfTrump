@@ -43,6 +43,7 @@ export function RangedCombat() {
         o.position.set(a.x, a.y, a.z);
         o.children[0].visible = a.kind !== "dart";
         o.children[1].visible = a.kind === "dart";
+        o.children[2].visible = a.kind === "dart";
         o.children[1].rotation.y = game.elapsed * 24;
         o.traverse((n) => {
           if (n instanceof Mesh && n.material instanceof MeshBasicMaterial)
@@ -53,8 +54,10 @@ export function RangedCombat() {
       }
     });
     portals.current?.children.forEach((o, i) => {
-      o.visible = game.zone === "office" && game.summonTime > 0;
-      o.position.set(i ? 7 : -7, 0.12, -5);
+      const minion=game.minions[i];
+      o.visible = !!minion && game.zone === "office" && game.summonTime > 0;
+      if(!minion)return;
+      o.position.set(minion.originX, 0.12, minion.originZ);
       o.rotation.y = game.elapsed * 2;
       o.scale.setScalar(1 + Math.sin(game.elapsed * 9) * 0.05);
     });
@@ -95,11 +98,20 @@ export function RangedCombat() {
             </mesh>
             </group>
             <primitive object={darts[i]} visible={false} />
+            <mesh position={[0, -1.05, 0]} visible={false}>
+              <cylinderGeometry args={[0.045, 0.006, 1.75, 6]} />
+              <meshBasicMaterial
+                color="#ff6347"
+                transparent
+                opacity={0.42}
+                depthWrite={false}
+              />
+            </mesh>
           </group>
         ))}
       </group>
-      <group ref={portals}>
-        {[-1, 1].map((i) => (
+      <group ref={portals} name="boss-summon-portals">
+        {[0, 1, 2, 3].map((i) => (
           <group key={i} visible={false}>
             <mesh rotation={[-Math.PI / 2, 0, 0]}>
               <ringGeometry args={[1, 1.2, 48]} />

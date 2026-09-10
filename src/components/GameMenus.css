@@ -11,7 +11,7 @@
   font-family: "Noto Serif SC", Georgia, serif;
   background-image:
     linear-gradient(120deg, #140d08e8, #25190de8 50%, #100b07f5),
-    url("/title/background.png");
+    url("/title/background.webp");
   background-size: cover;
   background-position: center;
   border: 1px solid #ba9459;
@@ -39,7 +39,7 @@
   display: block;
   width: 116px;
   height: 58px;
-  background: url("/title/wordmark.png") center / contain no-repeat;
+  background: url("/title/wordmark.webp") center / contain no-repeat;
   margin: 0 auto 17px;
   filter: drop-shadow(0 3px 5px #0009);
   pointer-events: none;

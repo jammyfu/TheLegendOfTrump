@@ -1,13 +1,18 @@
-.hud-layout .hud-disclosure { position:absolute; top:82px; right:16px; pointer-events:auto; color:#f4e5be; z-index:30; }
-.hud-layout .quest-disclosure { right:68px; }
-.hud-layout .hud-disclosure summary { list-style:none; cursor:pointer; width:38px; height:38px; display:grid; place-items:center; background:#211f1ed9; border:1px solid #a28a58; font:22px Georgia,serif; }
+.game .hud-layout .hud-tools { grid-area:tools; min-width:0; align-self:start; display:flex; flex-direction:column; align-items:flex-end; gap:8px; z-index:30; }
+.game .hud-layout .hud-tools .adventure-menu { position:static; inset:auto; transform:none; margin:0; width:100%; max-width:100%; flex-wrap:wrap; }
+.hud-layout .hud-disclosures { display:flex; justify-content:flex-end; gap:8px; }
+.hud-layout .hud-disclosure { pointer-events:auto; color:#f4e5be; }
+.hud-layout .hud-disclosure summary { list-style:none; cursor:pointer; width:44px; height:44px; display:grid; place-items:center; background:#211f1ed9; border:1px solid #a28a58; font:22px Georgia,serif; }
 .hud-layout .hud-disclosure summary::-webkit-details-marker { display:none; }
 .hud-layout .hud-disclosure summary svg { width:22px; height:22px; }
-.hud-layout .hud-disclosure[open] { width:min(340px,calc(100vw - 32px)); padding:12px; background:#211f1ef5; border:1px solid #a28a58; }
-.hud-layout .hud-disclosure[open] summary { margin-left:auto; }
-.hud-layout .hud-disclosure .quest, .hud-layout .hud-disclosure .adventure-controls { position:static; transform:none; display:flex; flex-direction:column; align-items:flex-start; width:auto; max-width:none; padding:12px 0; margin:0; border:0; background:none; box-shadow:none; font-size:14px; gap:10px; }
+.game .hud-layout .hud-detail-panel { position:fixed; top:max(12px,env(safe-area-inset-top)); right:max(12px,env(safe-area-inset-right)); width:min(420px,calc(100vw - 24px - env(safe-area-inset-left) - env(safe-area-inset-right))); max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; touch-action:pan-y; padding:0 16px 16px; background:#211f1efa; border:1px solid #a28a58; box-shadow:0 8px 32px #0008; z-index:40; font-size:16px; line-height:1.65; }
+.hud-layout .hud-detail-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; position:sticky; top:0; padding:12px 0; background:#211f1e; z-index:1; }
+.game .hud-layout .hud-detail-heading button { display:grid; place-items:center; flex-shrink:0; width:44px; height:44px; padding:8px; border:1px solid #a28a58; background:#302b23; }
+.hud-layout .hud-disclosure .quest, .game .hud-layout .hud-help-desktop { position:static; transform:none; display:flex; flex-direction:column; align-items:flex-start; width:auto; max-width:none; padding:12px 0; margin:0; border:0; background:none; box-shadow:none; font-size:16px; gap:12px; }
+.game .hud-layout .hud-help-mobile { display:none; }
 .hud-layout .hud-disclosure .quest > svg { display:none; }
-.hud-layout .hud-disclosure p { margin:8px 0; font-size:14px; }
+.hud-layout .hud-disclosure p { margin:12px 0; font-size:16px; overflow-wrap:anywhere; }
+.hud-layout .hud-help-mobile strong { display:block; color:#f5d899; }
 .hud-layout .weapon-hud { width:auto; }
 .hud-layout .weapon-hud > button { width:42px; min-width:42px; padding:8px; }
 .hud-layout .weapon-hud > button span, .hud-layout .weapon-hud > button kbd,
@@ -17,12 +22,12 @@
 .hud-layout .combo-status > span { display:none !important; }
 .hud-layout .expedition-hud { top:160px; }
 .hud-layout .adventure-menu [data-tooltip]::after { display:none !important; }
-@media(max-width:700px) { .hud-layout .hud-disclosure { top:66px; } .hud-layout .quest-disclosure { right:60px; } }
+@media(pointer:coarse), (max-width:600px) {
+  .game .hud-layout .hud-help-desktop { display:none; }
+  .game .hud-layout .hud-help-mobile { display:block; }
+  .game .hud-layout .hud-tools .adventure-menu { gap:4px; }
+}
 @media(max-height:500px) {
-  .game .hud-layout .adventure-menu { display:flex !important; flex-wrap:nowrap !important; width:auto !important; max-width:none !important; right:10px; top:10px; gap:6px; }
-  .game .hud-layout .adventure-menu button { width:34px !important; height:34px !important; min-width:34px !important; min-height:34px !important; padding:6px; }
-  .hud-layout .hud-disclosure { top:54px; right:10px; }
-  .hud-layout .quest-disclosure { right:56px; }
-  .hud-layout .hud-disclosure[open] { max-height:calc(100dvh - 74px); overflow:auto; }
+  .game .hud-layout .hud-tools .adventure-menu { gap:4px; }
   .game .hud-layout .expedition-hud { top:170px !important; left:10px !important; right:auto !important; }
 }

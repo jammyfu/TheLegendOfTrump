@@ -37,6 +37,7 @@ test("chests unlock bow once; weapon switch and fresh start reset inventory", ()
   assert.equal(g.arrows, 16);
   g.interact();
   assert.equal(g.arrows, 16);
+  tick(g, 1.65);
   g.switchWeapon();
   assert.equal(g.weapon, "bow");
   g.start();

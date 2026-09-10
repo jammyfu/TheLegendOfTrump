@@ -28,12 +28,15 @@ test("sprint jump launches one forward roll, lands and cannot be extended in air
   assert.equal(g.dodgeTime, 0);
   assert.ok(g.x > 3);
 });
-test("sprint directional input rolls once per chord, with stamina and collision", () => {
+test("sprint directional movement rolls only after jumping, with stamina and collision", () => {
   const g = fresh();
   g.x = -20;
   g.z = 15;
   Object.assign(g.guards[0], { hp: 3, x: -20, z: 8, stun: 100 });
   g.lockedTarget = 0;
+  g.update(0.016, { x: 1, z: 0, sprint: true });
+  assert.equal(g.dodgeTime, 0);
+  g.jump({ x: 1, z: 0, sprint: true });
   g.update(0.016, { x: 1, z: 0, sprint: true });
   assert.ok(g.dodgeTime > 0);
   assert.ok(g.y > 0);
@@ -41,6 +44,7 @@ test("sprint directional input rolls once per chord, with stamina and collision"
   assert.equal(g.dodgeTime, 0);
   g.update(0.016, idle);
   g.stamina = 0;
+  g.jump({ x: 1, z: 0, sprint: true });
   g.update(0.016, { x: 1, z: 0, sprint: true });
   assert.equal(g.dodgeTime, 0);
 });

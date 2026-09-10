@@ -9,6 +9,9 @@ function tick(g: Simulation, time: number) {
 function quiet() {
   const g = new Simulation();
   g.start();
+  // This combat fixture represents equipment already collected.
+  g.swordUnlocked = g.shieldUnlocked = true;
+  g.weapon = "sword";
   g.guards.forEach((e) => (e.hp = 0));
   g.pots.forEach((p) => (p.broken = true));
   g.crates.forEach((p) => (p.broken = true));
@@ -71,16 +74,18 @@ test("spin obeys walls and damages the indoor boss", () => {
   const g = quiet();
   charge(g);
   g.x = 0;
-  g.z = -14;
+  g.z = -15;
   Object.assign(g.guards[0], {
     hp: 3,
     x: 0,
-    z: -17,
+    z: -18,
     stun: 10,
     stunDuration: 10,
   });
   g.releaseAttack();
-  tick(g, 0.5);
+  // Assert contact visibility before overlap recovery ejects this deliberately
+  // embedded target out of the house. The facade begins at z=-17.
+  g.strike(true);
   assert.equal(g.guards[0].hp, 3);
   const b = quiet();
   charge(b);

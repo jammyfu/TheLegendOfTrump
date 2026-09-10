@@ -1,11 +1,13 @@
+import { GameIcon } from "./Icons";
+import { game } from "../game/simulation";
 import { getAudioSettings } from "../game/audioSettings";
 import { updateAudioSettings } from "../game/audio";
 import {
-  getLanguage,
+  getLanguagePreference,
   languages,
   setLanguage,
   t,
-  type Language,
+  type LanguagePreference,
 } from "../game/i18n";
 import { CameraSettings } from "./CameraSettings";
 import { MusicSettings } from "./MusicSettings";
@@ -14,12 +16,24 @@ export function SettingsPanel() {
   return (
     <div className="settings-panel">
       <label className="setting-row">
+        {t("难度")}
+        <select aria-label={t("难度")} aria-describedby="difficulty-note" value={game.selectedDifficulty}
+          onChange={(event) => game.selectDifficulty(event.target.value === "hard" ? "hard" : "normal")}>
+          <option value="normal">{t("普通")}</option>
+          <option value="hard" disabled={!game.completedCampaign}>
+            {t(game.completedCampaign ? "高难度" : "高难度 · 通关后解锁")}
+          </option>
+        </select>
+      </label>
+      <p id="difficulty-note">{t("难度选择在下一次冒险生效。")}</p>
+      <label className="setting-row">
         {t("语言")}
         <select
           aria-label={t("语言")}
-          value={getLanguage()}
-          onChange={(e) => setLanguage(e.target.value as Language)}
+          value={getLanguagePreference()}
+          onChange={(e) => setLanguage(e.target.value as LanguagePreference)}
         >
+          <option value="auto">{t("跟随设备语言")}</option>
           {Object.entries(languages).map(([id, name]) => (
             <option key={id} value={id}>
               {name}
@@ -28,7 +42,10 @@ export function SettingsPanel() {
         </select>
       </label>
       <label className="setting-row">
-        {t("总声音")}
+        <span className="setting-label">
+          <GameIcon name="sound" />
+          {t("总声音")}
+        </span>
         <input
           type="checkbox"
           checked={audio.enabled}

@@ -1,12 +1,22 @@
 import { useFrame, useLoader } from "@react-three/fiber";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { Box3, Mesh, SRGBColorSpace, TextureLoader, Vector3 } from "three";
+import {
+  Box3,
+  DoubleSide,
+  Mesh,
+  SRGBColorSpace,
+  TextureLoader,
+  Vector3,
+} from "three";
 import { game } from "../game/simulation";
 import { applyLegendMaterials } from "../game/materials";
 import { OFFICE_SCALE } from "../game/world";
+import { fitOfficeFurniture } from "../game/officeFurniture";
+import { OcclusionFade, meshObscuresActor } from "../game/occlusion";
 import {
   cutawayFade,
+  cutawaySide,
   obscuresSubject,
   type CutawaySide,
 } from "../game/cutaway";
@@ -15,18 +25,28 @@ export function OfficeScene() {
     GLTFLoader,
     import.meta.env.BASE_URL + "models/oval-cutaway.glb",
   );
-  const portrait = useLoader(
+  const portraits = useLoader(
     TextureLoader,
-    import.meta.env.BASE_URL + "textures/portraits/creator-presidential-portrait.png",
+    [
+      "creator-presidential-portrait.webp",
+      "residence-portrait-stateswoman.webp",
+      "residence-portrait-signing.webp",
+      "residence-portrait-reception.webp",
+    ].map(
+      (file) => import.meta.env.BASE_URL + "textures/portraits/" + file,
+    ),
   );
-  portrait.colorSpace = SRGBColorSpace;
+  for (const portrait of portraits) portrait.colorSpace = SRGBColorSpace;
   const model = useMemo(() => {
     const m = gltf.scene.clone(true);
     m.scale.setScalar(OFFICE_SCALE);
+    fitOfficeFurniture(m);
     applyLegendMaterials(m);
     m.traverse((n) => {
       if (n instanceof Mesh) {
-        n.castShadow = true;
+        // The room receives ordinary actor shadows, but its walls/furniture
+        // never cast the large moving shadows produced by camera cutaways.
+        n.castShadow = false;
         n.receiveShadow = true;
       }
     });
@@ -42,7 +62,8 @@ export function OfficeScene() {
     }[] = [];
     model.updateMatrixWorld(true);
     model.traverse((node) => {
-      if (!node.name.startsWith("OfficeCutaway_")) return;
+      const side = cutawaySide(node.name);
+      if (!side) return;
       // glTF multi-material groups contain child meshes. Only process the root.
       if (node.parent?.name.startsWith("OfficeCutaway_")) return;
       const meshes: Mesh[] = [];
@@ -61,7 +82,7 @@ export function OfficeScene() {
       });
       list.push({
         bounds: new Box3().setFromObject(node),
-        side: node.name.slice("OfficeCutaway_".length) as CutawaySide,
+        side,
         meshes,
         opacity: 1,
         hold: 0,
@@ -70,6 +91,14 @@ export function OfficeScene() {
     return list;
   }, [model]);
   const subject = useMemo(() => new Vector3(), []);
+  const deskFades = useRef<OcclusionFade[]>([]);
+  useEffect(() => {
+    const list: OcclusionFade[] = [];
+    model.traverse(n => { if (n instanceof Mesh && ['office-desk','office-chair'].includes(n.name)) list.push(new OcclusionFade(n)); });
+    deskFades.current=list;
+    return ()=>{list.forEach(f=>f.dispose());deskFades.current=[];};
+  }, [model]);
+  const deskBounds = useMemo(() => new Box3(), []);
   useEffect(
     () => () => {
       for (const wall of walls)
@@ -84,6 +113,17 @@ export function OfficeScene() {
   useFrame(({ camera }, delta) => {
     subject.set(game.x, game.y + 1.65, game.z);
     const locked = game.lockTarget;
+    const blockedFurniture=new Set<string>();
+    for (const fade of deskFades.current) {
+      if(blockedFurniture.has(fade.mesh.name))continue;
+      const bounds=deskBounds.setFromObject(fade.mesh);
+      const blocked = game.phase === 'playing' && (meshObscuresActor(fade.mesh,bounds,camera.position,game)
+        || (!!locked && meshObscuresActor(fade.mesh,bounds,camera.position,{x:locked.x,y:0,z:locked.z},locked.id===100?5.7:2.85)));
+      if(blocked)blockedFurniture.add(fade.mesh.name);
+    }
+    // Multi-material GLBs split the desk into separate meshes. Fade the entire
+    // piece together so drawer fronts cannot remain opaque over a faded body.
+    for(const fade of deskFades.current)fade.update(blockedFurniture.has(fade.mesh.name),Math.min(delta,.1));
     for (const wall of walls) {
       const obstructed =
         obscuresSubject(
@@ -115,7 +155,7 @@ export function OfficeScene() {
       wall.hold = fade.hold;
       for (const mesh of wall.meshes) {
         mesh.visible = wall.opacity > 0.015;
-        mesh.castShadow = wall.opacity > 0.95;
+        mesh.castShadow = false;
         for (const material of Array.isArray(mesh.material)
           ? mesh.material
           : [mesh.material]) {
@@ -127,11 +167,27 @@ export function OfficeScene() {
   });
   return (
     <>
-      <primitive object={model} />
-      <mesh position={[0, 11, -31.56]}>
-        <planeGeometry args={[17.2, 11.4]} />
-        <meshStandardMaterial map={portrait} roughness={0.42} metalness={0.06} />
-      </mesh>
+      <primitive object={model} name="office-environment" />
+      {([-1, 1] as const).flatMap((side, sideIndex) =>
+        ([-1, 1] as const).map((depth, depthIndex) => (
+          <mesh
+            key={`${side}:${depth}`}
+            // The source paintings sit in wall recesses. Keep the texture on
+            // the room-facing side of the painted field so it cannot appear
+            // through the exterior windows.
+            position={[side * 34.92, 11.4, depth * 12.3]}
+            rotation={[0, side * Math.PI * 0.5, 0]}
+          >
+            <planeGeometry args={[5.12, 3.42]} />
+            <meshStandardMaterial
+              map={portraits[sideIndex * 2 + depthIndex]}
+              roughness={0.4}
+              metalness={0.08}
+              side={DoubleSide}
+            />
+          </mesh>
+        )),
+      )}
       <pointLight
         position={[0, 14, -10]}
         intensity={180}
