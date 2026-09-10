@@ -10,6 +10,8 @@ A low-poly, third-person adventure built with **React 19, Three.js, React Three 
 
 Node.js 22.12+ and a modern WebGL 2 browser are required.
 
+Play online: [game.bubufu.com/thelegendoftrump](https://game.bubufu.com/thelegendoftrump/)
+
 ```bash
 npm ci
 npm run dev

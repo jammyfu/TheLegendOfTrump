@@ -10,6 +10,8 @@
 
 Node.js 22.12+ 및 WebGL 2를 지원하는 최신 브라우저가 필요합니다.
 
+온라인 플레이: [game.bubufu.com/thelegendoftrump](https://game.bubufu.com/thelegendoftrump/)
+
 ```bash
 npm ci
 npm run dev

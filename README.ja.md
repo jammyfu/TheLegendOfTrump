@@ -10,6 +10,8 @@
 
 Node.js 22.12+ と WebGL 2 対応ブラウザーが必要です。
 
+オンラインで遊ぶ：[game.bubufu.com/thelegendoftrump](https://game.bubufu.com/thelegendoftrump/)
+
 ```bash
 npm ci
 npm run dev

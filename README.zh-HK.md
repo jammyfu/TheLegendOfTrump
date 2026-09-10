@@ -10,6 +10,8 @@
 
 需要 Node.js 22.12+ 與支援 WebGL 2 的現代瀏覽器。
 
+線上體驗：[game.bubufu.com/thelegendoftrump](https://game.bubufu.com/thelegendoftrump/)
+
 ```bash
 npm ci
 npm run dev
