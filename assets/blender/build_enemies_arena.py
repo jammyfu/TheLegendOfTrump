@@ -102,10 +102,16 @@ for side in [-1,1]:
  for z in [-6.8,6.8]:
   cylinder('Column',(side*7.6,-z,3.6),.30,7.2,'ivory',room)
   cylinder('Column base',(side*7.6,-z,.18),.45,.35,'gold',room)
- bx('Sofa seat',side*6,.6,1,2,1.2,3.7,'ivory')
- bx('Sofa back',side*6.8,1.3,1,.4,1.1,3.7,'ivory')
- for z in [-.7,2.7]:bx('Sofa arm',side*6,1,z,2,.4,.2,'gold')
- for z in [0,1,2]:bx('Sofa cushion',side*6,.98,z,1.4,.3,.9,'ivory',.09)
+ # Keep every upholstered part as a separate, closed volume.  The former
+ # seat/back/arm arrangement intersected after the furnishing meshes were
+ # joined, leaving dark slivers visible at each end of the sofa.
+ bx('Sofa plinth',side*6,.16,1,2.12,.18,3.86,'gold',.02)
+ bx('Sofa base',side*6,.54,1,2.0,.70,3.66,'ivory',.07)
+ bx('Sofa back',side*7.20,1.38,1,.30,1.52,3.66,'ivory',.07)
+ for z in [-.72,2.72]:
+  bx('Sofa arm',side*6,1.02,z,1.74,.52,.28,'ivory',.07)
+  bx('Sofa arm top trim',side*6,1.32,z,1.82,.06,.34,'gold',.02)
+ for z in [-.08,1.0,2.08]:bx('Sofa cushion',side*6,1.01,z,1.42,.24,.92,'ivory',.09)
 for x in [-6,-3,0,3,6]:
  bx('Tall blue window',x,4.35,-7.68,2.0,5.8,.10,'blueglass')
  for sx in [-1,1]:
@@ -135,8 +141,8 @@ for side in [-1,1]:
  for z in [-3,3]:
   bx('Portrait gold frame',side*8.64,5.7,z,.12,2.0,1.55,'gold')
   bx('Portrait painted field',side*8.55,5.7,z,.03,1.76,1.31,'navy',0)
-  sphere('Portrait cameo',(side*8.50,-z,5.9),(.045,.31,.38),'ivory',room)
-  sphere('Portrait shoulders',(side*8.50,-z,5.3),(.045,.48,.30),'wood',room)
+  # Photographic portraits are mounted by OfficeScene; no raised placeholder
+  # head/shoulders may sit in front of the image plane.
  # Layered capitals and fluting on the columns.
  for z in [-6.8,6.8]:
   for h,r in [(6.85,.37),(7.05,.44),(7.22,.49),(.4,.36)]:cylinder('Column molding',(side*7.6,-z,h),r,.13,'gold',room)

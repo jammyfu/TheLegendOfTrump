@@ -1,0 +1,18 @@
+{
+  "generationMode": "built-in image_gen",
+  "assets": [
+    {
+      "file": "gpt-boss-ground-impact.webp",
+      "prompt": "Use case: stylized-concept. Asset type: single production-ready square VFX texture for a stylized low-poly action-adventure game, viewed exactly from overhead, not a scene or mockup. Primary request: powerful hammer impact ground burst: irregular radial golden-white fracture veins, jagged shards of amber light and a compact white-hot core, sparse sharp sparks, fading smoothly outward. Transparent background with genuinely transparent alpha, no ground surface, no rocks or solid floor, no characters, no hammer, no shadows, no text, no border, no watermark. Composition: one centered circular burst within central 80 percent of square, all outer edges fully transparent, controlled brightness, open transparent gaps between branching energy cracks. Crisp hand-painted game VFX brushwork, gold and warm ivory with restrained orange embers. Must work as an additive ground decal in Three.js on existing carpet and stone. 1024 by 1024."
+    },
+    {
+      "file": "gpt-boss-water-ripple.webp",
+      "prompt": "Use case: stylized-concept. Asset type: single square top-down game VFX shockwave texture, not a rendered game scene. Primary request: one circular outward-travelling water-like pressure ripple ring with brilliant icy cyan and ivory caustic streaks, transparent watery wisps and a few small spray-like energy flecks. Perfectly overhead circular silhouette, not an ellipse. Main luminous ring centered at 76 percent of image half-width radius, with only two thin rippling subsidiary highlights closely hugging the main ring; ring band confined between 65 and 84 percent of half-width radius. Center remains completely empty and transparent; outer 12 percent image border fully transparent. Genuinely transparent alpha background, no water surface or ocean, no ground, no characters, no symbols or text, no watermark. Crisp stylized painted texture for a low-poly action game, delicate fluid refraction-like highlights rather than a thick solid neon donut. Intended for additive animated expanding ground plane with independent geometry wave crest. 1024 by 1024."
+    },
+    {
+      "file": "gpt-boss-telegraph.webp",
+      "prompt": "Use case: stylized-concept. Asset type: single square production game VFX texture for a boss ground-attack warning circle, perfectly overhead view. Subject: a menacing crimson-orange energy annulus with segmented bronze-gold mechanical arc plates, sharp inward-pointing chevrons, thin molten-red cracks and delicate charged sparks; elegant high-contrast stylized low-poly fantasy action game visual. One centered circular annulus, NOT a perspective ellipse. Circle fills central 86 percent of canvas; annular band between 68 and 86 percent of image half-width radius. Center completely empty and transparent. Outer margin genuinely transparent alpha. Keep a crisp circular outer danger boundary rather than spikes extending outside it. No letters, words, numbers, runes, characters, ground surface, scenery, shadows, logos, or watermark. Must read as an imminent heavy hammer attack telegraph, distinct from icy-blue impact ripples. This is a transparent sprite texture to animate as a rotating charge indicator, not an illustration of a scene. 1024 by 1024."
+    }
+  ],
+  "packaging": "512px WebP, alpha preserved; background-loaded, no external runtime requests."
+}

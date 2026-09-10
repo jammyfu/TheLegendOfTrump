@@ -12,6 +12,10 @@ from fontTools.pens.ttGlyphPen import TTGlyphPen
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'public/fonts'
 manifest=json.loads((OUT/'manifest.json').read_text())
+# Never rasterize already decorated outlines: repeated runs progressively shrink
+# companion glyphs while master glyphs remain unchanged.
+if manifest.get('ornamentalCoverage'):
+ raise RuntimeError('Rebuild base fonts and trace masters before completing fonts again.')
 report={}
 for label in ['Latin','SC','JP','HK','KR']:
  face='legend-relic-'+label.lower()
@@ -41,8 +45,8 @@ for label in ['Latin','SC','JP','HK','KR']:
   assert holes,(face,char,'no ornamental apertures')
   pen=TTGlyphPen(None)
   # Narrow the companion forms to match the generated, tall display masters.
-  xs=.62 if label!='Latin' else 1
-  ys=.88 if label!='Latin' else 1
+  xs=.78 if label!='Latin' else 1
+  ys=.95 if label!='Latin' else 1
   contours,_=cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
   for contour in contours:
    if cv2.contourArea(contour)<1:continue

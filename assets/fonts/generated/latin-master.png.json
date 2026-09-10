@@ -379,10 +379,11 @@
       968,
       568,
       1010,
-      703
+      746
     ],
-    "contours": 5,
-    "inlays": []
+    "contours": 0,
+    "inlays": [],
+    "preserved": "companion-outline"
   },
   {
     "character": "j",

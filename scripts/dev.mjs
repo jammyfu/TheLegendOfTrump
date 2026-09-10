@@ -24,8 +24,10 @@ const child = spawn(
   [
     "node_modules/vite/bin/vite.js",
     ...(process.argv.includes("--preview") ? ["preview"] : []),
+    // Bind to the LAN by default so a phone on the same Wi-Fi can open the
+    // development build. HOST=127.0.0.1 keeps an explicitly local server.
     "--host",
-    "127.0.0.1",
+    process.env.HOST || "0.0.0.0",
     "--port",
     port,
     "--strictPort",

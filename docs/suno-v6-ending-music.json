@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "project": "The Legend of Trump",
+  "purpose": "Original loopable music for the game's defeat and victory end states.",
+  "tracks": [
+    {
+      "id": "defeat",
+      "title": "The Legend of Trump — Fallen Standard",
+      "model": "v6",
+      "mode": "advanced",
+      "instrumental": true,
+      "style": "Original stylized low-poly presidential-adventure game defeat loop, 76 BPM in D minor. Sparse felt piano, muted low brass, distant military snare, detuned music-box fragments, and a soft analog pulse. Two-bar sinking introduction, eight-bar lament, then a restrained sixteen-bar loop returning clearly to beat one with a short controlled tail. Emotionally defeated but not horror; keep the low mids and center open for dialogue, UI, and failure effects. Instrumental only: no vocal lead, no chanting, no recognizable melodies, no trailer hits, no harsh distortion, no long reverb fade, no abrupt ending.",
+      "loopRequirement": "The last two bars must resolve to the first downbeat with a controlled, seam-safe tail.",
+      "v6FollowUpEdit": "Keep the arrangement unchanged; make the final two bars resolve cleanly to the first downbeat with a short tail for a seamless defeat-screen loop."
+    },
+    {
+      "id": "victory",
+      "title": "The Legend of Trump — Golden Signature",
+      "model": "v6",
+      "mode": "advanced",
+      "instrumental": true,
+      "style": "Original stylized low-poly presidential-adventure game victory loop, 108 BPM in G major. Bright pizzicato strings, warm ceremonial brass fanfare, light handclaps and toms, celesta, gentle snare, and glockenspiel. Two-bar logo stinger, then a confident sixteen-bar celebratory hook that returns cleanly to beat one. Playful, heroic, and ceremonial without being bombastic; keep space for victory UI and gameplay effects. Instrumental only: no vocal lead, no chanting, no recognizable melodies, no huge trailer hits, no harsh distortion, no long reverb fade, no abrupt ending.",
+      "loopRequirement": "The last two bars must resolve to the first downbeat with a controlled, seam-safe tail.",
+      "v6FollowUpEdit": "Keep the arrangement unchanged; make the final two bars resolve cleanly to the first downbeat with a short tail for a seamless victory-screen loop."
+    }
+  ]
+}

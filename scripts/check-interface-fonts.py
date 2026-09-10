@@ -14,3 +14,11 @@ for data in m['ornamentalCoverage'].values():ornament.update(data['masterCharact
 assert not required-covered, 'Missing glyphs: '+''.join(sorted(required-covered))
 assert not required-ornament, 'Missing carved forms: '+''.join(sorted(required-ornament))
 print(f'PASS: {len(required)} unique interface letters/digits have local ornamental glyphs.')
+# Coverage alone cannot catch the repeated-rasterization shrink regression.
+font=TTFont(OUT/'legend-relic-sc.ttf')
+for char in '简体中文原创时之笛秒设置':
+ glyph=font['glyf'][font.getBestCmap()[ord(char)]]
+ width=glyph.xMax-glyph.xMin
+ height=glyph.yMax-glyph.yMin
+ assert 450 <= width <= 700 and 650 <= height <= 1000, (char, 'inconsistent UI glyph scale', width, height)
+print('PASS: mixed master/companion settings glyphs retain consistent display scale.')

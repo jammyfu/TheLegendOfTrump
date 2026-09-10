@@ -1,0 +1,492 @@
+{
+  "before": 4634139,
+  "after": 3333056,
+  "files": [
+    {
+      "name": "bark-color.webp",
+      "before": 17592,
+      "after": 10306,
+      "lossless": false
+    },
+    {
+      "name": "bark-roughness.webp",
+      "before": 34273,
+      "after": 14872,
+      "lossless": true
+    },
+    {
+      "name": "brick-color.webp",
+      "before": 10946,
+      "after": 5514,
+      "lossless": false
+    },
+    {
+      "name": "brick-roughness.webp",
+      "before": 18589,
+      "after": 12820,
+      "lossless": true
+    },
+    {
+      "name": "canvas-color.webp",
+      "before": 18890,
+      "after": 9256,
+      "lossless": false
+    },
+    {
+      "name": "canvas-roughness.webp",
+      "before": 21968,
+      "after": 16742,
+      "lossless": true
+    },
+    {
+      "name": "carpet-color.webp",
+      "before": 18642,
+      "after": 9656,
+      "lossless": false
+    },
+    {
+      "name": "carpet-roughness.webp",
+      "before": 27272,
+      "after": 17454,
+      "lossless": true
+    },
+    {
+      "name": "ceramic-color.webp",
+      "before": 2294,
+      "after": 830,
+      "lossless": false
+    },
+    {
+      "name": "ceramic-roughness.webp",
+      "before": 6648,
+      "after": 3706,
+      "lossless": true
+    },
+    {
+      "name": "fabric-color.webp",
+      "before": 19526,
+      "after": 12530,
+      "lossless": false
+    },
+    {
+      "name": "fabric-roughness.webp",
+      "before": 28754,
+      "after": 20800,
+      "lossless": true
+    },
+    {
+      "name": "feather-color.webp",
+      "before": 11402,
+      "after": 5516,
+      "lossless": false
+    },
+    {
+      "name": "feather-roughness.webp",
+      "before": 19881,
+      "after": 13342,
+      "lossless": true
+    },
+    {
+      "name": "flower-color.webp",
+      "before": 9450,
+      "after": 3564,
+      "lossless": false
+    },
+    {
+      "name": "flower-roughness.webp",
+      "before": 19598,
+      "after": 11506,
+      "lossless": true
+    },
+    {
+      "name": "glass-color.webp",
+      "before": 602,
+      "after": 388,
+      "lossless": false
+    },
+    {
+      "name": "glass-roughness.webp",
+      "before": 3380,
+      "after": 1490,
+      "lossless": true
+    },
+    {
+      "name": "gold-color.webp",
+      "before": 11124,
+      "after": 5388,
+      "lossless": false
+    },
+    {
+      "name": "gold-roughness.webp",
+      "before": 17235,
+      "after": 11818,
+      "lossless": true
+    },
+    {
+      "name": "grass-color.webp",
+      "before": 30838,
+      "after": 17772,
+      "lossless": false
+    },
+    {
+      "name": "grass-roughness.webp",
+      "before": 35643,
+      "after": 26274,
+      "lossless": true
+    },
+    {
+      "name": "hair-color.webp",
+      "before": 10904,
+      "after": 6026,
+      "lossless": false
+    },
+    {
+      "name": "hair-roughness.webp",
+      "before": 23905,
+      "after": 14366,
+      "lossless": true
+    },
+    {
+      "name": "hedge-color.webp",
+      "before": 34946,
+      "after": 22676,
+      "lossless": false
+    },
+    {
+      "name": "hedge-roughness.webp",
+      "before": 42189,
+      "after": 25350,
+      "lossless": true
+    },
+    {
+      "name": "leaf-color.webp",
+      "before": 31506,
+      "after": 19764,
+      "lossless": false
+    },
+    {
+      "name": "leaf-roughness.webp",
+      "before": 37490,
+      "after": 22544,
+      "lossless": true
+    },
+    {
+      "name": "leather-color.webp",
+      "before": 12696,
+      "after": 5946,
+      "lossless": false
+    },
+    {
+      "name": "leather-roughness.webp",
+      "before": 20027,
+      "after": 12642,
+      "lossless": true
+    },
+    {
+      "name": "marble-color.webp",
+      "before": 3110,
+      "after": 1678,
+      "lossless": false
+    },
+    {
+      "name": "marble-roughness.webp",
+      "before": 11268,
+      "after": 6550,
+      "lossless": true
+    },
+    {
+      "name": "metal-color.webp",
+      "before": 9278,
+      "after": 4772,
+      "lossless": false
+    },
+    {
+      "name": "metal-roughness.webp",
+      "before": 15372,
+      "after": 10444,
+      "lossless": true
+    },
+    {
+      "name": "paint-color.webp",
+      "before": 7328,
+      "after": 3290,
+      "lossless": false
+    },
+    {
+      "name": "paint-roughness.webp",
+      "before": 13886,
+      "after": 8584,
+      "lossless": true
+    },
+    {
+      "name": "paper-color.webp",
+      "before": 9006,
+      "after": 2698,
+      "lossless": false
+    },
+    {
+      "name": "paper-roughness.webp",
+      "before": 16152,
+      "after": 9086,
+      "lossless": true
+    },
+    {
+      "name": "paving-color.webp",
+      "before": 12520,
+      "after": 5416,
+      "lossless": false
+    },
+    {
+      "name": "paving-roughness.webp",
+      "before": 21488,
+      "after": 13496,
+      "lossless": true
+    },
+    {
+      "name": "road-color.webp",
+      "before": 26586,
+      "after": 18086,
+      "lossless": false
+    },
+    {
+      "name": "road-roughness.webp",
+      "before": 35143,
+      "after": 23648,
+      "lossless": true
+    },
+    {
+      "name": "roof-color.webp",
+      "before": 10884,
+      "after": 5672,
+      "lossless": false
+    },
+    {
+      "name": "roof-roughness.webp",
+      "before": 22801,
+      "after": 12926,
+      "lossless": true
+    },
+    {
+      "name": "rope-color.webp",
+      "before": 26662,
+      "after": 16194,
+      "lossless": false
+    },
+    {
+      "name": "rope-roughness.webp",
+      "before": 37051,
+      "after": 20298,
+      "lossless": true
+    },
+    {
+      "name": "rubber-color.webp",
+      "before": 25966,
+      "after": 17150,
+      "lossless": false
+    },
+    {
+      "name": "rubber-roughness.webp",
+      "before": 33615,
+      "after": 24766,
+      "lossless": true
+    },
+    {
+      "name": "sand-color.webp",
+      "before": 21360,
+      "after": 8776,
+      "lossless": false
+    },
+    {
+      "name": "sand-roughness.webp",
+      "before": 24349,
+      "after": 14970,
+      "lossless": true
+    },
+    {
+      "name": "skin-color.webp",
+      "before": 8008,
+      "after": 1818,
+      "lossless": false
+    },
+    {
+      "name": "skin-roughness.webp",
+      "before": 15486,
+      "after": 8818,
+      "lossless": true
+    },
+    {
+      "name": "soil-color.webp",
+      "before": 29788,
+      "after": 17068,
+      "lossless": false
+    },
+    {
+      "name": "soil-roughness.webp",
+      "before": 34605,
+      "after": 22310,
+      "lossless": true
+    },
+    {
+      "name": "stone-color.webp",
+      "before": 12600,
+      "after": 5446,
+      "lossless": false
+    },
+    {
+      "name": "stone-roughness.webp",
+      "before": 20853,
+      "after": 12398,
+      "lossless": true
+    },
+    {
+      "name": "terracotta-color.webp",
+      "before": 11342,
+      "after": 3134,
+      "lossless": false
+    },
+    {
+      "name": "terracotta-roughness.webp",
+      "before": 15033,
+      "after": 8608,
+      "lossless": true
+    },
+    {
+      "name": "walnut-color.webp",
+      "before": 7956,
+      "after": 3730,
+      "lossless": false
+    },
+    {
+      "name": "walnut-roughness.webp",
+      "before": 11717,
+      "after": 7870,
+      "lossless": true
+    },
+    {
+      "name": "water-color.webp",
+      "before": 5162,
+      "after": 2986,
+      "lossless": false
+    },
+    {
+      "name": "water-roughness.webp",
+      "before": 8810,
+      "after": 5454,
+      "lossless": true
+    },
+    {
+      "name": "wood-color.webp",
+      "before": 7010,
+      "after": 3654,
+      "lossless": false
+    },
+    {
+      "name": "wood-roughness.webp",
+      "before": 10654,
+      "after": 7198,
+      "lossless": true
+    },
+    {
+      "name": "bark-normal.webp",
+      "before": 298574,
+      "after": 219158,
+      "lossless": true
+    },
+    {
+      "name": "fabric-normal.webp",
+      "before": 356606,
+      "after": 311664,
+      "lossless": true
+    },
+    {
+      "name": "glass-normal.webp",
+      "before": 1534,
+      "after": 118,
+      "lossless": true
+    },
+    {
+      "name": "gold-normal.webp",
+      "before": 151210,
+      "after": 115476,
+      "lossless": true
+    },
+    {
+      "name": "grass-normal.webp",
+      "before": 340081,
+      "after": 258766,
+      "lossless": true
+    },
+    {
+      "name": "hair-normal.webp",
+      "before": 12835,
+      "after": 8012,
+      "lossless": true
+    },
+    {
+      "name": "leaf-normal.webp",
+      "before": 33623,
+      "after": 8990,
+      "lossless": true
+    },
+    {
+      "name": "leather-normal.webp",
+      "before": 281685,
+      "after": 217334,
+      "lossless": true
+    },
+    {
+      "name": "metal-normal.webp",
+      "before": 160342,
+      "after": 130756,
+      "lossless": true
+    },
+    {
+      "name": "paint-normal.webp",
+      "before": 211840,
+      "after": 150946,
+      "lossless": true
+    },
+    {
+      "name": "paving-normal.webp",
+      "before": 235962,
+      "after": 173150,
+      "lossless": true
+    },
+    {
+      "name": "roof-normal.webp",
+      "before": 238843,
+      "after": 185716,
+      "lossless": true
+    },
+    {
+      "name": "rubber-normal.webp",
+      "before": 255583,
+      "after": 192684,
+      "lossless": true
+    },
+    {
+      "name": "skin-normal.webp",
+      "before": 114167,
+      "after": 84078,
+      "lossless": true
+    },
+    {
+      "name": "stone-normal.webp",
+      "before": 433973,
+      "after": 356566,
+      "lossless": true
+    },
+    {
+      "name": "water-normal.webp",
+      "before": 96667,
+      "after": 43226,
+      "lossless": true
+    },
+    {
+      "name": "wood-normal.webp",
+      "before": 229555,
+      "after": 176566,
+      "lossless": true
+    }
+  ]
+}

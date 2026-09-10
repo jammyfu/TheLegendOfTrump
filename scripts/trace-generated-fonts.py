@@ -36,6 +36,12 @@ def trace(filename,chars,cols,face,latin=False):
   assert len(xs)==count,(filename,'columns',row,xs,count)
   for col,(x0,x1) in enumerate(xs):
    char=chars[row*cols+col]
+   # The narrow traced lowercase i merged its dot and stem at small UI sizes.
+   # Keep the companion outline from build-interface-fonts.py; it has a crisp,
+   # separate dot and is still recorded as intentional display coverage.
+   if latin and char == 'i':
+    items.append({'character':char,'box':list(map(int,[x0,y0,x1,y1])),'contours':0,'inlays':[],'preserved':'companion-outline'})
+    continue
    # All generated characters are traced after visual review.
    bitmap=mask[y0:y1,x0:x1].copy()
    if filename=='japanese-master.png': bitmap[:,:5]=0;bitmap[:,-5:]=0
