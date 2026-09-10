@@ -8,11 +8,11 @@
   "controls": ["keyboard and mouse", "touch controls"],
   "languages": ["zh-CN", "zh-HK", "en", "ja", "ko"],
   "localized_fact_pages": {
-    "zh-CN": "ai-game-development.html",
-    "zh-HK": "ai-game-development.zh-hk.html",
-    "en": "ai-game-development.en.html",
-    "ja": "ai-game-development.ja.html",
-    "ko": "ai-game-development.ko.html"
+    "zh-CN": "./ai-game-development.html",
+    "zh-HK": "./ai-game-development.zh-hk.html",
+    "en": "./ai-game-development.en.html",
+    "ja": "./ai-game-development.ja.html",
+    "ko": "./ai-game-development.ko.html"
   },
   "technology": ["React 19", "Three.js", "React Three Fiber", "TypeScript", "Vite"],
   "gameplay_features": {
