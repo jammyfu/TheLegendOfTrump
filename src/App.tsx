@@ -1,11 +1,10 @@
 import { EndingReward } from "./components/EndingReward";
-import { t } from "./game/i18n";
+import { t, getLanguage, subscribeLanguage, type Language } from "./game/i18n";
 import { PICKUP_LABELS } from "./game/pickup";
 import './components/PickupPresentation.css';
 import { uiClickFeedback, uiPointerFeedback } from "./game/uiFeedback";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { getAudioSettings } from "./game/audioSettings";
-import { getLanguage, subscribeLanguage } from "./game/i18n";
 import { syncSeoMetadata } from "./game/seo";
 import {
   Component,
@@ -24,6 +23,14 @@ import { Crest, GameIcon } from "./components/Icons";
 import { game } from "./game/simulation";
 import { bindInput, clearInput } from "./game/input";
 import { setAudio, unlockAudio } from "./game/audio";
+
+const ABOUT_PAGES = {
+  zh: "ai-game-development.html",
+  "zh-HK": "ai-game-development.zh-hk.html",
+  en: "ai-game-development.en.html",
+  ja: "ai-game-development.ja.html",
+  ko: "ai-game-development.ko.html",
+} as const satisfies Record<Language, string>;
 class SceneError extends Component<
   { children: ReactNode },
   { failed: boolean }
@@ -57,6 +64,7 @@ export default function App() {
   const [, render] = useState(0);
   const [settings, setSettings] = useState(false);
   const [help, setHelp] = useState(false);
+  const [about, setAbout] = useState(false);
   const sound = getAudioSettings().enabled;
   const language = useSyncExternalStore(subscribeLanguage, getLanguage);
   useEffect(() => {
@@ -78,7 +86,7 @@ export default function App() {
     };
   }, []);
   useEffect(() => {
-    if (!help && !settings) return;
+    if (!help && !settings && !about) return;
     clearInput();
     const block = (e: KeyboardEvent) => {
       e.stopImmediatePropagation();
@@ -86,11 +94,12 @@ export default function App() {
         e.preventDefault();
         setHelp(false);
         setSettings(false);
+        setAbout(false);
       }
     };
     window.addEventListener("keydown", block, true);
     return () => window.removeEventListener("keydown", block, true);
-  }, [help, settings]);
+  }, [help, settings, about]);
   const start = () => {
     unlockAudio();
     clearInput();
@@ -120,6 +129,7 @@ export default function App() {
         <TitleScreen
           onStart={start}
           onHelp={() => setHelp(true)}
+          onAbout={() => setAbout(true)}
           onSettings={() => setSettings(true)}
           sound={sound}
           onToggleSound={() => {
@@ -163,6 +173,10 @@ export default function App() {
                 <button className="secondary" onClick={() => setHelp(true)}>
                   <GameIcon name="book" />
                   {t("操作指南")}
+                </button>
+                <button className="secondary" onClick={() => setAbout(true)}>
+                  <GameIcon name="book" />
+                  {t("AI 制作说明")}
                 </button>
                 <button
                   className="secondary"
@@ -339,6 +353,35 @@ export default function App() {
               )}
             </p>
             <button className="primary" onClick={() => setHelp(false)}>
+              {t("明白了")}
+              <GameIcon name="arrow" />
+            </button>
+          </section>
+        </div>
+      )}
+      {about && (
+        <div className="modal-shade help-shade">
+          <section
+            className="menu-panel help-panel about-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("AI 制作说明")}
+          >
+            <button
+              className="close-button"
+              aria-label={t("关闭指南")}
+              onClick={() => setAbout(false)}
+            >
+              <GameIcon name="close" />
+            </button>
+            <span className="eyebrow">DEVELOPMENT NOTES</span>
+            <h2>{t("AI 制作说明")}</h2>
+            <iframe
+              className="about-frame"
+              title={t("AI 制作说明")}
+              src={import.meta.env.BASE_URL + ABOUT_PAGES[language]}
+            />
+            <button className="primary" onClick={() => setAbout(false)}>
               {t("明白了")}
               <GameIcon name="arrow" />
             </button>

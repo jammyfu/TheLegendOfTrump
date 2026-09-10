@@ -10,6 +10,7 @@ import "./TitleScreen.css";
 type Props = {
   onStart: () => void;
   onHelp: () => void;
+  onAbout: () => void;
   onSettings: () => void;
   sound: boolean;
   onToggleSound: () => void;
@@ -19,6 +20,7 @@ type Props = {
 export function TitleScreen({
   onStart,
   onHelp,
+  onAbout,
   onSettings,
   sound,
   onToggleSound,
@@ -126,12 +128,9 @@ export function TitleScreen({
           <GameIcon name="settings" />
           <span>{t("设置")}</span>
         </button>
-        <a
-          className="lt-about"
-          href={import.meta.env.BASE_URL + "ai-game-development.html"}
-        >
+        <button type="button" className="lt-about" onClick={onAbout}>
           {t("AI 制作说明")}
-        </a>
+        </button>
         <button
           onClick={onToggleSound}
           aria-label={sound ? t("关闭音效") : t("打开音效")}

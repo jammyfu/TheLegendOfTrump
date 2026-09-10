@@ -305,18 +305,22 @@
   min-height: 44px;
 }
 .lt-footer .lt-about {
+  appearance: none;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 46px;
   padding: 0 14px;
   border: 1px solid #a58f698c;
+  background: transparent;
   color: #e7cf91;
+  font-family: inherit;
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-decoration: none;
   text-shadow: 0 1px 8px #000;
+  cursor: pointer;
   transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
 }
 .lt-footer .lt-about:hover,
@@ -324,6 +328,7 @@
   color: #f0cf79;
   background: #f0cf791a;
   border-color: #f0cf79;
+  filter: none;
 }
 .lt-footer button span {
   font-size: 9px;
