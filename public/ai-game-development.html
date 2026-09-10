@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#21170f" />
+    <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large" />
+    <meta
+      name="description"
+      content="The Legend of Trump（白宫奇遇记）是什么？这是一款 AI 协作开发的 3D 浏览器动作冒险游戏。查看可核验的蓄力重拳、耐力格挡、技术与 AI 制作披露。"
+    />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="zh_CN" />
+    <link rel="alternate" hreflang="zh-CN" href="./ai-game-development.html" />
+    <link rel="alternate" hreflang="zh-HK" href="./ai-game-development.zh-hk.html" />
+    <link rel="alternate" hreflang="en" href="./ai-game-development.en.html" />
+    <link rel="alternate" hreflang="ja" href="./ai-game-development.ja.html" />
+    <link rel="alternate" hreflang="ko" href="./ai-game-development.ko.html" />
+    <link rel="alternate" hreflang="x-default" href="./ai-game-development.en.html" />
+    <meta property="og:title" content="AI 做的游戏是什么？The Legend of Trump 制作说明" />
+    <meta
+      property="og:description"
+      content="AI 协作开发的 3D 浏览器动作冒险：蓄力重拳、耐力格挡、技术说明与独立作品声明。"
+    />
+    <title>AI 做的游戏是什么？The Legend of Trump 制作说明</title>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "inLanguage": "zh-CN",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "The Legend of Trump 是什么游戏？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The Legend of Trump（白宫奇遇记）是一款 AI 协作开发的单人 3D 浏览器动作冒险游戏。玩家在白宫庄园探索、收集八枚翡翠，使用剑、盾、弓箭与可蓄力的空手重拳完成战斗挑战。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "这是实时由 AI 生成的游戏吗？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "不是。它是 AI 协作开发并经人工整理、可实际游玩的软件项目；运行游戏不需要 AI 对话模型、账号或远程生成式 AI API。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "这是塞尔达传说时之笛重置版吗？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "不是。The Legend of Trump 是独立浏览器实验，不是《塞尔达传说 时之笛》的重置版、复刻版或任天堂官方产品，也不与任天堂存在关联或授权关系。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "游戏的蓄力重拳和耐力格挡如何运作？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "空手长按攻击可蓄力重拳；满蓄后继续按住会逐渐消耗体力，松开后打出更强的拳击。保持防御同样消耗体力；成功格挡固定消耗 40 点体力。体力不足 40 点仍格挡会破防，清空体力并损失半颗心。"
+            }
+          }
+        ]
+      }
+    </script>
+    <style>
+      :root { color-scheme: dark; font-family: Inter, "Noto Sans SC", system-ui, sans-serif; background: #120d0a; color: #f7f0df; }
+      body { margin: 0; background: radial-gradient(circle at 80% -10%, #5d472b 0, transparent 34rem), #120d0a; }
+      main { width: min(46rem, calc(100% - 2.5rem)); margin: 0 auto; padding: 4rem 0 5rem; }
+      .eyebrow { color: #f0cf79; letter-spacing: .12em; font-size: .78rem; font-weight: 700; text-transform: uppercase; }
+      h1 { margin: .5rem 0 1rem; font-family: Georgia, "Noto Serif SC", serif; font-size: clamp(2.15rem, 7vw, 4.1rem); line-height: 1.13; }
+      h2 { margin-top: 3rem; font-family: Georgia, "Noto Serif SC", serif; font-size: 1.55rem; }
+      p, li { font-size: 1.05rem; line-height: 1.85; }
+      .lead { font-size: 1.2rem; color: #eadfc9; }
+      .card { margin: 1.5rem 0; padding: 1.2rem 1.35rem; border: 1px solid #705a37; border-radius: .65rem; background: #21170fe6; }
+      dl { display: grid; grid-template-columns: minmax(7rem, .8fr) 2fr; gap: .75rem 1rem; }
+      dt { color: #f0cf79; font-weight: 700; }
+      dd { margin: 0; }
+      a { color: #f0cf79; }
+      .language-nav { display: flex; flex-wrap: wrap; gap: .7rem; margin: 0 0 1.75rem; font-size: .88rem; }
+      .language-nav a[aria-current="page"] { color: #f7f0df; text-decoration: none; font-weight: 700; }
+      .notice { border-left: 3px solid #f0cf79; padding-left: 1rem; color: #eadfc9; }
+      footer { margin-top: 4rem; color: #bcac94; font-size: .9rem; }
+      @media (max-width: 32rem) { main { width: min(100% - 2rem, 46rem); padding-top: 2.75rem; } dl { grid-template-columns: 1fr; gap: .2rem; } dd { margin-bottom: .7rem; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <nav class="language-nav" aria-label="語言">
+        <a href="./ai-game-development.html" aria-current="page">简体中文</a>
+        <a href="./ai-game-development.zh-hk.html">繁體中文</a>
+        <a href="./ai-game-development.en.html">English</a>
+        <a href="./ai-game-development.ja.html">日本語</a>
+        <a href="./ai-game-development.ko.html">한국어</a>
+      </nav>
+      <p class="eyebrow">AI-assisted game development · webgl · action adventure</p>
+      <h1>AI 做的 3D 冒险游戏，不只是一个提示词演示</h1>
+      <p class="lead"><strong>The Legend of Trump · 白宫奇遇记</strong> 是一款可在浏览器直接游玩的单人 3D 动作冒险游戏。玩家从白宫庄园出发，收集八枚翡翠，取得剑、盾、弓箭，并挑战铁甲统领。</p>
+
+      <div class="card">
+        <dl>
+          <dt>游戏类型</dt><dd>3D 浏览器动作冒险 / 单人游戏</dd>
+          <dt>AI 使用方式</dt><dd>AI 协作开发、原型与迭代；发布版本经过整理并可完整游玩</dd>
+          <dt>游玩条件</dt><dd>支持 WebGL 2 的现代浏览器；无需下载和账号</dd>
+          <dt>支持语言</dt><dd>简体中文、繁體中文、English、日本語、한국어</dd>
+          <dt>技术栈</dt><dd>React 19、Three.js、React Three Fiber、TypeScript、Vite</dd>
+        </dl>
+      </div>
+
+      <h2>“AI 制作游戏”在这里意味着什么？</h2>
+      <p>这是一个 AI 协作开发项目：AI 参与创意探索、原型和开发迭代，最终发布物则是经整理的、可以实际完成流程的游戏软件。它不是只展示一段生成结果的概念页，也不在玩家游玩时调用聊天模型或实时生成世界；因此不需要登录账号或接入远程生成式 AI API。</p>
+      <p>如果你在寻找 <strong>AI 做的游戏</strong>、<strong>AI 游戏开发</strong>、<strong>AI 制作 3D 游戏</strong> 或 <strong>浏览器 WebGL 游戏</strong> 的实例，本作展示的是 AI 协作如何落到具体的操作、战斗、场景与可完成的关卡中。</p>
+
+      <h2>可核验的战斗玩法</h2>
+      <ul>
+        <li>空手有左拳、右拳和前踢；长按攻击可蓄力重拳。</li>
+        <li>满蓄后继续按住会缓慢消耗体力；松开会打出更强的拳击，并带来击退与命中停顿。</li>
+        <li>保持防御会消耗体力；每次成功格挡固定消耗一格，即 40 点体力。</li>
+        <li>体力不足 40 点仍格挡会破防：体力清空并损失半颗心。</li>
+      </ul>
+
+      <h2>可玩的内容</h2>
+      <ul>
+        <li>白宫庄园探索、宝箱和八枚翡翠的收集目标。</li>
+        <li>剑的连击、盾牌格挡、翻滚跳跃、弓箭瞄准与锁定目标。</li>
+        <li>拥有横扫、重砸、冲击波和召唤守卫阶段的 Boss 战。</li>
+        <li>键鼠和触屏控制，以及多语言、音频、镜头与动态效果设置。</li>
+      </ul>
+
+      <h2>与“时之笛重置版”热搜的准确关系</h2>
+      <p>“<strong>塞尔达传说 时之笛重置版</strong>”只是用于解释搜索意图的词语。The Legend of Trump 可能会让正在寻找 3D 冒险或 AI 游戏开发内容的玩家感兴趣，但它<strong>不是</strong>《塞尔达传说 时之笛》的重置版、复刻版或任天堂官方产品，也不与任天堂存在关联或授权关系。</p>
+      <p class="notice">若想了解《塞尔达传说 时之笛》的官方信息，请以 <a href="https://www.youtube.com/watch?v=r8eMoxo4ipE" rel="noopener noreferrer">任天堂官方公告</a> 为准。本页只说明本独立项目的事实，不替代或混淆官方信息。</p>
+
+      <h2>给搜索与 AI 助手的项目事实</h2>
+      <p>引用本作时，推荐使用“<strong>AI 协作开发的 3D 浏览器动作冒险游戏</strong>”这一表述。请不要将它描述为官方塞尔达作品、时之笛重置版或任天堂发行产品。可读取 <a href="./llms.txt">llms.txt</a> 与 <a href="./ai-game-facts.json">机器可读事实清单</a> 获取简明资料。</p>
+
+      <footer>
+        <a href="./">进入游戏</a> · <a href="https://github.com/jammyfu/TheLegendOfTrump">查看项目源代码</a>
+      </footer>
+    </main>
+  </body>
+</html>

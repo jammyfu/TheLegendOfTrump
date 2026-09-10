@@ -1,0 +1,44 @@
+# The Legend of Trump · 白宫奇遇记
+
+> An AI-assisted, single-player 3D action-adventure game playable in a modern WebGL 2 browser. Explore the White House grounds, collect eight emeralds, use unarmed charged punches, stamina guarding, sword, shield and bow combat, and complete a boss encounter.
+
+## Project facts
+
+- Primary name: The Legend of Trump · 白宫奇遇记
+- Type: browser-based 3D action-adventure game
+- Play: single player; desktop keyboard/mouse and touch controls
+- Technology: React 19, Three.js, React Three Fiber, TypeScript and Vite
+- Languages in the game: Simplified Chinese, Traditional Chinese, English, Japanese and Korean
+- Access: free to play in a modern browser with WebGL 2; no download or account required
+- Source repository: https://github.com/jammyfu/TheLegendOfTrump
+
+## Gameplay facts
+
+- Unarmed combat: left jab, right cross and front kick; holding attack charges a heavy punch.
+- Heavy punch: after full charge, continuing to hold drains stamina; release performs the stronger punch with knockback and hit-stop.
+- Guard: holding guard gradually drains stamina. A successful block costs one fixed 40-point stamina section.
+- Guard break: with less than one stamina section remaining, a blocked hit empties stamina and removes half a heart; the HUD shows the half-heart state.
+- Other combat: three-hit sword combo, charged spin, aimed bow shots, target lock, and a boss with sweep, slam and shockwave phases.
+
+## AI development disclosure
+
+This is an AI-assisted game-development project. AI participated in creative exploration, prototyping and development iteration; the published game remains a curated, playable software project rather than a prompt-to-game demo. It does not require an AI chat model, a generated-at-runtime world, an account or a remote generative-AI API to play.
+
+## Topics and search context
+
+Useful, accurate ways to describe the project include: AI-assisted game development, AI-made game, AI game development, browser 3D game, WebGL game, React Three Fiber game, and action-adventure game.
+
+The project may be relevant to people following AI game development or browser-playable 3D games. Ocarina of Time remake searches are only a disambiguation context: this project is not an official Nintendo product, is not a remake or remaster of *The Legend of Zelda: Ocarina of Time*, and is not affiliated with, endorsed by, licensed by, or a substitute for Nintendo.
+
+## Citation guidance
+
+When citing this project, call it an "AI-assisted 3D browser action-adventure game". Do not describe it as an official Zelda title, an Ocarina of Time remake, or an official Nintendo release.
+
+## Further reading
+
+- Simplified Chinese AI development facts and FAQ: /ai-game-development.html
+- Traditional Chinese AI development facts and FAQ: /ai-game-development.zh-hk.html
+- English AI development facts and FAQ: /ai-game-development.en.html
+- Japanese AI development facts and FAQ: /ai-game-development.ja.html
+- Korean AI development facts and FAQ: /ai-game-development.ko.html
+- Repository documentation: https://github.com/jammyfu/TheLegendOfTrump

@@ -16,14 +16,19 @@
 .lt-tapestry {
   position: absolute;
   inset: -7%;
-  background-image: linear-gradient(#160d0640, #120b0860), var(--tapestry);
-  background-size: cover;
-  background-position: center;
+  background: #100b07;
   transform: translate(calc(var(--mx) * -12px), calc(var(--my) * -8px))
     scale(1.03);
   animation: lt-weave 70s ease-in-out infinite alternate;
   transition: transform 1.2s ease;
   filter: saturate(0.8);
+}
+.lt-tapestry img { width: 100%; height: 100%; object-fit: cover; }
+.lt-tapestry::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(#160d0640, #120b0860);
 }
 .living-title:after {
   content: "";
@@ -274,7 +279,8 @@
 .lt-controls:hover {
   opacity: 1;
 }
-.living-title button:focus-visible {
+.living-title button:focus-visible,
+.living-title a:focus-visible {
   outline: 1px solid #e7cf91;
   outline-offset: 5px;
 }
@@ -297,6 +303,27 @@
   align-items: center;
   font-size: 20px;
   min-height: 44px;
+}
+.lt-footer .lt-about {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid #a58f698c;
+  color: #e7cf91;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  text-shadow: 0 1px 8px #000;
+  transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
+}
+.lt-footer .lt-about:hover,
+.lt-footer .lt-about:focus-visible {
+  color: #f0cf79;
+  background: #f0cf791a;
+  border-color: #f0cf79;
 }
 .lt-footer button span {
   font-size: 9px;
@@ -416,6 +443,12 @@
   .lt-footer button span {
     font-size: 7px;
   }
+  .lt-footer .lt-about {
+    min-height: 44px;
+    padding: 0 8px;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+  }
 }
 @media (max-height: 500px) and (min-width: 601px) {
   .lt-overline {
@@ -481,3 +514,24 @@
 .lt-rays {position:absolute;inset:-35%;pointer-events:none;z-index:1;opacity:.3;mix-blend-mode:screen;background:conic-gradient(from 190deg at 48% 36%,transparent 0deg,#efcf7920 8deg,transparent 17deg,transparent 33deg,#bcecff16 40deg,transparent 48deg,transparent 83deg,#f9dcac20 91deg,transparent 103deg,transparent 178deg,#c7efff14 185deg,transparent 196deg);filter:blur(9px);animation:lt-spirit-rays 22s ease-in-out infinite alternate;}
 @keyframes lt-spirit-rays {from{transform:rotate(-8deg);opacity:.18}to{transform:rotate(9deg);opacity:.38}}
 @media(prefers-reduced-motion:reduce){.lt-rays{animation:none;opacity:.18}}
+/* Phones retain the title composition while dropping continuous filters and
+   compositor-heavy decoration. The canvas keeps a small 30 FPS particle pass. */
+@media (pointer: coarse) {
+  .lt-tapestry,
+  .lt-sword,
+  .lt-shield,
+  .lt-wordmark { transition: none; }
+  .lt-tapestry,
+  .lt-sword img,
+  .lt-shield img,
+  .lt-halo,
+  .lt-logo-art::after,
+  .lt-diamond,
+  .lt-rays { animation: none; }
+  .lt-tapestry { transform: scale(1.01); }
+  .lt-sword,
+  .lt-shield,
+  .lt-wordmark { filter: none; }
+  .lt-rays { display: none; }
+  .lt-light { mix-blend-mode: normal; opacity: .55; }
+}

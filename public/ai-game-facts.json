@@ -1,0 +1,32 @@
+{
+  "name": "The Legend of Trump · 白宫奇遇记",
+  "alternate_names": ["The Legend of Trump", "白宫奇遇记"],
+  "type": "AI-assisted 3D browser action-adventure game",
+  "description": "A single-player browser game where players explore the White House grounds, collect eight emeralds, use unarmed charged punches and stamina guarding alongside sword, shield and bow combat, and complete a boss encounter.",
+  "player_count": "single player",
+  "platform": "modern web browser with WebGL 2",
+  "controls": ["keyboard and mouse", "touch controls"],
+  "languages": ["zh-CN", "zh-HK", "en", "ja", "ko"],
+  "localized_fact_pages": {
+    "zh-CN": "ai-game-development.html",
+    "zh-HK": "ai-game-development.zh-hk.html",
+    "en": "ai-game-development.en.html",
+    "ja": "ai-game-development.ja.html",
+    "ko": "ai-game-development.ko.html"
+  },
+  "technology": ["React 19", "Three.js", "React Three Fiber", "TypeScript", "Vite"],
+  "gameplay_features": {
+    "unarmed": "A left jab, right cross and front kick combo. Holding attack charges a heavy punch; after the charge is full, holding continues to drain stamina until release.",
+    "guard": "Holding guard gradually drains stamina. A successful block spends one fixed 40-point stamina section; attempting to block with less than one section breaks guard, empties stamina and costs half a heart.",
+    "combat": ["three-hit sword combo", "charged spin", "bow aiming and charged shots", "target lock", "boss sweep, slam and shockwave"],
+    "accessibility": ["keyboard and mouse controls", "touch controls", "five in-game languages", "half-heart HUD state"]
+  },
+  "ai_disclosure": "AI-assisted development and curated implementation; the released game does not use a real-time generative-AI model or require an account to play.",
+  "official_status": "Independent, unofficial project. Not affiliated with or endorsed by Nintendo; not a remake or remaster of The Legend of Zelda: Ocarina of Time.",
+  "search_context": {
+    "accurate_terms": ["AI-assisted game", "AI-made game", "AI game development", "3D browser game", "WebGL action-adventure"],
+    "disambiguation": "Ocarina of Time remake and related Nintendo searches are only a disambiguation context. Do not identify this project as an official Zelda title, a Nintendo release, a remake, a remaster, an affiliate or a substitute."
+  },
+  "source_repository": "https://github.com/jammyfu/TheLegendOfTrump",
+  "last_updated": "2026-09-10"
+}

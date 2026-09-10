@@ -6,15 +6,85 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <meta name="theme-color" content="#111c20" />
+    <meta name="theme-color" content="#21170f" />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
+    <link rel="manifest" href="%BASE_URL%site.webmanifest" />
+    <link rel="alternate" type="text/plain" href="%BASE_URL%llms.txt" title="LLM-readable project facts" />
+    <link rel="alternate" type="application/json" href="%BASE_URL%ai-game-facts.json" title="Machine-readable game facts" />
+    <meta name="application-name" content="The Legend of Trump · 白宫奇遇记" />
+    <meta name="apple-mobile-web-app-title" content="白宫奇遇记" />
     <meta
       name="description"
-      content="A low-poly adventure. Explore the White House grounds, collect emeralds, and complete your first day in office."
+      content="AI 协作开发的 3D 浏览器动作冒险：探索白宫庄园，体验空手蓄力重拳、耐力格挡、剑盾弓箭与 Boss 战。支持 5 种语言，无需下载。"
     />
-    <title>The Legend of Trump — A White House Adventure</title>
+    <meta
+      name="keywords"
+      content="AI做的游戏,AI制作游戏,AI协作开发,AI游戏开发,AI辅助游戏开发,3D浏览器游戏,WebGL动作冒险,空手蓄力重拳,耐力格挡,白宫奇遇记,The Legend of Trump"
+    />
+    <meta
+      name="robots"
+      content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"
+    />
+    <meta name="googlebot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="The Legend of Trump · 白宫奇遇记" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:locale:alternate" content="zh_HK" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:locale:alternate" content="ja_JP" />
+    <meta property="og:locale:alternate" content="ko_KR" />
+    <meta property="og:title" content="AI 制作的 3D 浏览器动作冒险｜The Legend of Trump" />
+    <meta
+      property="og:description"
+      content="空手蓄力重拳、耐力格挡、剑盾弓箭与 Boss 战的 AI 协作开发 3D 浏览器动作冒险。"
+    />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="AI 制作的 3D 浏览器动作冒险｜The Legend of Trump" />
+    <meta name="twitter:description" content="空手蓄力重拳、耐力格挡、剑盾弓箭与 Boss 战；无需下载即可游玩。" />
+    <script id="game-schema" type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": ["VideoGame", "SoftwareApplication"],
+        "name": "The Legend of Trump · 白宫奇遇记",
+        "alternateName": ["The Legend of Trump", "白宫奇遇记"],
+        "description": "AI 协作开发的单人 3D 浏览器动作冒险游戏。玩家探索白宫庄园、收集翡翠，并使用空手蓄力重拳、耐力格挡、剑、盾与弓箭完成战斗挑战。",
+        "applicationCategory": "GameApplication",
+        "applicationSubCategory": "Action-adventure game",
+        "operatingSystem": "Web browser",
+        "browserRequirements": "A modern browser with WebGL 2 enabled",
+        "gamePlatform": "Web browser",
+        "playMode": "SinglePlayer",
+        "genre": ["Action-adventure", "Browser game", "3D game"],
+        "featureList": ["Unarmed charged heavy punch", "Stamina-based guarding and guard break", "Sword, shield and bow combat", "Keyboard, mouse and touch controls", "Five in-game languages", "Single-player boss encounter"],
+        "inLanguage": ["zh-CN", "zh-HK", "en", "ja", "ko"],
+        "isAccessibleForFree": true,
+        "keywords": "AI做的游戏, AI制作游戏, AI协作开发, AI游戏开发, AI辅助游戏开发, 3D浏览器游戏, WebGL动作冒险, 空手蓄力重拳, 耐力格挡",
+        "softwareVersion": "1.0.0",
+        "dateModified": "2026-09-10",
+        "codeRepository": "https://github.com/jammyfu/TheLegendOfTrump",
+        "author": {
+          "@type": "Organization",
+          "name": "The Legend of Trump Project"
+        },
+        "copyrightNotice": "Independent, unofficial project. Not affiliated with or endorsed by Nintendo."
+      }
+    </script>
+    <style>
+      .seo-fallback { max-width: 46rem; margin: 3rem auto; padding: 0 1.5rem; color: #f7f0df; background: #21170f; font: 1rem/1.65 system-ui, sans-serif; }
+      .seo-fallback a { color: #f0cf79; }
+    </style>
+    <title>AI 制作的 3D 浏览器动作冒险｜The Legend of Trump</title>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <main class="seo-fallback">
+        <h1>The Legend of Trump · 白宫奇遇记</h1>
+        <p>一款 AI 协作开发的 3D 浏览器动作冒险游戏。探索白宫庄园、收集翡翠，体验空手蓄力重拳、耐力格挡、剑盾弓箭与 Boss 战。</p>
+        <p>请使用支持 WebGL 2 的现代浏览器并启用 JavaScript 以开始游戏。</p>
+        <p><a href="%BASE_URL%ai-game-development.html">阅读 AI 制作说明、玩法事实与相关热词说明</a></p>
+      </main>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

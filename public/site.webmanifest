@@ -1,0 +1,20 @@
+{
+  "name": "The Legend of Trump · 白宫奇遇记",
+  "short_name": "白宫奇遇记",
+  "description": "AI 协作开发的 3D 浏览器动作冒险游戏。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#21170f",
+  "theme_color": "#21170f",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

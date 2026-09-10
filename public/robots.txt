@@ -1,0 +1,3 @@
+# Public game pages and machine-readable project facts are intentionally crawlable.
+User-agent: *
+Allow: /
