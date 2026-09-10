@@ -68,6 +68,14 @@ export default function App() {
   const sound = getAudioSettings().enabled;
   const language = useSyncExternalStore(subscribeLanguage, getLanguage);
   useEffect(() => {
+    const preventGameSelection = (event: Event) => {
+      const target = event.target instanceof Element ? event.target : event.target instanceof Node ? event.target.parentElement : null;
+      if (target?.closest('.game') && !target.closest('input, textarea, [contenteditable="true"]')) event.preventDefault();
+    };
+    document.addEventListener('selectstart', preventGameSelection, true);
+    return () => document.removeEventListener('selectstart', preventGameSelection, true);
+  }, []);
+  useEffect(() => {
     document.documentElement.lang = language === "zh" ? "zh-CN" : language;
     syncSeoMetadata(language);
   }, [language]);
@@ -112,6 +120,10 @@ export default function App() {
   const title = game.phase === "title";
   return (
     <main
+      translate="no"
+      onContextMenuCapture={(event) => {
+        if (!(event.target instanceof Element) || !event.target.closest('input, textarea, [contenteditable="true"]')) event.preventDefault();
+      }}
       className={title ? "game title-mode" : "game"}
       onClick={(event) => uiClickFeedback(event.target, event.detail)}
       onPointerDownCapture={(event) =>
@@ -233,7 +245,7 @@ export default function App() {
               <section className="menu-panel result-panel">
                 <Crest />
                 <span className="eyebrow">
-                  {game.phase === "won" ? "CHAPTER COMPLETE" : "TRY AGAIN"}
+                  {t(game.phase === "won" ? "篇章完成" : "再试一次")}
                 </span>
                 <h2>
                   {game.phase === "won"

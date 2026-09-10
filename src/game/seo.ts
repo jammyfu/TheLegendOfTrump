@@ -11,18 +11,18 @@ type SeoCopy = {
 const copy: Record<Language, SeoCopy> = {
   zh: {
     language: "zh-CN",
-    title: "AI 制作的 3D 浏览器动作冒险｜The Legend of Trump",
+    title: "懂王传说｜开局一把木剑，挑战白宫 Boss",
     description:
-      "AI 协作开发的 3D 浏览器动作冒险：探索白宫庄园，体验空手蓄力重拳、耐力格挡、剑盾弓箭与 Boss 战。支持 5 种语言，无需下载。",
+      "探索白宫、开箱升级、破解机关，手机打开就能玩。",
     keywords:
       "AI做的游戏,AI制作游戏,AI协作开发,AI游戏开发,AI辅助游戏开发,3D浏览器游戏,WebGL动作冒险,空手蓄力重拳,耐力格挡,白宫奇遇记",
     name: "The Legend of Trump · 白宫奇遇记",
   },
   "zh-HK": {
     language: "zh-HK",
-    title: "AI 製作的 3D 瀏覽器動作冒險｜The Legend of Trump",
+    title: "懂王傳說｜開局一把木劍，挑戰白宮 Boss",
     description:
-      "AI 協作開發的 3D 瀏覽器動作冒險：探索白宮莊園，體驗空手蓄力重拳、耐力格擋、劍盾弓箭與 Boss 戰。支援 5 種語言，毋須下載。",
+      "探索白宮、開箱升級、破解機關，手機打開就能玩。",
     keywords:
       "AI製作遊戲,AI協作開發,AI遊戲開發,AI輔助遊戲開發,3D瀏覽器遊戲,WebGL動作冒險,空手蓄力重拳,耐力格擋,白宮奇遇記",
     name: "The Legend of Trump · 白宮奇遇記",
