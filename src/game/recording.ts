@@ -1,6 +1,8 @@
 import {
   appendRecord,
   checkpointId,
+  decodeSaveData,
+  encodeSaveData,
   listRecords,
   type Checkpoint,
 } from "./checkpoints";
@@ -40,25 +42,14 @@ export const recordingFrameCount = (record: RecordingRecord) =>
 
 // State-assisted replay: inputs remain inspectable, while authoritative deltas
 // preserve AI/random outcomes without rerunning a potentially changed engine.
-const fingerprint = (value: unknown) =>
-  JSON.stringify(value, (_key, v) =>
-    v === undefined
-      ? { $undefined: true }
-      : Object.is(v, -0)
-        ? { $negativeZero: true }
-        : v instanceof Set
-          ? { $set: [...v] }
-          : v instanceof Map
-            ? { $map: [...v] }
-            : v,
-  );
+const fingerprint = encodeSaveData;
 
 export async function packRecording(
   chunk: RecordingChunk,
 ): Promise<RecordingRecord> {
   if (typeof CompressionStream === "undefined") return chunk;
   const data = await new Response(
-    new Blob([fingerprint(chunk)])
+    new Blob([encodeSaveData(chunk)])
       .stream()
       .pipeThrough(new CompressionStream("gzip")),
   ).blob();
@@ -81,18 +72,7 @@ export async function unpackRecording(
   const json = await new Response(
     record.data.stream().pipeThrough(new DecompressionStream("gzip")),
   ).text();
-  const decode = (v: any): any => {
-    if (!v || typeof v !== "object") return v;
-    if (v.$undefined === true) return undefined;
-    if (v.$negativeZero === true) return -0;
-    if (Array.isArray(v.$set)) return new Set(v.$set.map(decode));
-    if (Array.isArray(v.$map)) return new Map(v.$map.map(decode));
-    if (Array.isArray(v)) return v.map(decode);
-    return Object.fromEntries(
-      Object.entries(v).map(([key, value]) => [key, decode(value)]),
-    );
-  };
-  return decode(JSON.parse(json));
+  return decodeSaveData(json) as RecordingChunk;
 }
 
 export class Recorder {
@@ -215,7 +195,9 @@ export class Recorder {
   }
   async list() {
     await this.flush();
-    return listRecords<RecordingRecord>("recordings");
+    return Promise.all(
+      (await listRecords<RecordingRecord>("recordings")).map(unpackRecording),
+    );
   }
   async play(records: RecordingRecord[]) {
     await this.flush();

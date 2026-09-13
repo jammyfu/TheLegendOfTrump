@@ -1,11 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { game } from "../game/simulation";
 import { clearInput, releaseMouse } from "../game/input";
-import { listCheckpoints, type Checkpoint } from "../game/checkpoints";
+import {
+  chooseSaveFolder,
+  listCheckpoints,
+  saveFolderName,
+  type Checkpoint,
+} from "../game/checkpoints";
 import {
   recorder,
   recordingFrameCount,
-  type RecordingRecord,
+  type RecordingChunk,
 } from "../game/recording";
 import "./CheckpointPanel.css";
 
@@ -13,7 +18,8 @@ export function CheckpointPanel() {
   const dialog = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState(false);
   const [saves, setSaves] = useState<Checkpoint[]>([]);
-  const [chunks, setChunks] = useState<RecordingRecord[]>([]);
+  const [chunks, setChunks] = useState<RecordingChunk[]>([]);
+  const [folder, setFolder] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [, render] = useState(0);
@@ -21,14 +27,16 @@ export function CheckpointPanel() {
     setBusy(true);
     setError("");
     try {
-      const [s, r] = await Promise.all([
+      const [s, r, selectedFolder] = await Promise.all([
         listCheckpoints(),
         recorder?.list() ?? [],
+        saveFolderName(),
       ]);
       setSaves(s);
       setChunks(r);
+      setFolder(selectedFolder);
     } catch {
-      setError("无法读取本地存储，请检查浏览器权限或存储空间。");
+      setError("无法读取本地存档文件夹，请重新选择并授权文件夹。");
     } finally {
       setBusy(false);
     }
@@ -123,8 +131,9 @@ export function CheckpointPanel() {
           <button onClick={close}>关闭</button>
         </header>
         <p>
-          仅保存在当前浏览器。接敌前 /
-          击败后独立存档，旧记录不会覆盖。加载后暂停，按 Esc 继续。
+          文件保存在所选本地文件夹的 checkpoints / recordings
+          子目录中。浏览器只保存文件夹授权；旧记录不会覆盖。加载后暂停，按 Esc
+          继续。
         </p>
         <p>
           操作记录每 5
@@ -136,6 +145,23 @@ export function CheckpointPanel() {
         </p>
         <button disabled={busy} onClick={() => void refresh()}>
           {busy ? "读取中…" : "刷新记录"}
+        </button>
+        <button
+          disabled={busy}
+          onClick={async () => {
+            setBusy(true);
+            setError("");
+            try {
+              setFolder(await chooseSaveFolder());
+              await refresh();
+            } catch (e) {
+              setError(e instanceof Error ? e.message : "选择存档文件夹失败");
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          {folder ? `更改存档文件夹（${folder}）` : "选择本地存档文件夹"}
         </button>
         <h3>存档（{saves.length}）</h3>
         {!saves.length && <p>暂无存档，接近敌人后自动生成。</p>}
