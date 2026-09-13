@@ -39,7 +39,7 @@ export function parseDebugOptions(search: string): DebugOptions {
       : null;
   return {
     enabled:
-      modes.size > 0 ||
+      params.has('debug') || modes.size > 0 ||
       ["boss", "god", "invincible", "kit", "noMinions", "noGuards", "bossHp"].some((key) => params.has(key)),
     boss,
     invincible,

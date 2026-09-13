@@ -1,0 +1,97 @@
+.checkpoint-toggle {
+  position: fixed;
+  bottom: 8px;
+  left: 8px;
+  z-index: 150;
+  font:
+    12px system-ui,
+    sans-serif;
+  padding: 8px;
+}
+.checkpoint-panel {
+  width: min(700px, calc(100vw - 24px));
+  max-height: 80dvh;
+  overflow: auto;
+  box-sizing: border-box;
+  background: #17202a;
+  color: #eef3fa;
+  border: 1px solid #8babc2;
+  border-radius: 12px;
+  padding: 20px;
+  font:
+    14px/1.6 system-ui,
+    sans-serif;
+}
+.checkpoint-panel::backdrop {
+  background: #000b;
+}
+.checkpoint-panel header,
+.checkpoint-panel li,
+.checkpoint-playback {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.checkpoint-panel h2 {
+  font:
+    bold 20px system-ui,
+    sans-serif;
+  margin: 0;
+}
+.checkpoint-panel h3 {
+  font:
+    bold 16px system-ui,
+    sans-serif;
+}
+.checkpoint-panel ul {
+  padding: 0;
+  list-style: none;
+}
+.checkpoint-panel li {
+  border-top: 1px solid #ffffff25;
+  padding: 12px 0;
+}
+.checkpoint-panel small {
+  display: block;
+  color: #b7c8dc;
+}
+.checkpoint-panel button,
+.checkpoint-playback button {
+  font:
+    14px system-ui,
+    sans-serif;
+  flex-shrink: 0;
+  padding: 8px 12px;
+  color: #fff;
+  background: #334e68;
+  border: 1px solid #90aec9;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.checkpoint-panel button:disabled {
+  opacity: 0.5;
+}
+.checkpoint-panel [role="status"] {
+  color: #ffd581;
+}
+.checkpoint-replay-shield {
+  position: fixed;
+  inset: 0;
+  z-index: 160;
+}
+.checkpoint-playback {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(100vw - 24px);
+  box-sizing: border-box;
+  background: #17202aee;
+  color: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  font:
+    14px system-ui,
+    sans-serif;
+}

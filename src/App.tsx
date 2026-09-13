@@ -1,4 +1,5 @@
 import { EndingReward } from "./components/EndingReward";
+import { CheckpointPanel } from './components/CheckpointPanel';
 import { t, getLanguage, subscribeLanguage, type Language } from "./game/i18n";
 import { PICKUP_LABELS } from "./game/pickup";
 import './components/PickupPresentation.css';
@@ -136,6 +137,7 @@ export default function App() {
         <Scene />
       </SceneError>
       <div className="film-grain" />
+      {game.debug.enabled && <CheckpointPanel />}
       <div className="vignette" />
       {title ? (
         <TitleScreen

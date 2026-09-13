@@ -24,6 +24,7 @@ import {
 import { ATTACKS, COMBO_GRACE, SPIN } from "./combat";
 import { AERIAL, type AerialAttack } from "./aerialCombat";
 import { debugOptions } from "./debug";
+import { appendCheckpoint, checkpointId, type Checkpoint } from './checkpoints';
 import { HEAVY_PUNCH, HEAVY_PUNCH_STAGE, UNARMED } from "./unarmed";
 import { PICKUP_DURATION, type PickupItem } from "./pickup";
 import {
@@ -152,6 +153,77 @@ export type SoundEvent =
   | "door"
   | "win";
 export class Simulation {
+  checkpointWriter: ((save: Checkpoint) => Promise<void>) | null =
+    typeof indexedDB === 'undefined' ? null : appendCheckpoint;
+  checkpointStatus = '';
+  checkpointRun = checkpointId();
+  checkpointSeen = new Set<string>();
+  private checkpointPending = 0;
+  private checkpointError = false;
+  private checkpointOmitted = new Set(['debug', 'checkpointWriter', 'checkpointStatus',
+    'checkpointPending', 'checkpointError', 'checkpointOmitted', 'version', 'events']);
+
+  createCheckpoint(reason: Checkpoint['reason'], enemies: string[]): Checkpoint {
+    const state = structuredClone(Object.fromEntries(Object.entries(this)
+      .filter(([key, value]) => !this.checkpointOmitted.has(key) && typeof value !== 'function')));
+    return { schema: 1, id: checkpointId(), run: this.checkpointRun, createdAt: Date.now(),
+      reason, enemies, zone: this.zone, difficulty: this.difficulty,
+      elapsed: this.elapsed, hp: this.hp, state };
+  }
+
+  private saveCheckpoint(reason: Checkpoint['reason'], enemies: string[]) {
+    if (!this.checkpointWriter) return;
+    const save = this.createCheckpoint(reason, enemies);
+    if (!this.checkpointPending) this.checkpointError = false;
+    this.checkpointPending++;
+    this.checkpointStatus = '正在保存进度…';
+    const writer = this.checkpointWriter;
+    void Promise.resolve().then(() => writer(save)).catch(() => {
+      if (!this.checkpointError) this.notify('自动存档失败，请检查浏览器存储空间');
+      this.checkpointError = true;
+    }).finally(() => {
+      this.checkpointPending--;
+      this.checkpointStatus = this.checkpointError ? '自动存档失败，请检查浏览器存储空间' :
+        this.checkpointPending ? '正在保存进度…' : '进度已保存';
+    });
+  }
+
+  loadCheckpoint(save: Checkpoint) {
+    if (save.schema !== 1 || !save.state || typeof save.state !== 'object') throw new Error('不支持的存档版本');
+    const state = structuredClone(save.state);
+    const fresh = new Simulation();
+    const valid = (value: unknown, template: unknown): boolean => {
+      if (typeof template === 'number') return typeof value === 'number' && Number.isFinite(value);
+      if (template === null) return value === null || typeof value === 'string' || typeof value === 'number' && Number.isFinite(value) || typeof value === 'object';
+      if (template instanceof Set) return value instanceof Set;
+      if (template instanceof Map) return value instanceof Map;
+      if (Array.isArray(template)) return Array.isArray(value) && (!template.length || value.every(v => valid(v, template[0])));
+      if (template && typeof template === 'object') return !!value && typeof value === 'object' && Object.entries(template).every(([k, v]) => v === undefined || valid((value as Record<string, unknown>)[k], v));
+      return typeof value === typeof template;
+    };
+    for (const [key, template] of Object.entries(fresh)) {
+      if (this.checkpointOmitted.has(key)) continue;
+      if (!Object.hasOwn(state, key) || !valid(state[key], template)) throw new Error('存档数据不完整');
+    }
+    if (!['grounds', 'office'].includes(state.zone as string) || !['normal', 'hard'].includes(state.difficulty as string)
+      || !['none', 'sword', 'bow'].includes(state.weapon as string) || Number(state.hp) <= 0 || Number(state.hp) > 3
+      || ![0, 1, 2, 3].includes(Number(state.combo))) throw new Error('存档状态无效');
+    const boss = new Boss(state.difficulty as Difficulty);
+    for (const key of Object.keys(boss)) Object.assign(boss, { [key]: (state.boss as Record<string, unknown>)[key] });
+    for (const key of Object.keys(fresh)) {
+      if (!this.checkpointOmitted.has(key) && key !== 'boss')
+        Object.assign(this, { [key]: state[key] });
+    }
+    this.boss = boss;
+    this.phase = 'paused';
+    this.cancelCombo();
+    this.cancelCharge();
+    this.rush = null; this.rushTime = 0; this.rushHits.clear();
+    this.moving = this.sprinting = this.guarding = this.aiming = false;
+    this.lastInput = { x: 0, z: 0, sprint: false };
+    this.events = [];
+    this.version++;
+  }
   readonly debug = debugOptions;
   phase: Phase = "title";
   zone: Zone = "grounds";
@@ -784,6 +856,8 @@ export class Simulation {
     this.guarding = this.aiming = false;
   }
   start() {
+    this.checkpointRun = checkpointId();
+    this.checkpointSeen.clear();
     this.rush = null; this.rushTime = 0; this.rushRebounding = false;
     this.rushHits.clear(); this.rushTarget = null;
     this.aimCursor = { x: 0, y: 0 };
@@ -882,6 +956,8 @@ export class Simulation {
     this.stunTime = 0;
     this.deathTime = 0;
     if (this.zone === "office" && this.boss.active) {
+      this.checkpointRun = checkpointId();
+      this.checkpointSeen.clear();
       this.boss.reset(this.difficulty);
       this.resetEncounter();
       this.hp = 3;
@@ -1313,6 +1389,10 @@ export class Simulation {
         if (this.gems < 8) {
           this.notify(`还需要 ${8 - this.gems} 枚翡翠`);
           return;
+        }
+        if (this.boss.hp > 0) {
+          this.checkpointSeen.add('office:boss');
+          this.saveCheckpoint('before', ['铁甲统领']);
         }
         this.zone = "office";
         this.yaw = Math.PI;
@@ -1908,6 +1988,23 @@ export class Simulation {
     return occupied(this.colliders, x, z, this.y);
   }
   update(delta: number, input: Input) {
+    if (!this.checkpointWriter || this.phase !== 'playing') { this.step(delta, input); return; }
+    const before = this.combatTargets.filter(e => e.hp > 0);
+    const zone = this.zone;
+    for (const enemy of before) {
+      const key = enemy instanceof Boss ? 'office:boss' : `${zone}:${enemy.id}:${zone === 'office' ? this.summonWaves : 0}`;
+      const radius = enemy instanceof Boss ? 24 : ENEMY_RULES[enemy.kind].range * (this.difficulty === 'hard' ? 1.3 : 1) + 3;
+      if (!this.checkpointSeen.has(key) && Math.hypot(enemy.x-this.x, enemy.z-this.z) < radius) {
+        this.checkpointSeen.add(key);
+        this.saveCheckpoint('before', [enemy instanceof Boss ? '铁甲统领' : enemy.title ?? ENEMY_RULES[enemy.kind].name]);
+      }
+    }
+    this.step(delta, input);
+    const defeated = before.filter(e => e.hp <= 0);
+    if (defeated.length && this.hp > 0) this.saveCheckpoint('after', defeated.map(e =>
+      e instanceof Boss ? '铁甲统领' : e.title ?? ENEMY_RULES[e.kind].name));
+  }
+  private step(delta: number, input: Input) {
     const dt = Math.min(Math.max(delta, 0), 0.05);
     if (this.phase === 'obtaining') {
       this.pickupTime = Math.max(0, this.pickupTime - dt);
