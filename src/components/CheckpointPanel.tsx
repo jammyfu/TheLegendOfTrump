@@ -155,7 +155,9 @@ export function CheckpointPanel() {
               setFolder(await chooseSaveFolder());
               await refresh();
             } catch (e) {
-              setError(e instanceof Error ? e.message : "选择存档文件夹失败");
+              // Closing the native picker is a normal cancellation, not a save error.
+              if (!(e instanceof DOMException && e.name === "AbortError"))
+                setError(e instanceof Error ? e.message : "选择存档文件夹失败");
             } finally {
               setBusy(false);
             }
