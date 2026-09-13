@@ -44,7 +44,7 @@ test("debug mode asks for a local save folder and never offers browser-backed sa
   await expect(
     page.getByRole("button", { name: "选择本地存档文件夹" }),
   ).toBeVisible();
-  await expect(page.getByText(/文件保存在所选本地文件夹/)).toBeVisible();
+  await expect(page.getByText(/文件保存在本地存档文件夹/)).toBeVisible();
   await expect(page.getByText(/仅保存在当前浏览器/)).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: "加载", exact: true }),

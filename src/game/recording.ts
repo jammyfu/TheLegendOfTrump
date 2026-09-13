@@ -185,11 +185,13 @@ export class Recorder {
     this.seconds = 0;
     this.initial = null;
     this.pending = this.pending
-      .then(() => this.writer(chunk))
-      .catch(() => {
-        if (!this.status)
-          this.sim.notify("操作记录保存失败，请检查浏览器存储空间");
-        this.status = "操作记录保存失败，请检查浏览器存储空间";
+      .then(async () => {
+        await this.writer(chunk);
+        this.status = "";
+      })
+      .catch((error) => {
+        this.status = `操作记录保存失败：${error instanceof Error ? error.message : "无法写入存档文件夹"}`;
+        this.sim.notify(this.status);
       });
     return this.pending;
   }

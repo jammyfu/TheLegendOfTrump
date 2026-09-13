@@ -5,6 +5,7 @@ import {
   chooseSaveFolder,
   listCheckpoints,
   saveFolderName,
+  usesProjectSaveFolder,
   type Checkpoint,
 } from "../game/checkpoints";
 import {
@@ -35,8 +36,8 @@ export function CheckpointPanel() {
       setSaves(s);
       setChunks(r);
       setFolder(selectedFolder);
-    } catch {
-      setError("无法读取本地存档文件夹，请重新选择并授权文件夹。");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "无法读取存档文件夹");
     } finally {
       setBusy(false);
     }
@@ -131,7 +132,7 @@ export function CheckpointPanel() {
           <button onClick={close}>关闭</button>
         </header>
         <p>
-          文件保存在所选本地文件夹的 checkpoints / recordings
+          文件保存在本地存档文件夹的 checkpoints / recordings
           子目录中。浏览器只保存文件夹授权；旧记录不会覆盖。加载后暂停，按 Esc
           继续。
         </p>
@@ -146,25 +147,33 @@ export function CheckpointPanel() {
         <button disabled={busy} onClick={() => void refresh()}>
           {busy ? "读取中…" : "刷新记录"}
         </button>
-        <button
-          disabled={busy}
-          onClick={async () => {
-            setBusy(true);
-            setError("");
-            try {
-              setFolder(await chooseSaveFolder());
-              await refresh();
-            } catch (e) {
-              // Closing the native picker is a normal cancellation, not a save error.
-              if (!(e instanceof DOMException && e.name === "AbortError"))
-                setError(e instanceof Error ? e.message : "选择存档文件夹失败");
-            } finally {
-              setBusy(false);
-            }
-          }}
-        >
-          {folder ? `更改存档文件夹（${folder}）` : "选择本地存档文件夹"}
-        </button>
+        {usesProjectSaveFolder() ? (
+          <p style={{ overflowWrap: "anywhere" }}>
+            存档目录：{folder ?? "正在读取…"}
+          </p>
+        ) : (
+          <button
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              setError("");
+              try {
+                setFolder(await chooseSaveFolder());
+                await refresh();
+              } catch (e) {
+                // Closing the native picker is a normal cancellation, not a save error.
+                if (!(e instanceof DOMException && e.name === "AbortError"))
+                  setError(
+                    e instanceof Error ? e.message : "选择存档文件夹失败",
+                  );
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            {folder ? `更改存档文件夹（${folder}）` : "选择本地存档文件夹"}
+          </button>
+        )}
         <h3>存档（{saves.length}）</h3>
         {!saves.length && <p>暂无存档，接近敌人后自动生成。</p>}
         <ul>

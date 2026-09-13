@@ -178,12 +178,14 @@ export class Simulation {
     this.checkpointPending++;
     this.checkpointStatus = '正在保存进度…';
     const writer = this.checkpointWriter;
-    void Promise.resolve().then(() => writer(save)).catch(() => {
-      if (!this.checkpointError) this.notify('自动存档失败，请检查浏览器存储空间');
+    let failure = '';
+    void Promise.resolve().then(() => writer(save)).catch((error) => {
+      failure = `自动存档失败：${error instanceof Error ? error.message : '无法写入存档文件夹'}`;
+      if (!this.checkpointError) this.notify(failure);
       this.checkpointError = true;
     }).finally(() => {
       this.checkpointPending--;
-      this.checkpointStatus = this.checkpointError ? '自动存档失败，请检查浏览器存储空间' :
+      this.checkpointStatus = this.checkpointError ? failure || this.checkpointStatus :
         this.checkpointPending ? '正在保存进度…' : '进度已保存';
     });
   }
