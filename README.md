@@ -1,5 +1,9 @@
 # The Legend of Trump · 白宫奇遇记
 
+<!-- geo:badges -->
+[![React 19](https://img.shields.io/badge/React-19-61DAFB)](package.json) [![Three.js](https://img.shields.io/badge/Three.js-R3F-black)](package.json) [![Node 22.12+](https://img.shields.io/badge/node-22.12%2B-339933)](.node-version) [![Release](https://img.shields.io/github/v/release/jammyfu/TheLegendOfTrump)](https://github.com/jammyfu/TheLegendOfTrump/releases)
+
+
 [简体中文](README.md) · [繁體中文](README.zh-HK.md) · [English](README.en.md) · [日本語](README.ja.md) · [한국어](README.ko.md)
 
 基于 **React 19、Three.js、React Three Fiber、TypeScript 与 Vite** 的低多边形第三人称冒险游戏。角色、装备与场景为独立重建资产；这是非官方独立作品，不包含参考视频或原作模型。

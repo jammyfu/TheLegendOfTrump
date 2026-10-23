@@ -1,0 +1,9 @@
+# The Legend of Trump
+
+> Unofficial, independent low-poly third-person browser adventure game built with React 19, Three.js, React Three Fiber, TypeScript and Vite. Characters, gear and scenes are independently rebuilt assets; no reference videos or original models are included.
+
+- Repository: https://github.com/jammyfu/TheLegendOfTrump
+- READMEs: Simplified Chinese (default), Traditional Chinese, English, Japanese, Korean.
+
+## Run
+Node.js 22.12+ and a WebGL 2 browser: `npm ci && npm run dev`. `npm run build` outputs a static `dist/` with no backend.
