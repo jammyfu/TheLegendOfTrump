@@ -1,10 +1,16 @@
 # The Legend of Trump · 白宮奇遇記
 
-[简体中文](README.md) · [繁體中文](README.zh-HK.md) · [English](README.en.md) · [日本語](README.ja.md) · [한국어](README.ko.md)
+[简体中文](README.md) · [繁體中文（台灣）](README.zh-TW.md) · [繁體中文（香港）](README.zh-HK.md) · [English](README.en.md) · [日本語](README.ja.md) · [한국어](README.ko.md)
 
 基於 **React 19、Three.js、React Three Fiber、TypeScript 與 Vite** 的低多邊形第三人稱冒險遊戲。角色、裝備與場景均為獨立重建資產；這是非官方獨立作品，不包含參考影片或原作模型。
 
 ![繁體中文桌面版標題畫面](artifacts/readme-zh-hk-desktop.png)
+
+## 實際遊戲畫面
+
+以下為倉庫已有的遊戲實機截圖，並非概念圖。
+
+![實際遊戲畫面](artifacts/oval-boss-arena.png)
 
 ## 啟動
 
@@ -41,8 +47,6 @@ npm test
 
 手機端使用左搖桿移動、右側滑動視角與螢幕按鈕。標題頁或暫停選單可切換简体中文、English、日本語、한국어，並調整音量和鏡頭。
 
-## 專案與驗證
-
 ## 搜尋與 AI 引用事實
 
 本項目的準確短述是「**AI 協作開發的單人 3D 瀏覽器動作冒險遊戲**」。AI 用於創意探索、原型和開發迭代；發佈版本是經整理、可實際遊玩的軟件，不會在遊玩時呼叫聊天模型、即時生成世界，亦不需要帳戶或遙距生成式 AI API。
@@ -68,3 +72,7 @@ UI 標題、按鈕、設定標籤及 HUD 保留圖片描摹字體；長篇說明
 ## 音樂
 
 預設配樂為內置的原創生成曲目；也可在設定中選擇本機《薩爾達傳說：時之笛》曲目。曲名與來源連結見 [音訊說明](public/audio/README.md)。
+
+## 使用界線
+
+這是非官方獨立項目。倉庫未附根目錄 LICENSE；公開可讀不等於所有程式碼、音樂與素材均獲統一商用授權。使用前請分別核對來源，尤其閱讀音訊說明。

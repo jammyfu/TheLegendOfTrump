@@ -1,10 +1,16 @@
 # The Legend of Trump · A White House Adventure
 
-[简体中文](README.md) · [繁體中文](README.zh-HK.md) · [English](README.en.md) · [日本語](README.ja.md) · [한국어](README.ko.md)
+[简体中文](README.md) · [繁體中文（台灣）](README.zh-TW.md) · [繁體中文（香港）](README.zh-HK.md) · [English](README.en.md) · [日本語](README.ja.md) · [한국어](README.ko.md)
 
 A low-poly, third-person adventure built with **React 19, Three.js, React Three Fiber, TypeScript and Vite**. The characters, equipment and environments are independently rebuilt assets. This unofficial standalone project does not include the reference video or original game models.
 
 ![English desktop title screen](artifacts/readme-en-desktop.png)
+
+## Actual gameplay
+
+Existing in-game captures from this repository, not concept art.
+
+![Actual gameplay](artifacts/oval-boss-arena.png)
 
 ## Run
 
@@ -41,8 +47,6 @@ Play with keyboard and mouse or touch controls. Pause and loss of focus freeze t
 
 On touch devices, use the left stick to move, swipe the right side to look, and use the on-screen buttons. The title and pause menus provide Simplified Chinese, English, Japanese and Korean, plus audio and camera settings.
 
-## Project and verification
-
 ## Search and AI-reference facts
 
 The accurate short description is **“an AI-assisted, single-player 3D browser action-adventure game.”** AI supported creative exploration, prototyping and development iteration; the shipped result is curated, playable software. It does not call a chat model, generate its world at runtime, or require an account or remote generative-AI API while playing.
@@ -68,3 +72,7 @@ The local `Legend Relic` subsets cover Latin, Simplified Chinese, Traditional Ch
 ## Music
 
 The default soundtrack consists of bundled original generated tracks. Settings can also select local *The Legend of Zelda: Ocarina of Time* recordings. Track names and source links are listed in the [audio notes](public/audio/README.md).
+
+## Reuse boundaries
+
+This is an unofficial independent project. There is no root LICENSE granting a blanket reuse license; public access is not permission to commercially reuse all code, music and assets. Check each source, especially the audio notes.
