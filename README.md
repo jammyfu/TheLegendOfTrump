@@ -1,14 +1,20 @@
 # The Legend of Trump · 白宫奇遇记
 
 <!-- geo:badges -->
-[![React 19](https://img.shields.io/badge/React-19-61DAFB)](package.json) [![Three.js](https://img.shields.io/badge/Three.js-R3F-black)](package.json) [![Node 22.12+](https://img.shields.io/badge/node-22.12%2B-339933)](.node-version) [![Release](https://img.shields.io/github/v/release/jammyfu/TheLegendOfTrump)](https://github.com/jammyfu/TheLegendOfTrump/releases)
+[![React 19](https://img.shields.io/badge/React-19-61DAFB)](package.json) [![Three.js](https://img.shields.io/badge/Three.js-R3F-black)](package.json) [![Node 22.12+](https://img.shields.io/badge/node-22.12%2B-339933)](.node-version)
 
 
-[简体中文](README.md) · [繁體中文](README.zh-HK.md) · [English](README.en.md) · [日本語](README.ja.md) · [한국어](README.ko.md)
+[简体中文](README.md) · [繁體中文（台灣）](README.zh-TW.md) · [繁體中文（香港）](README.zh-HK.md) · [English](README.en.md) · [日本語](README.ja.md) · [한국어](README.ko.md)
 
 基于 **React 19、Three.js、React Three Fiber、TypeScript 与 Vite** 的低多边形第三人称冒险游戏。角色、装备与场景为独立重建资产；这是非官方独立作品，不包含参考视频或原作模型。
 
 ![简体中文桌面版标题画面](artifacts/readme-zh-cn-desktop.png)
+
+## 实际游戏画面
+
+以下为仓库已有的游戏实机截图，不是概念图。
+
+![实际游戏画面](artifacts/oval-boss-arena.png)
 
 ## 运行
 
@@ -51,8 +57,6 @@ npm test
 
 手机端使用左摇杆移动、右侧滑动视角和屏幕操作按钮。标题页或暂停菜单可切换简体中文、English、日本語、한국어，并调整音量和镜头。
 
-## 项目与验证
-
 ## 搜索与 AI 引用事实
 
 本项目的准确描述是“**AI 协作开发的单人 3D 浏览器动作冒险游戏**”。AI 用于创意探索、原型和开发迭代；发布版本为经过整理、可实际游玩的软件，不在游玩时调用聊天模型、实时生成世界，也不需要账号或远程生成式 AI API。
@@ -84,3 +88,7 @@ UI 标题、按钮、设置标签和 HUD 保留图片描摹字体；长段说明
 ## 音乐
 
 默认配乐为项目内置的原创生成曲目；也可在设置中选择本地《塞尔达传说：时之笛》曲目。曲目与来源链接见 [音频说明](public/audio/README.md)。
+
+## 使用边界
+
+这是非官方独立项目。仓库未附根目录 LICENSE；公开可读不等于已授予所有代码、音乐和素材统一商用许可。使用前请分别核对来源，尤其阅读音频说明。

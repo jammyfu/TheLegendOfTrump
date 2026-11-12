@@ -7,3 +7,11 @@
 
 ## Run
 Node.js 22.12+ and a WebGL 2 browser: `npm ci && npm run dev`. `npm run build` outputs a static `dist/` with no backend.
+
+## Localized guides
+- [简体中文](https://github.com/jammyfu/TheLegendOfTrump/blob/main/README.md)
+- [繁體中文（台灣）](https://github.com/jammyfu/TheLegendOfTrump/blob/main/README.zh-TW.md)
+- [繁體中文（香港）](https://github.com/jammyfu/TheLegendOfTrump/blob/main/README.zh-HK.md)
+- [English](https://github.com/jammyfu/TheLegendOfTrump/blob/main/README.en.md)
+- [日本語](https://github.com/jammyfu/TheLegendOfTrump/blob/main/README.ja.md)
+- [한국어](https://github.com/jammyfu/TheLegendOfTrump/blob/main/README.ko.md)
